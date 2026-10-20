@@ -1,10 +1,13 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import TextArea from 'react-textarea-autosize';
 import { motion } from 'framer-motion';
 import { useWindow } from '@lib/context/window-context';
 import { MaterialIcon } from '@components/ui/material-icon';
 import { ComposerText } from '@components/common/composer-text';
 import { Button } from '@components/ui/button';
+import { MentionSuggestions } from '@components/input/mention-suggestions';
+import { useMentionSuggestions } from '@lib/hooks/useMentionSuggestions';
+import { applyMention, findMention, mentionEnd } from '@lib/mentions';
 import type {
   ReactNode,
   RefObject,
@@ -13,6 +16,7 @@ import type {
   ClipboardEvent
 } from 'react';
 import type { Variants } from 'framer-motion';
+import type { MentionSuggestion } from '@lib/hooks/useMentionSuggestions';
 
 type InputFormProps = {
   modal?: boolean;
@@ -84,6 +88,62 @@ export function InputForm({
 }: InputFormProps): JSX.Element {
   const { isMobile } = useWindow();
   const formRef = useRef<HTMLDivElement>(null);
+
+  /* --- Les mentions ---------------------------------------------------- */
+  /* Quand on tape « @ », la liste des personnes à mentionner s'ouvre ; on
+     choisit au clavier ou à la souris. */
+  const [mentionQuery, setMentionQuery] = useState<string | null>(null);
+  const [mentionStart, setMentionStart] = useState(0);
+  const [mentionEndPos, setMentionEndPos] = useState(0);
+  const [mentionIndex, setMentionIndex] = useState(0);
+
+  const suggestions = useMentionSuggestions(mentionQuery ?? '');
+
+  /* La position du curseur est suivie à la frappe comme au clic : c'est elle
+     qui dit si une mention est en cours de saisie. */
+  const updateMention = (value: string, caret: number): void => {
+    const found = findMention(value, caret);
+
+    if (!found) {
+      setMentionQuery(null);
+      return;
+    }
+
+    setMentionQuery(found.query);
+    setMentionStart(found.start);
+    setMentionEndPos(mentionEnd(value, found.start));
+    setMentionIndex(0);
+  };
+
+  const selectMention = (suggestion: MentionSuggestion): void => {
+    const applied = applyMention(
+      inputValue,
+      mentionStart,
+      mentionEndPos,
+      suggestion.username
+    );
+
+    setMentionQuery(null);
+
+    /* Le texte est contrôlé par le parent : on lui passe la modification,
+       puis on replace le curseur juste après la mention. */
+    handleChange({
+      target: { value: applied.text }
+    } as ChangeEvent<HTMLTextAreaElement>);
+
+    requestAnimationFrame(() => {
+      const area = inputRef.current;
+
+      if (!area) return;
+
+      area.focus();
+      area.setSelectionRange(applied.caret, applied.caret);
+    });
+  };
+
+  /* Un clic ou une frappe ailleurs ferme la liste. */
+  const mentionVisible = mentionQuery !== null && suggestions.length > 0;
+
   /* Clics dehors successifs (téléphone) : il en faut deux pour refermer la
      feuille de publication. */
   const outsideClicksRef = useRef(0);
@@ -167,6 +227,38 @@ export function InputForm({
     event: KeyboardEvent<HTMLTextAreaElement>
   ): void => {
     const { key, ctrlKey, metaKey, shiftKey } = event;
+
+    /* La liste des mentions est ouverte : les flèches et Entrée servent
+       d'abord à choisir une personne. */
+    if (mentionVisible) {
+      if (key === 'ArrowDown') {
+        event.preventDefault();
+        setMentionIndex((index) =>
+          index + 1 < suggestions.length ? index + 1 : 0
+        );
+        return;
+      }
+
+      if (key === 'ArrowUp') {
+        event.preventDefault();
+        setMentionIndex((index) =>
+          index > 0 ? index - 1 : suggestions.length - 1
+        );
+        return;
+      }
+
+      if (key === 'Enter' || key === 'Tab') {
+        event.preventDefault();
+        selectMention(suggestions[mentionIndex]);
+        return;
+      }
+
+      if (key === 'Escape') {
+        event.preventDefault();
+        setMentionQuery(null);
+        return;
+      }
+    }
 
     if (!modal && key === 'Escape') {
       if (isValidTweet) {
@@ -259,7 +351,7 @@ export function InputForm({
                   placeholder={
                     reply || replyModal
                       ? 'Publiez votre réponse'
-                      : 'Que se passe-t-il ?'
+                      : 'Que se passe-t-il ?'
                   }
                   onBlur={handleShowHideNav(true)}
                   /* Sur téléphone, la zone de saisie démarre un peu plus
@@ -271,7 +363,19 @@ export function InputForm({
                   onFocus={handleFormFocus}
                   onPaste={handleImageUpload}
                   onKeyDown={handleKeyboardShortcut}
-                  onChange={handleChange}
+                  onChange={(event): void => {
+                    handleChange(event);
+                    updateMention(
+                      event.target.value,
+                      event.target.selectionStart ?? event.target.value.length
+                    );
+                  }}
+                  onClick={(event): void =>
+                    updateMention(
+                      inputValue,
+                      event.currentTarget.selectionStart ?? inputValue.length
+                    )
+                  }
                   ref={inputRef}
                 />
                 {/* Calque derrière le champ, avec exactement les mêmes styles
@@ -281,7 +385,7 @@ export function InputForm({
                     <span className='block text-xl leading-tight text-light-secondary dark:text-dark-secondary'>
                       {reply || replyModal
                         ? 'Publiez votre réponse'
-                        : 'Que se passe-t-il ?'}
+                        : 'Que se passe-t-il ?'}
                     </span>
                   ) : (
                     <ComposerText
@@ -290,6 +394,14 @@ export function InputForm({
                     />
                   )}
                 </span>
+
+                {mentionVisible && (
+                  <MentionSuggestions
+                    activeIndex={mentionIndex}
+                    onSelect={selectMention}
+                    suggestions={suggestions}
+                  />
+                )}
               </div>
               {reply && !visited && (
                 <Button

@@ -138,7 +138,7 @@
        calent dessous (la messagerie, les notifications) lisent cette
        variable : la hauteur de la barre peut changer sans qu'un seul pixel
        de code soit à recalculer ailleurs. */
-    --header-height: 76px;
+    --header-height: 64px;
     /* Pas de `scroll-behavior: smooth` global : tout saut de page (retour en
        haut,.focus d'un champ, changement de hauteur) devenait une
        animation, et la page semblait descendre toute seule. Les défilés

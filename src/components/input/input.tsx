@@ -16,6 +16,8 @@ import { useAuth } from '@lib/context/auth-context';
 import { useWindow } from '@lib/context/window-context';
 import { sleep } from '@lib/utils';
 import { fillImagesSizes, getImagesData } from '@lib/validation';
+import { askAiToReply } from '@lib/ai-tweet';
+import { mentionsAi } from '@lib/mentions';
 import { UserAvatar } from '@components/user/user-avatar';
 import { MaterialIcon } from '@components/ui/material-icon';
 import { InputForm, fromTop } from './input-form';
@@ -249,6 +251,20 @@ export function Input({
     ]);
 
     const { id: tweetId } = await getDoc(tweetRef);
+
+    /* La publication mentionne l'assistant : il y répond. La réponse arrive
+       dans la discussion, comme une réponse de plus. */
+    if (mentionsAi(inputValue)) {
+      void askAiToReply(
+        tweetId,
+        parent?.username ?? null,
+        inputValue.trim() || null,
+        tweetData.images as ImagesPreview | null
+      ).then((result) => {
+        if (!result.ok)
+          toast.error(result.error ?? 'L’assistant n’a pas répondu.');
+      });
+    }
 
     if (!modal && !replyModal) {
       discardTweet();

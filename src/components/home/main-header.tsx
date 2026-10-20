@@ -54,7 +54,9 @@ export function MainHeader({
       )}
       {beforeTitle}
       {title && (
-        <h2 className='text-[1.75rem] leading-tight' key={title}>
+        /* Titre de page : petit et net. Il indique la page courante, il
+           n'a pas besoin de pontifier le contenu. */
+        <h2 className='text-[1.25rem] leading-tight' key={title}>
           {title}
         </h2>
       )}

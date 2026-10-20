@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { useMemo } from 'react';
 import cn from 'clsx';
 import { splitLinks } from '@lib/link-preview';
+import { splitMentions } from '@lib/mentions';
 
 type LinkifiedTextProps = {
   text: string;
@@ -11,7 +12,7 @@ type LinkifiedTextProps = {
 };
 
 /**
- * Texte dans lequel les liens deviennent cliquables et colorés.
+ * Texte dans lequel les liens et les mentions deviennent cliquables.
  *
  * Sur une bulle de couleur (message envoyé), le bleu de l'accent se confondrait
  * avec le fond : le lien passe alors en blanc souligné, comme dans WhatsApp.
@@ -46,7 +47,32 @@ export function LinkifiedText({
             </a>
           </Link>
         ) : (
-          <span key={`text-${index}`}>{part.value}</span>
+          <span key={`text-${index}`}>
+            {splitMentions(part.value).map((mention, mentionIndex) =>
+              mention.type === 'mention' ? (
+                /* Une mention mène au profil de la personne. */
+                <Link
+                  href={`/user/${mention.username}`}
+                  key={`mention-${mentionIndex}`}
+                >
+                  <a
+                    className={cn(
+                      'font-medium underline underline-offset-2',
+                      mine
+                        ? 'text-white decoration-white/60 hover:decoration-white'
+                        : 'text-main-accent decoration-main-accent/40 hover:decoration-main-accent'
+                    )}
+                  >
+                    {mention.value}
+                  </a>
+                </Link>
+              ) : (
+                <span key={`mention-text-${mentionIndex}`}>
+                  {mention.value}
+                </span>
+              )
+            )}
+          </span>
         )
       )}
     </span>
