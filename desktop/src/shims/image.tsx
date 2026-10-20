@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import type { CSSProperties, ImgHTMLAttributes } from 'react';
 
 /**
@@ -54,6 +55,15 @@ export default function Image({
   const source = typeof src === 'string' ? src : src.src;
   const isFill = Boolean(fill) || layout === 'fill';
 
+  const imageRef = useRef<HTMLImageElement>(null);
+
+  /* Une image déjà en cache peut avoir fini de charger AVANT que le
+     gestionnaire ne soit accroché : l'événement « load » est alors passé,
+     et l'image resterait masquée pour toujours. On rattrape ce cas. */
+  useEffect(() => {
+    if (imageRef.current?.complete) onLoadingComplete?.();
+  }, [source, onLoadingComplete]);
+
   return (
     <img
       alt={alt}
@@ -71,6 +81,7 @@ export default function Image({
            invisibles. */
         onLoadingComplete?.();
       }}
+      ref={imageRef}
       sizes={sizes}
       src={source}
       style={

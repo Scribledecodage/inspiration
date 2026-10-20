@@ -55,12 +55,27 @@ export function ImageModal({
 
     const media = isVideo ? document.createElement('video') : new Image();
 
-    media.src = src;
-
     const handleLoadingCompleted = (): void => setLoading(false);
 
-    if (isVideo) media.onloadeddata = handleLoadingCompleted;
-    else media.onload = handleLoadingCompleted;
+    /* Le gestionnaire doit être posé AVANT l'adresse : si l'image est déjà
+       en cache — c'est le cas dans l'application de bureau, qui vient de
+       l'afficher — l'événement « load » est déclenché immédiatement, et le
+       chargement restait bloqué sur la roue qui tourne. */
+    if (isVideo) {
+      media.onloadeddata = handleLoadingCompleted;
+      media.onerror = handleLoadingCompleted;
+    } else {
+      media.onload = handleLoadingCompleted;
+      media.onerror = handleLoadingCompleted;
+    }
+
+    media.src = src;
+
+    /* L'image peut déjà être prête : « complete » le dit. */
+    if (!isVideo && (media as HTMLImageElement).complete)
+      handleLoadingCompleted();
+    else if (isVideo && (media as HTMLVideoElement).readyState >= 2)
+      handleLoadingCompleted();
   }, [...(tweet && previewCount > 1 ? [src] : [])]);
 
   useEffect(() => {
