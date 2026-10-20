@@ -4,9 +4,14 @@
  * À changer en même temps que le déploiement et que le dépôt GitHub.
  */
 
-/** Site déployé : l'application appelle ses API (images, GIF, tendances). */
-export const SITE_URL =
-  'https://inspiration-reseau-social-1ymdc0foy-clipdescripts-projects.vercel.app';
+/**
+ * Site déployé : l'application appelle ses API (images, GIF, tendances).
+ *
+ * On utilise l'alias de production (« <projet>.vercel.app ») et non
+ * l'adresse d'un déploiement : l'alias pointe toujours vers la dernière
+ * version publiée, alors qu'une adresse de déploiement reste figée.
+ */
+export const SITE_URL = 'https://inspiration-reseau-social.vercel.app';
 
 /** Dépôt GitHub qui héberge les versions publiées. */
 export const REPO = 'Scribledecodage/inspiration';
