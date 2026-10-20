@@ -205,7 +205,7 @@ export function MobileSidebar({
                         px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] xs:p-6'
         >
           <div className='flex items-center justify-between gap-3'>
-            <h2 className='text-lg font-bold text-light-primary dark:text-dark-primary'>
+            <h2 className='text-[1.25rem] leading-tight text-light-primary dark:text-dark-primary'>
               Statuts de vos abonnements
             </h2>
             <Button
