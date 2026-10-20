@@ -30,6 +30,13 @@ import {
   markConversationAsRead
 } from '@lib/firebase/chat';
 import { formatChatTime } from '@lib/date';
+import { withAiDefaults } from '@lib/ai';
+import {
+  AI_BOT_DESCRIPTION,
+  AI_BOT_NAME,
+  AI_CONVERSATION_ID,
+  ensureAiConversation
+} from '@lib/ai-bot';
 import { MainLayout } from '@components/layout/main-layout';
 import { ProtectedLayout } from '@components/layout/common-layout';
 import { MainContainer } from '@components/home/main-container';
@@ -40,6 +47,7 @@ import { Modal } from '@components/modal/modal';
 import { Loading } from '@components/ui/loading';
 import { Conversation } from '@components/messages/conversation';
 import { GroupAvatar } from '@components/messages/group-avatar';
+import { AiAvatar } from '@components/messages/ai-avatar';
 import { getAvatarShapeClass } from '@lib/avatar-shape';
 import { UserAvatar } from '@components/user/user-avatar';
 import { UserName } from '@components/user/user-name';
@@ -149,6 +157,8 @@ export default function MessagesPage(): JSX.Element {
   const [selectedGroup, setSelectedGroup] = useState<ConversationData | null>(
     null
   );
+  /* Conversation avec l'assistant d'intelligence artificielle. */
+  const [selectedAi, setSelectedAi] = useState(false);
   const [contactToDelete, setContactToDelete] = useState<User | null>(null);
   const [multiDeleteOpen, setMultiDeleteOpen] = useState(false);
   const [deletingContact, setDeletingContact] = useState(false);
@@ -248,6 +258,31 @@ export default function MessagesPage(): JSX.Element {
 
     return map;
   }, [conversations]);
+
+  /* Conversation avec l'assistant : elle est rangée dans votre boîte, comme
+     les autres. Tant qu'elle n'a pas été ouverte, on en fabrique une
+     provisoire pour que la ligne soit toujours présente. */
+  const aiConversation = useMemo<ConversationData>(() => {
+    const existing = (conversations ?? []).find((item) => item.type === 'ai');
+
+    if (existing) return existing;
+
+    return {
+      id: AI_CONVERSATION_ID,
+      participants: user?.id ? [user.id] : [],
+      updatedAt: 0,
+      lastMessage: null,
+      type: 'ai',
+      name: AI_BOT_NAME,
+      photoURL: null,
+      description: AI_BOT_DESCRIPTION,
+      createdBy: user?.id ?? ''
+    };
+  }, [conversations, user?.id]);
+
+  /* L'assistant n'est proposé que si la personne l'a laissé actif. */
+  const aiSettings = withAiDefaults(user?.aiSettings);
+  const aiAvailable = aiSettings.enabled && aiSettings.assistantEnabled;
 
   const groupMemberIds = useMemo(
     () =>
@@ -592,7 +627,25 @@ export default function MessagesPage(): JSX.Element {
     !contactsLoading &&
     (contactIds.length === 0 || !contactUsersLoading) &&
     inboxUsers.length === 0 &&
-    groupConversations.length === 0;
+    groupConversations.length === 0 &&
+    !aiAvailable;
+
+  /* Ouvre la conversation avec l'assistant : la ligne existe déjà dans la
+     boîte, mais le document de conversation doit être créé au premier
+     message. */
+  const openAiConversation = async (): Promise<void> => {
+    if (!user) return;
+
+    setSelectedUser(null);
+    setSelectedGroup(null);
+    setSelectedAi(true);
+
+    try {
+      await ensureAiConversation(user.id);
+    } catch {
+      /* La conversation sera de toute façon créée à l'envoi du message. */
+    }
+  };
 
   const inboxList = (
     <div
@@ -626,6 +679,35 @@ export default function MessagesPage(): JSX.Element {
         </div>
       ) : (
         <div className='flex flex-col gap-1 px-2 pb-2 pt-2'>
+          {aiAvailable && (
+            <button
+              className={cn(
+                'min-h-16 flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left transition-colors',
+                selectedAi
+                  ? 'bg-main-search-background'
+                  : 'hover:bg-light-primary/5 dark:hover:bg-dark-primary/5'
+              )}
+              onClick={() => void openAiConversation()}
+              type='button'
+            >
+              <AiAvatar className='!self-center' size={44} />
+              <span className='min-w-0 flex-1'>
+                <span className='flex items-baseline justify-between gap-2'>
+                  <span className='truncate font-bold text-light-primary dark:text-dark-primary'>
+                    {AI_BOT_NAME}
+                  </span>
+                  {aiConversation.lastMessage && (
+                    <span className='shrink-0 text-[11px] text-light-secondary dark:text-dark-secondary'>
+                      {formatChatTime(aiConversation.lastMessage.createdAt)}
+                    </span>
+                  )}
+                </span>
+                <span className='block truncate text-sm text-light-secondary dark:text-dark-secondary'>
+                  {aiConversation.lastMessage?.text ?? AI_BOT_DESCRIPTION}
+                </span>
+              </span>
+            </button>
+          )}
           {groupConversations.map((group) => {
             const members = getGroupMembers(group);
             const lastMessage = group.lastMessage;
@@ -970,18 +1052,25 @@ export default function MessagesPage(): JSX.Element {
           title='Glisser pour redimensionner'
         />
 
-        {(selectedUser || selectedGroup) && user ? (
+        {(selectedUser || selectedGroup || selectedAi) && user ? (
           <Conversation
             contact={selectedUser ?? undefined}
-            group={selectedUser ? undefined : selectedGroup ?? undefined}
+            group={
+              selectedUser
+                ? undefined
+                : selectedAi
+                ? aiConversation
+                : selectedGroup ?? undefined
+            }
             members={
-              !selectedUser && selectedGroup
+              !selectedUser && selectedGroup && !selectedAi
                 ? getGroupMembers(selectedGroup)
                 : undefined
             }
             onBack={() => {
               setSelectedUser(null);
               setSelectedGroup(null);
+              setSelectedAi(false);
             }}
             user={user}
           />

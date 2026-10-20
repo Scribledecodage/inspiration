@@ -49,10 +49,9 @@ const categories: readonly SettingsCategory[] = [
   {
     key: 'ai',
     label: 'Intelligence artificielle',
-    iconName: 'check_circle',
+    iconName: 'auto_awesome_mosaic',
     href: '/settings/ai',
-    matches: ['/settings/ai'],
-    soon: true
+    matches: ['/settings/ai']
   },
   {
     key: 'security',

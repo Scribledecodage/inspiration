@@ -34,7 +34,35 @@ export default defineConfig({
       { find: '@lib', replacement: resolve(site, 'src/lib') },
       { find: '@styles', replacement: resolve(site, 'src/styles') }
     ],
-    dedupe: ['react', 'react-dom']
+    dedupe: [
+      // Le code du site est compilé ici : sans cela, ses imports
+      // (« firebase/firestore »…) seraient résolus depuis ses propres
+      // node_modules, et l'application aurait deux copies du SDK Firebase
+      // (les instanceof échouent, l'écran reste blanc).
+      'react',
+      'react-dom',
+      'firebase',
+      'firebase/app',
+      'firebase/auth',
+      'firebase/firestore',
+      'firebase/storage',
+      'firebase/functions',
+      'framer-motion',
+      '@headlessui/react',
+      'react-hot-toast',
+      'clsx',
+      'swr',
+      'react-markdown',
+      'react-textarea-autosize',
+      'react-phone-number-input',
+      'rehype-highlight',
+      'rehype-katex',
+      'remark-gfm',
+      'remark-math',
+      'katex',
+      '@supabase/supabase-js',
+      '@material-symbols/svg-400'
+    ]
   },
 
   define: {
@@ -68,17 +96,16 @@ export default defineConfig({
     preprocessorOptions: {
       scss: {}
     },
+    /* La configuration PostCSS est fournie ici, et non dans un fichier :
+       Vite donnerait sinon la priorité à celle du site parent (dont les
+       chemins sont relatifs à son dossier, et ne trouveraient rien).
+
+       La configuration Tailwind de l'application de bureau reprend celle du
+       site et désigne les fichiers à analyser (chemins absolus : Tailwind
+       les résout depuis le dossier courant, qui n'est pas celui du site). */
     postcss: {
       plugins: [
-        tailwindcss({
-          config: resolve(site, 'tailwind.config.js'),
-          content: [
-            resolve(site, 'src/pages/**/*.tsx'),
-            resolve(site, 'src/components/**/*.tsx'),
-            resolve(site, 'src/lib/**/*.ts'),
-            resolve(here, 'src/**/*.tsx')
-          ]
-        }),
+        tailwindcss({ config: resolve(here, 'tailwind.config.cjs') }),
         autoprefixer()
       ]
     }

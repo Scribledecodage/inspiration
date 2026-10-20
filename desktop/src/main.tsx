@@ -1,4 +1,5 @@
 import { createRoot } from 'react-dom/client';
+import './fonts/fonts.css';
 import '@styles/globals.scss';
 import 'katex/dist/katex.min.css';
 import 'react-phone-number-input/style.css';

@@ -20,6 +20,8 @@ export type ChatMessage = {
   linkPreview?: LinkPreviewData | null;
   createdBy: string;
   createdAt: number;
+  /** Message rédigé par l'assistant d'intelligence artificielle. */
+  fromAI?: boolean;
 };
 
 export const chatMessageConverter: FirestoreDataConverter<ChatMessage> = {
@@ -43,7 +45,7 @@ export type Conversation = {
     createdAt: number;
   } | null;
   /* Renseigné uniquement pour les conversations de groupe. */
-  type?: 'direct' | 'group' | 'channel';
+  type?: 'direct' | 'group' | 'channel' | 'ai';
   name?: string | null;
   photoURL?: string | null;
   description?: string | null;

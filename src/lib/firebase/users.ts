@@ -1,5 +1,6 @@
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, serverTimestamp, updateDoc } from 'firebase/firestore';
 import { usersCollection } from './collections';
+import type { AiSettings } from '@lib/types/ai';
 import type { User } from '@lib/types/user';
 
 /* Durée de validité d'un profil en cache (en ms). */
@@ -55,4 +56,30 @@ export function getCachedUser(id: string): User | undefined {
 /** Vide le cache (déconnexion, changement de compte). */
 export function clearUsersCache(): void {
   usersCache.clear();
+}
+
+/**
+ * Enregistre les réglages d'intelligence artificielle de la personne.
+ *
+ * Ils sont rangés dans son propre profil : ils ne sont donc visibles que par
+ * elle, et elle peut les modifier ou les effacer à tout moment.
+ */
+export async function saveAiSettings(
+  userId: string,
+  settings: AiSettings
+): Promise<void> {
+  await updateDoc(doc(usersCollection, userId), {
+    aiSettings: settings,
+    updatedAt: serverTimestamp()
+  });
+
+  /* Le profil est peut-être en cache : on le remplace pour que la nouvelle
+     version soit prise en compte immédiatement. */
+  const cached = usersCache.get(userId);
+
+  if (cached)
+    usersCache.set(userId, {
+      user: { ...cached.user, aiSettings: settings },
+      at: cached.at
+    });
 }

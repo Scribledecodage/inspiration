@@ -44,6 +44,24 @@ export default function SettingsHelpPage(): JSX.Element {
       </SettingsSection>
 
       <SettingsSection
+        description='Les outils d’assistance et la manière de les piloter.'
+        title='Intelligence artificielle'
+      >
+        <SettingsRow
+          description='L’assistant de la messagerie, la traduction et les résumés'
+          href='/settings/ai'
+          iconName='auto_awesome_mosaic'
+          label='Réglages de l’intelligence artificielle'
+        />
+        <SettingsRow
+          description='Ouvrir la conversation dédiée à l’assistant'
+          href='/messages'
+          iconName='chat_bubble'
+          label='Discuter avec l’assistant'
+        />
+      </SettingsSection>
+
+      <SettingsSection
         description='Une question ou un problème sur votre compte ?'
         title='Nous contacter'
       >

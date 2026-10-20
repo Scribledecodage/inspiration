@@ -1,84 +1,104 @@
+import { useState } from 'react';
+import { toast } from 'react-hot-toast';
+import Link from 'next/link';
+import { useAuth } from '@lib/context/auth-context';
+import { saveAiSettings } from '@lib/firebase/users';
+import { withAiDefaults } from '@lib/ai';
 import { ContactLink } from '@components/common/contact-link';
+import { AiSettingsCard } from '@components/settings/ai-settings-card';
 import {
   SettingsCard,
   SettingsShell,
   settingsPageLayout
 } from '@components/settings/settings-shell';
+import type { AiSettings } from '@lib/types/ai';
 
 export default function SettingsAiPage(): JSX.Element {
+  const { user } = useAuth();
+
+  const [settings, setSettings] = useState<AiSettings>(() =>
+    withAiDefaults(user?.aiSettings)
+  );
+  const [saving, setSaving] = useState(false);
+
+  const handleSave = async (): Promise<void> => {
+    if (!user) return;
+
+    setSaving(true);
+
+    try {
+      await saveAiSettings(user.id, settings);
+      toast.success('Réglages enregistrés.');
+    } catch {
+      toast.error('Impossible d’enregistrer les réglages.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <SettingsShell
-      description='Le cadre prévu pour les fonctionnalités d’intelligence artificielle, les données concernées et vos droits.'
+      description='Assistant dans la messagerie, traduction des messages, résumés et reformulations.'
       seoTitle='Intelligence artificielle / Réglages / Inspiration'
       title='Intelligence artificielle'
     >
       <SettingsCard
-        description='Ces fonctionnalités ne sont pas encore disponibles. Cette page présente les règles qui s’appliqueront.'
-        title='Fonctionnalités d’intelligence artificielle'
+        description='Ce que l’assistant peut faire, et ce que vous gardez sous votre contrôle.'
+        iconName='auto_awesome_mosaic'
+        title='Fonctions d’assistance'
       >
-        <article className='flex flex-col gap-3 rounded-lg border border-light-border bg-main-search-background/30 p-4 text-sm font-normal leading-6 text-light-secondary dark:border-dark-border dark:bg-dark-primary/[0.04] dark:text-dark-secondary'>
+        <AiSettingsCard
+          onChange={setSettings}
+          onSave={handleSave}
+          saving={saving}
+          settings={settings}
+        />
+      </SettingsCard>
+
+      <SettingsCard
+        description='L’assistant est à portée de main dans votre messagerie.'
+        iconName='chat_bubble'
+        title='Discuter avec l’assistant'
+      >
+        <div className='flex flex-col gap-3'>
+          <p className='text-sm leading-6 text-light-secondary dark:text-dark-secondary'>
+            Une conversation dédiée à l’assistant est disponible dans votre
+            messagerie, en haut de la liste. Vous y posez vos questions, vous
+            lui demandez de reformuler un texte ou d’en faire un résumé, et il
+            répond dans la langue que vous avez choisie.
+          </p>
+          <Link href='/messages'>
+            <a className='w-fit rounded-full bg-main-accent px-4 py-2 text-sm font-bold text-white transition hover:brightness-90'>
+              Ouvrir la messagerie
+            </a>
+          </Link>
+        </div>
+      </SettingsCard>
+
+      <SettingsCard
+        description='Ce qui est envoyé à un modèle, et ce que vous pouvez refuser.'
+        iconName='lock'
+        title='Vos données'
+      >
+        <article className='flex flex-col gap-3 text-sm font-normal leading-6 text-light-secondary dark:text-dark-secondary'>
           <p>
-            À la date du 19 octobre 2026, Inspiration ne propose aucune
-            fonctionnalité d’intelligence artificielle active. Les éléments
-            décrits ci-dessous définissent le cadre prévu pour les outils
-            d’assistance qui pourront être ajoutés ultérieurement, ainsi que les
-            garanties applicables à vos données.
+            Seuls les contenus que vous choisissez de soumettre sont traités :
+            un message que vous demandez à traduire, un texte à reformuler, ou
+            votre conversation avec l’assistant. Rien n’est envoyé en arrière
+            plan, et aucune publication n’est publiée, modifiée ou supprimée
+            sans une action explicite de votre part.
           </p>
           <p>
-            Les fonctionnalités envisagées ont pour objet d’aider à la
-            rédaction, à la reformulation, à la traduction, au résumé de
-            contenus publics et à l’amélioration de la recherche. Elles
-            produiront uniquement des suggestions : aucune publication ne sera
-            envoyée, modifiée ou supprimée sans une action explicite de votre
-            part. Aucune décision automatisée produisant des effets juridiques à
-            votre encontre ne sera prise sur cette base.
+            Le traitement est réalisé par le fournisseur d’intelligence
+            artificielle que vous avez choisi. Vos contenus privés ne servent
+            pas à entraîner des modèles et ne sont ni vendus ni cédés à des
+            fins publicitaires. Vous pouvez à tout moment couper l’ensemble
+            des fonctions, changer de fournisseur ou supprimer votre clé.
           </p>
           <p>
-            Seuls les contenus que vous choisissez de soumettre seront traités.
-            Les messages privés ne seront utilisés que si vous demandez
-            expressément une assistance sur une conversation. Vos contenus
-            privés ne serviront pas à entraîner des modèles d’intelligence
-            artificielle et ne seront ni vendus ni cédés à des fins
-            publicitaires.
-          </p>
-          <p>
-            Le traitement pourra être réalisé par des prestataires techniques
-            agissant pour notre compte, dans le cadre de contrats de
-            confidentialité et de protection des données. Ces prestataires
-            n’auront pas le droit de réutiliser vos contenus pour leurs propres
-            modèles ni de les conserver au-delà de la durée nécessaire au
-            service demandé.
-          </p>
-          <p>
-            Les contenus générés seront conservés le temps nécessaire à leur
-            affichage et à leur suppression par vos soins. Les journaux
-            techniques seront limités à ce qui est utile au fonctionnement, à la
-            sécurité et à la correction des erreurs. Vous pourrez demander
-            l’accès, la rectification ou l’effacement des données associées dans
-            les conditions prévues par notre politique de confidentialité.
-          </p>
-          <p>
-            Un système d’intelligence artificielle peut produire des
-            informations inexactes, incomplètes ou biaisées. Les résultats
-            devront toujours être vérifiés avant utilisation et ne constitueront
-            pas un conseil médical, juridique ou financier. Les décisions de
-            modération assistées par un outil automatique feront l’objet d’un
-            réexamen humain lorsqu’elles auront un impact significatif sur un
-            compte.
-          </p>
-          <p>
-            Vous pourrez vous opposer à l’utilisation de vos contenus pour une
-            fonctionnalité donnée, retirer votre consentement lorsqu’il
-            constitue la base du traitement et exercer vos droits d’accès, de
-            rectification, d’effacement et de limitation. Pour toute question ou
-            réclamation, utilisez le contact ci-dessous : <ContactLink />.
-          </p>
-          <p>
-            Cette page sera mise à jour avant la mise en service de toute
-            fonctionnalité d’intelligence artificielle afin de préciser les
-            outils concernés, les données réellement utilisées, les prestataires
-            et les modalités d’exercice de vos droits. La version en vigueur est
-            datée du 19 octobre 2026.
+            Un système d’intelligence artificielle peut se tromper : vérifiez
+            toujours ses réponses avant de les utiliser. Pour toute question,
+            utilisez le contact ci-dessous : <ContactLink />
           </p>
         </article>
       </SettingsCard>

@@ -35,12 +35,7 @@ export function ChannelHeader({
       >
         <MaterialIcon className='h-5 w-5' iconName='arrow_back' />
       </button>
-      <ChannelAvatar
-        name={name}
-        photoURL={photoURL}
-        shape={shape}
-        size={40}
-      />
+      <ChannelAvatar name={name} photoURL={photoURL} shape={shape} size={40} />
       <div className='min-w-0'>
         <p className='truncate text-[15px] font-bold text-light-primary dark:text-dark-primary'>
           {name}

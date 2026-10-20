@@ -45,6 +45,10 @@ import type { LinkPreviewData } from '@lib/link-preview';
 import { MessagePoll } from './message-poll';
 import { GroupAvatar } from './group-avatar';
 import { ChannelAvatar } from '@components/channel/channel-avatar';
+import { AiAvatar } from './ai-avatar';
+import { AiMessageTools } from './ai-message-tools';
+import { aiBotUser, appendAiMessage, ensureAiConversation, AI_BOT_NAME } from '@lib/ai-bot';
+import { chatWithAi, rewriteWithAi, translateWithAi, withAiDefaults } from '@lib/ai';
 import type { ChangeEvent, ClipboardEvent, KeyboardEvent } from 'react';
 import type {
   ChatMessage,
@@ -73,9 +77,25 @@ const ATTACH_OPTIONS: readonly {
   { name: 'Location', iconName: 'location_on' }
 ];
 
+/* Les entrées d'assistance n'apparaissent que si la personne a laissé
+   l'intelligence artificielle active. */
+const AI_ATTACH_OPTIONS: readonly {
+  name: string;
+  iconName: IconName;
+}[] = [
+  { name: 'Traduire', iconName: 'translate' },
+  { name: 'Réécrire', iconName: 'auto_awesome_mosaic' }
+];
+
+/* Questions proposées à l'ouverture d'une conversation avec l'assistant. */
+const AI_SUGGESTIONS: readonly string[] = [
+  'Aide-moi à écrire une publication',
+  'Résume ce texte en trois points',
+  'Traduis ce message en anglais'
+];
+
 /* Le menu se déplie au-dessus de la barre de saisie : la hauteur s'anime pour
-   « soulever » la barre, comme dans Google Messages. */
-const attachMenuAnimation = {
+   « soulever » la barre, comme dans Google Messages. */const attachMenuAnimation = {
   initial: { height: 0, opacity: 0 },
   animate: {
     height: 'auto',
@@ -303,10 +323,23 @@ export function Conversation({
     !group || group.type !== 'channel' || group.createdBy === user.id;
   const directId = contact?.id ?? '';
 
+  /* Conversation avec l'assistant : elle est rangée dans la boîte de la
+     personne qui l'utilise, donc les messages sont toujours chez elle. */
+  const isAi = group?.type === 'ai';
+
   const chatId = group ? group.id : getChatId(user.id, directId);
   const chatOwnerId = group
-    ? getConversationOwnerId(group.participants)
+    ? isAi
+      ? user.id
+      : getConversationOwnerId(group.participants)
     : getChatOwnerId(user.id, directId);
+
+  /* Réglages d'intelligence artificielle de la personne. */
+  const aiSettings = useMemo(
+    () => withAiDefaults(user.aiSettings),
+    [user.aiSettings]
+  );
+  const aiEnabled = aiSettings.enabled;
 
   const membersById = useMemo(
     () => new Map(members.map((member) => [member.id, member])),
@@ -394,6 +427,14 @@ export function Conversation({
 
     void markConversationAsRead(user.id, chatId);
   }, [messages?.length, user.id, chatId]);
+
+  /* La conversation avec l'assistant est créée à la première ouverture : elle
+     n'existe pas tant que la personne ne l'a jamais utilisée. */
+  useEffect(() => {
+    if (!isAi) return;
+
+    void ensureAiConversation(user.id).catch(() => undefined);
+  }, [isAi, user.id]);
 
   /* Les messages en cours d'envoi s'ajoutent à la suite de la conversation :
      ils occupent donc le bas de la liste pendant l'envoi. */
@@ -788,6 +829,73 @@ export function Conversation({
     removeAttachedImage();
   };
 
+  /* Demande une réponse à l'assistant et l'écrit dans la conversation. */
+  const askAssistant = async (question: string): Promise<void> => {
+    const history = [...(messages ?? [])]
+      .filter((message) => message.text?.trim())
+      .slice(-12)
+      .map(
+        (message): { role: 'user' | 'assistant'; content: string } => ({
+          role: message.fromAI ? 'assistant' : 'user',
+          content: (message.text as string).trim()
+        })
+      );
+
+    try {
+      const reply = await chatWithAi(
+        [...history, { role: 'user', content: question }],
+        aiSettings
+      );
+
+      await appendAiMessage(user.id, reply);
+
+      isAtBottomRef.current = true;
+    } catch (error) {
+      toast.error(
+        (error as Error)?.message ??
+          'L’assistant n’a pas pu répondre. Vérifiez vos réglages.'
+      );
+    }
+  };
+
+  /* Traduit le brouillon : la traduction remplace le texte tapé. */
+  const handleTranslateDraft = async (): Promise<void> => {
+    const value = text.trim();
+
+    if (!value) {
+      toast.error('Écrivez d’abord votre message.');
+      return;
+    }
+
+    try {
+      setText(await translateWithAi(value, aiSettings));
+    } catch (error) {
+      toast.error(
+        (error as Error)?.message ??
+          'Impossible de traduire le message.'
+      );
+    }
+  };
+
+  /* Réécrit le brouillon pour le rendre plus clair et plus court. */
+  const handleRewriteDraft = async (): Promise<void> => {
+    const value = text.trim();
+
+    if (!value) {
+      toast.error('Écrivez d’abord votre message.');
+      return;
+    }
+
+    try {
+      setText(await rewriteWithAi(value, aiSettings));
+    } catch (error) {
+      toast.error(
+        (error as Error)?.message ??
+          'Impossible de reformuler le message.'
+      );
+    }
+  };
+
   const handleSubmit = async (): Promise<void> => {
     const value = text.trim();
     const image = attachedImage;
@@ -850,6 +958,11 @@ export function Conversation({
 
     try {
       await sendCurrent(payload);
+
+      /* L'assistant répond après chaque message : sa réponse arrive dans la
+         conversation comme un message de plus. */
+      if (isAi && aiSettings.assistantEnabled && value)
+        void askAssistant(value);
     } catch {
       toast.error("Impossible d'envoyer le message.");
       /* Le message retourne dans la zone de saisie : il n'est pas perdu. */
@@ -943,7 +1056,19 @@ export function Conversation({
           >
             <MaterialIcon className='h-5 w-5' iconName='arrow_back' />
           </button>
-          {!isGroup && contact?.username ? (
+          {isAi ? (
+            <>
+              <AiAvatar className='!self-center' size={40} />
+              <div className='min-w-0'>
+                <p className='truncate text-[15px] font-bold text-light-primary dark:text-dark-primary'>
+                  {AI_BOT_NAME}
+                </p>
+                <p className='truncate text-sm text-light-secondary dark:text-dark-secondary'>
+                  {group?.description ?? 'Posez votre question.'}
+                </p>
+              </div>
+            </>
+          ) : !isGroup && contact?.username ? (
             <Link href={`/user/${contact.username}`}>
               <a className='flex min-w-0 items-center gap-3 transition-opacity hover:opacity-80'>
                 <UserAvatar
@@ -1052,7 +1177,9 @@ export function Conversation({
         ) : !visibleMessages.length ? (
           <div className='flex h-full flex-col items-center justify-center gap-4 px-6 text-center'>
             <span className='flex w-full justify-center'>
-              {isGroup ? (
+              {isAi ? (
+                <AiAvatar className='!self-center' size={72} />
+              ) : isGroup ? (
                 group?.type === 'channel' ? (
                   <ChannelAvatar
                     name={group?.name ?? 'Chaîne'}
@@ -1079,15 +1206,34 @@ export function Conversation({
               )}
             </span>
             <p className='text-lg font-bold text-light-primary dark:text-dark-primary'>
-              Commencez la discussion
+              {isAi ? 'Posez votre question' : 'Commencez la discussion'}
             </p>
             <p className='max-w-xs text-sm leading-5 text-light-secondary dark:text-dark-secondary'>
-              {isGroup
+              {isAi
+                ? 'L’assistant répond dans la langue de votre choix. Demandez-lui une idée, une correction, un résumé…'
+                : isGroup
                 ? 'Envoyez votre premier message dans ce groupe.'
                 : `Envoyez votre premier message à @${
                     contact?.username ?? ''
                   }.`}
             </p>
+            {isAi && (
+              <div className='mt-2 flex max-w-sm flex-wrap justify-center gap-2'>
+                {AI_SUGGESTIONS.map((suggestion) => (
+                  <button
+                    className='rounded-full border border-light-border px-3 py-1.5 text-xs font-semibold text-light-secondary transition hover:border-main-accent hover:text-main-accent dark:border-dark-border dark:text-dark-secondary'
+                    key={suggestion}
+                    onClick={() => {
+                      setText(suggestion);
+                      textAreaRef.current?.focus();
+                    }}
+                    type='button'
+                  >
+                    {suggestion}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         ) : (
           <div className='flex flex-col'>
@@ -1100,6 +1246,8 @@ export function Conversation({
                  quel membre : on affiche alors son avatar et son nom. */
               const sender = mine
                 ? user
+                : message.fromAI
+                ? aiBotUser
                 : isGroup
                 ? membersById.get(message.createdBy)
                 : contact;
@@ -1305,6 +1453,16 @@ export function Conversation({
                       preview={message.linkPreview}
                     />
                   )}
+
+                  {/* Traduction et résumé : demandés à l'IA, affichés sous le
+                      message, sans jamais modifier le message d'origine. */}
+                  {aiEnabled && (
+                    <AiMessageTools
+                      message={message}
+                      mine={mine}
+                      settings={aiSettings}
+                    />
+                  )}
                 </div>
               );
             })}
@@ -1398,41 +1556,47 @@ export function Conversation({
                     initial={attachMenuAnimation.initial}
                   >
                     <div className='flex flex-wrap items-center gap-1 rounded-3xl bg-main-search-background px-2 py-2'>
-                      {ATTACH_OPTIONS.map(({ name, iconName }) => (
-                        <button
-                          aria-label={name}
-                          className='flex h-9 w-9 shrink-0 items-center justify-center rounded-full
-                                   text-main-accent transition
-                                   hover:bg-main-accent/10 active:bg-main-accent/20
-                                   disabled:opacity-40'
-                          disabled={imageBusy}
-                          key={name}
-                          onClick={(event) => {
-                            setAttachOpen(false);
+                      {[...ATTACH_OPTIONS, ...(aiEnabled ? AI_ATTACH_OPTIONS : [])].map(
+                        ({ name, iconName }) => (
+                          <button
+                            aria-label={name}
+                            className='flex h-9 w-9 shrink-0 items-center justify-center rounded-full
+                                     text-main-accent transition
+                                     hover:bg-main-accent/10 active:bg-main-accent/20
+                                     disabled:opacity-40'
+                            disabled={imageBusy}
+                            key={name}
+                            onClick={(event) => {
+                              setAttachOpen(false);
 
-                            if (name === 'Media')
-                              attachInputRef.current?.click();
-                            else if (name === 'GIF') setGifOpen(true);
-                            else if (name === 'Emoji') {
-                              const area = textAreaRef.current;
+                              if (name === 'Media')
+                                attachInputRef.current?.click();
+                              else if (name === 'GIF') setGifOpen(true);
+                              else if (name === 'Traduire')
+                                void handleTranslateDraft();
+                              else if (name === 'Réécrire')
+                                void handleRewriteDraft();
+                              else if (name === 'Emoji') {
+                                const area = textAreaRef.current;
 
-                              setEmojiCaret(
-                                area?.selectionStart ?? text.length
-                              );
-                              setEmojiOpen(true);
-                            } else if (name === 'Sondage') setPollOpen(true);
-                            else if (name === 'Schedule') setScheduleOpen(true);
-                            else if (name === 'Location') setLocationOpen(true);
-                          }}
-                          title={name}
-                          type='button'
-                        >
-                          <MaterialIcon
-                            className='h-5 w-5'
-                            iconName={iconName}
-                          />
-                        </button>
-                      ))}
+                                setEmojiCaret(
+                                  area?.selectionStart ?? text.length
+                                );
+                                setEmojiOpen(true);
+                              } else if (name === 'Sondage') setPollOpen(true);
+                              else if (name === 'Schedule') setScheduleOpen(true);
+                              else if (name === 'Location') setLocationOpen(true);
+                            }}
+                            title={name}
+                            type='button'
+                          >
+                            <MaterialIcon
+                              className='h-5 w-5'
+                              iconName={iconName}
+                            />
+                          </button>
+                        )
+                      )}
                     </div>
                   </motion.div>
                 )}
