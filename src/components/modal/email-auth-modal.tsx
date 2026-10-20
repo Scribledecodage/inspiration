@@ -113,7 +113,7 @@ export function EmailAuthModal({
       </button>
       <div className='mb-6 flex items-start justify-between gap-4'>
         <div>
-          <h2 className='text-2xl font-bold'>
+          <h2 className='text-[1.25rem] leading-tight'>
             {isSignUp ? 'Créer votre compte' : 'Se connecter'}
           </h2>
           <p className='mt-2 text-sm text-light-secondary dark:text-dark-secondary'>

@@ -1,6 +1,6 @@
 [package]
 name = "inspiration-desktop"
-version = "1.0.9"
+version = "1.0.10"
 description = "Inspiration — le réseau social, en application de bureau"
 authors = ["Inspiration"]
 edition = "2021"
@@ -41,6 +41,14 @@ serde_json = "1"
 # Une seule instance : relancer l'application réveille la fenêtre existante
 # au lieu d'en ouvrir une deuxième.
 tauri-plugin-single-instance = "2"
+
+[target.'cfg(target_os = "windows")'.dependencies]
+# La zone utilisable de l'écran (celle qui exclut la barre des tâches) :
+# Windows ne la donne que par son API.
+windows-sys = { version = "0.61", features = [
+    "Win32_Foundation",
+    "Win32_UI_WindowsAndMessaging"
+] }
 
 # Optimisation : le binaire estStripped pour réduire la taille, et la
 # compilation est "lto" pour le démarrage.

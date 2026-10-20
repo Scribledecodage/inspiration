@@ -1088,7 +1088,7 @@ export default function MessagesPage(): JSX.Element {
               src='/Conversation.jpg'
               width={600}
             />
-            <h1 className='max-w-lg text-2xl font-bold tracking-tight text-light-primary dark:text-dark-primary'>
+            <h1 className='max-w-lg text-[1.25rem] leading-tight text-light-primary dark:text-dark-primary'>
               Aucune discussion en cours pour le moment
             </h1>
             <p className='mt-2 max-w-md text-sm leading-6 text-light-secondary dark:text-dark-secondary'>

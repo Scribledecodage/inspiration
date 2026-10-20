@@ -195,25 +195,24 @@
     }
   }
 
-  /* Barre du haut : un voile flouté, pas un aplat. Le contenu qui défile
-     dessous reste visible.
+  /* Barre du haut : totalement transparente. Le contenu qui défile
+     dessous se voit, et les icônes qui la traversent restent lisibles.
      Le `@supports` est écrit à la main (et non via `@apply`) : le
      reformatage automatique des classes Tailwind réordonne la liste, et
      Tailwind refuse alors la variante `supports-[…]` dans un `@apply`. */
   .glass-header {
-    @apply bg-main-background/75 backdrop-blur-xl;
+    @apply bg-transparent backdrop-blur-none;
 
     @supports (backdrop-filter: blur(1px)) {
-      background-color: rgb(var(--main-background) / 0.65);
+      background-color: transparent;
     }
 
-    /* Sur téléphone, la barre est translucide elle aussi : le contenu qui
-       défile dessous reste visible, flouté. */
+    /* Sur téléphone, la barre est transparente elle aussi. */
     @media (max-width: 499px) {
-      @apply bg-main-background/75 backdrop-blur-xl;
+      @apply bg-transparent backdrop-blur-none;
 
       @supports (backdrop-filter: blur(1px)) {
-        background-color: rgb(var(--main-background) / 0.65);
+        background-color: transparent;
       }
     }
   }

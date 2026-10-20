@@ -258,6 +258,7 @@ export function Input({
     if (mentionsAi(inputValue)) {
       void askAiToReply(
         tweetId,
+        userId,
         parent?.username ?? null,
         inputValue.trim() || null,
         tweetData.images as ImagesPreview | null

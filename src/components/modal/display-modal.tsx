@@ -73,7 +73,7 @@ export function DisplayModal({ closeModal }: DisplayModalProps): JSX.Element {
     <div className='flex flex-col gap-7'>
       <header className='flex items-start gap-4'>
         <div className='min-w-0 flex-1'>
-          <h2 className='font-title text-2xl font-medium leading-tight tracking-tight text-light-primary dark:text-dark-primary'>
+          <h2 className='text-[1.25rem] leading-tight text-light-primary dark:text-dark-primary'>
             Apparence
           </h2>
           <p className='mt-2 max-w-md text-sm leading-relaxed text-light-secondary dark:text-dark-secondary'>

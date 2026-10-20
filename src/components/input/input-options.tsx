@@ -118,12 +118,14 @@ export function InputOptions({
   return (
     <motion.div className='flex min-w-0 justify-between gap-2' {...variants}>
       {/* Les icônes restent sur une seule ligne, sans barre de défilement :
-          sur tablette, toutes doivent tenir dans la largeur disponible. */}
-      <div className='flex min-w-0 flex-nowrap items-center gap-1 text-main-accent'>
+          sur tablette, toutes doivent tenir dans la largeur disponible.
+          Sur téléphone, elles sont un peu plus petites : le compteur de
+          caractères (un rond) ne doit jamais passer sur l'icône du lieu. */}
+      <div className='flex min-w-0 flex-nowrap items-center gap-0.5 text-main-accent sm:gap-1'>
         {filteredOptions.map(({ name, iconName, disabled, onClick }) => (
           <Button
             className={cn(
-              'accent-tab accent-bg-tab group relative shrink-0 rounded-full p-1',
+              'accent-tab accent-bg-tab group relative shrink-0 rounded-full p-0.5 sm:p-1',
               'hover:bg-main-accent/10 active:bg-main-accent/20',
               name === 'Sondage' &&
                 hasPoll &&
@@ -140,14 +142,14 @@ export function InputOptions({
             key={name}
           >
             <MaterialIcon
-              className='h-5 w-5 sm:h-[22px] sm:w-[22px]'
+              className='h-[18px] w-[18px] sm:h-[22px] sm:w-[22px]'
               iconName={iconName}
             />
             <ToolTip tip={name} modal={modal} />
           </Button>
         ))}
       </div>
-      <div className='flex items-center gap-2 xs:gap-4'>
+      <div className='flex shrink-0 items-center gap-2 xs:gap-4'>
         <motion.div
           className='flex items-center gap-4'
           animate={

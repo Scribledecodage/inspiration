@@ -29,7 +29,7 @@ export function MentionSuggestions({
   return (
     <div
       className={cn(
-        'absolute left-0 right-0 top-full z-30 mt-2 max-h-72 overflow-y-auto overscroll-contain rounded-xl border border-light-border bg-main-background py-1 shadow-xl dark:border-dark-border',
+        'absolute left-0 right-0 top-full z-30 mt-2 max-h-72 overflow-y-auto overscroll-contain rounded-lg border border-light-border bg-main-background py-1 shadow-xl dark:border-dark-border',
         className
       )}
     >
@@ -47,7 +47,7 @@ export function MentionSuggestions({
           type='button'
         >
           {suggestion.ai ? (
-            <AiAvatar size={32} />
+            <AiAvatar className='rounded-lg' size={32} />
           ) : (
             <UserAvatar
               alt={suggestion.name}
@@ -64,11 +64,6 @@ export function MentionSuggestions({
                   className='h-3.5 w-3.5 shrink-0 text-main-accent'
                   iconName='verified'
                 />
-              )}
-              {suggestion.ai && (
-                <span className='shrink-0 rounded-full bg-main-accent/10 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-main-accent'>
-                  IA
-                </span>
               )}
             </span>
             <span className='block truncate text-xs text-light-secondary dark:text-dark-secondary'>

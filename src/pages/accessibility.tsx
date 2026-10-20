@@ -23,7 +23,7 @@ export default function AccessibilityPage(): JSX.Element {
       />
       <article className='flex flex-col gap-8 px-4 py-6 text-[15px] leading-7 sm:px-6'>
         <header className='border-b border-light-border pb-6 dark:border-dark-border'>
-          <h1 className='font-title text-2xl font-bold text-main-accent sm:text-3xl'>
+          <h1 className='text-[1.25rem] leading-tight text-main-accent'>
             Accessibilité numérique
           </h1>
           <p className='mt-1 text-sm text-light-secondary dark:text-dark-secondary'>

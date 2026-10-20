@@ -40,6 +40,105 @@ macro_rules! ensure_sane_size {
     }};
 }
 
+/// Zone utilisable de l'écran : elle exclut la barre des tâches.
+///
+/// Windows ne la donne pas par l'intermédiaire de Tauri : on la demande
+/// directement au système.
+#[cfg(target_os = "windows")]
+fn work_area() -> Option<tauri::Rect> {
+    use windows_sys::Win32::Foundation::RECT;
+    use windows_sys::Win32::UI::WindowsAndMessaging::{
+        SystemParametersInfoW, SPI_GETWORKAREA
+    };
+
+    let mut rect = RECT {
+        left: 0,
+        top: 0,
+        right: 0,
+        bottom: 0,
+    };
+
+    // SAFETY : `rect` est une variable locale vivante, et le pointeur
+    // transmis est celui de cette variable.
+    let ok = unsafe {
+        SystemParametersInfoW(
+            SPI_GETWORKAREA,
+            0,
+            &mut rect as *mut RECT as *mut std::ffi::c_void,
+            0,
+        )
+    };
+
+    if ok == 0 {
+        return None;
+    }
+
+    Some(tauri::Rect {
+        position: tauri::PhysicalPosition::new(rect.left, rect.top),
+        size: tauri::PhysicalSize::new(
+            (rect.right - rect.left).max(0) as u32,
+            (rect.bottom - rect.top).max(0) as u32,
+        ),
+    })
+}
+
+/// Sur les autres systèmes, on ne bride rien.
+#[cfg(not(target_os = "windows"))]
+fn work_area() -> Option<tauri::Rect> {
+    None
+}
+
+/// Empêche la fenêtre de dépasser de la zone utilisable de l'écran.
+///
+/// Sans cela, une fenêtre mémorisée sur un grand écran s'ouvre sur un
+/// plus petit et passe devant la barre des tâches.
+macro_rules! constrain_to_work_area {
+    ($window:expr) => {{
+        let window = $window;
+
+        if !window.is_maximized() {
+            if let Some(area) = work_area() {
+                if let (Ok(size), Ok(position)) =
+                    (window.outer_size(), window.outer_position())
+                {
+                    let width = size.width.min(area.size.width).max(MIN_WIDTH);
+                    let height = size.height.min(area.size.height).max(MIN_HEIGHT);
+
+                    let x = position.x.clamp(
+                        area.position.x,
+                        area.position.x + area.size.width.saturating_sub(width),
+                    );
+                    let y = position.y.clamp(
+                        area.position.y,
+                        area.position.y + area.size.height.saturating_sub(height),
+                    );
+
+                    if width != size.width || height != size.height {
+                        let _ = window.set_size(tauri::PhysicalSize::new(width, height));
+                    }
+
+                    if x != position.x || y != position.y {
+                        let _ = window.set_position(tauri::PhysicalPosition::new(x, y));
+                    }
+                }
+            }
+        }
+    }};
+}
+
+/// Ramène la fenêtre au premier plan.
+///
+/// Windows peut démarrer une application derrière la fenêtre active : on
+/// la passe brièvement « toujours au premier plan » pour qu'elle passe
+/// devant, puis on rend la main.
+fn bring_to_front(window: &tauri::WebviewWindow) {
+    let _ = window.unminimize();
+    let _ = window.show();
+    let _ = window.set_always_on_top(true);
+    let _ = window.set_focus();
+    let _ = window.set_always_on_top(false);
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let mut builder = tauri::Builder::default();
@@ -50,9 +149,7 @@ pub fn run() {
     {
         builder = builder.plugin(tauri_plugin_single_instance::init(|app, _argv, _cwd| {
             if let Some(window) = app.get_webview_window("main") {
-                let _ = window.unminimize();
-                let _ = window.show();
-                let _ = window.set_focus();
+                bring_to_front(&window);
             }
         }));
     }
@@ -96,6 +193,9 @@ pub fn run() {
             // qu'elle est bien utilisable avant d'afficher quoi que ce soit.
             if let Some(window) = app.get_webview_window("main") {
                 ensure_sane_size!(&window);
+                constrain_to_work_area!(&window);
+                // L'application doit s'ouvrir devant les autres fenêtres.
+                bring_to_front(&window);
             }
 
             // Icône dans la zone de notification : l'application reste
@@ -114,17 +214,14 @@ pub fn run() {
                 .on_menu_event(|app, event| match event.id().as_ref() {
                     "open" => {
                         if let Some(window) = app.get_webview_window("main") {
-                            let _ = window.unminimize();
-                            let _ = window.show();
-                            let _ = window.set_focus();
+                            bring_to_front(&window);
                         }
                     }
                     "update" => {
                         // L'interface s'occupe de la vérification et de
                         // l'installation ; on se contente de la réveiller.
                         if let Some(window) = app.get_webview_window("main") {
-                            let _ = window.show();
-                            let _ = window.set_focus();
+                            bring_to_front(&window);
                             let _ = window.emit_to("main", "menu://update", ());
                         }
                     }
@@ -140,9 +237,7 @@ pub fn run() {
                     } = event
                     {
                         if let Some(window) = tray.app_handle().get_webview_window("main") {
-                            let _ = window.unminimize();
-                            let _ = window.show();
-                            let _ = window.set_focus();
+                            bring_to_front(&window);
                         }
                     }
                 })
@@ -155,6 +250,12 @@ pub fn run() {
             // est remplacée par une taille utilisable.
             if let WindowEvent::Resized(_) = event {
                 ensure_sane_size!(window);
+                constrain_to_work_area!(window);
+            }
+
+            // La fenêtre ne doit jamais passer devant la barre des tâches.
+            if let WindowEvent::Moved(_) = event {
+                constrain_to_work_area!(window);
             }
 
             // La croix ferme la fenêtre sans quitter l'application (qui

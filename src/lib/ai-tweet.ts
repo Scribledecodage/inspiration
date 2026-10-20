@@ -19,11 +19,13 @@ export type AiReplyResult = {
 /**
  * Demande à l'assistant de répondre à une publication.
  *
- * La réponse est écrite par la personne qui a publié : la réponse de l'IA
- * apparaît donc comme la sienne, dans la discussion.
+ * La réponse est écrite par la personne qui a publié : elle apparaît donc
+ * dans la discussion comme sa propre réponse, sous son pseudo. L'assistant
+ * n'écrit jamais de publication à son propre nom.
  */
 export async function askAiToReply(
   tweetId: string,
+  userId: string,
   parentUsername: string | null,
   text: string | null,
   images: ImagesPreview | null
@@ -77,7 +79,9 @@ export async function askAiToReply(
       images: null,
       parent: { id: tweetId, username: parentUsername ?? AI_USERNAME },
       userLikes: [],
-      createdBy: AI_USER_ID,
+      /* La réponse est publiée sous le pseudo de la personne qui a
+         mentionné l'assistant. */
+      createdBy: userId,
       createdAt: serverTimestamp(),
       updatedAt: null,
       userReplies: 0,

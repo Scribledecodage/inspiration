@@ -48,7 +48,7 @@ export function UsernameModal({
             <SiteLogo size={56} />
           </i>
           <div className='flex flex-col gap-2'>
-            <Dialog.Title className='text-2xl font-bold xs:text-3xl sm:text-4xl'>
+            <Dialog.Title className='text-[1.25rem] leading-tight'>
               {title}
             </Dialog.Title>
             <Dialog.Description className='text-light-secondary dark:text-dark-secondary'>

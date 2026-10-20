@@ -43,7 +43,14 @@ type ModalProps = {
     event: MouseEvent | TouchEvent | PointerEvent,
     info: PanInfo
   ) => void;
-  /** Ferme la fenêtre quand on clique sur le fond, et non sur le contenu. */
+  /**
+   * Ferme la fenêtre quand on clique sur le fond, et non sur le contenu.
+   *
+   * C'est le comportement par défaut : un clic sur le fond gris doit
+   * toujours refermer la fenêtre, sinon la page reste bloquée derrière et
+   * on ne peut plus rien faire. Seules les fenêtres qui doivent rester
+   * ouvertes le demandent explicitement (`false`).
+   */
   closeOnBackdropClick?: boolean;
   closeModal: () => void;
 };
@@ -151,7 +158,7 @@ export function Modal({
   dragSnapToOrigin,
   onDragEnd,
   onDrag,
-  closeOnBackdropClick,
+  closeOnBackdropClick = true,
   closeModal
 }: ModalProps): JSX.Element {
   const panelRef = useRef<HTMLDivElement>(null);
@@ -210,22 +217,20 @@ export function Modal({
           initialFocus={panelRef}
           /* `static` empêche HeadlessUI de fermer au clic sur le fond ou à
              la touche Échap. On ne le garde que pour les fenêtres qui doivent
-             rester ouvertes (sélecteur d'emoji). */
-          static={!closeOnBackdropClick}
+             rester ouvertes (choix explicite). */
+          static={closeOnBackdropClick === false}
         >
           <motion.div
             className='hover-animation fixed inset-0 bg-black/40 dark:bg-[#5B7083]/40'
             aria-hidden='true'
             {...backdrop}
-            /* Le clic sur le fond ferme la fenêtre lorsqu'elle le demande
-               (sélecteur d'emoji) ; sinon il reste sans effet, comme avant. */
+            /* Le clic sur le fond ferme la fenêtre ; seules celles qui
+               doivent rester ouvertes l'ignorent. */
             onClick={(event) => {
-              if (!closeOnBackdropClick) {
-                event.stopPropagation();
-                return;
-              }
-
               event.stopPropagation();
+
+              if (closeOnBackdropClick === false) return;
+
               closeModal();
             }}
           />
