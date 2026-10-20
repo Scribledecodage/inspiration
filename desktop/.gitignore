@@ -1,16 +1,19 @@
-# Dépendances
+# DÃ©pendances
 node_modules/
 
 # Build
 dist/
 release/
 
-# Rust : cible de compilation (très lourde, jamais versionnée)
+# Rust : cible de compilation (trÃ¨s lourde, jamais versionnÃ©e)
 src-tauri/target/
 
-# Clés de signature des mises à jour : la clé privée ne doit JAMAIS
+# ClÃ©s de signature des mises Ã  jour : la clÃ© privÃ©e ne doit JAMAIS
 # quitter la machine qui publie les versions.
 .keys/
 
-# Fichiers générés
+# Fichiers gÃ©nÃ©rÃ©s
 src-tauri/gen/
+
+# Journal de compilation locale
+build.log

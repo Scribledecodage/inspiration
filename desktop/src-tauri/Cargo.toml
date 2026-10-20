@@ -47,6 +47,7 @@ tauri-plugin-single-instance = "2"
 # Windows ne la donne que par son API.
 windows-sys = { version = "0.61", features = [
     "Win32_Foundation",
+    "Win32_System_LibraryLoader",
     "Win32_UI_WindowsAndMessaging"
 ] }
 

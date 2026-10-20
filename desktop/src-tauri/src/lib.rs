@@ -147,6 +147,8 @@ fn bring_to_front(window: &tauri::WebviewWindow) {
 /// Le flou du fond de la fenêtre, comme celui de la barre des tâches.
 #[cfg(target_os = "windows")]
 mod backdrop {
+    use windows_sys::Win32::System::LibraryLoader::{GetProcAddress, LoadLibraryA};
+
     /// `WCA_ACCENT_POLICY` : l'attribut qui décrit le fond de la fenêtre.
     const WCA_ACCENT_POLICY: i32 = 19;
 
@@ -163,14 +165,8 @@ mod backdrop {
         animation_id: u32,
     }
 
-    extern "system" {
-        /// Fonction de Windows (non documentée, mais stable depuis Vista).
-        fn SetWindowCompositionAttribute(
-            hwnd: *mut std::ffi::c_void,
-            attribute: i32,
-            data: *mut std::ffi::c_void
-        ) -> i32;
-    }
+    type SetWindowCompositionAttributeFn =
+        unsafe extern "system" fn(*mut std::ffi::c_void, i32, *mut std::ffi::c_void) -> i32;
 
     /// Applique (ou retire) le flou du fond.
     pub fn apply(hwnd: *mut std::ffi::c_void, enabled: bool) {
@@ -185,10 +181,26 @@ mod backdrop {
             animation_id: 0,
         };
 
-        // SAFETY : le pointeur transmis est celui de `policy`, qui vit
-        // pendant tout l'appel.
+        // SAFETY : la fonction de Windows est chargée dynamiquement (elle
+        // n'est pas dans la bibliothèque d'import) ; le pointeur transmis
+        // est celui de `policy`, qui vit pendant tout l'appel.
         unsafe {
-            SetWindowCompositionAttribute(
+            let module = LoadLibraryA(b"user32.dll\0".as_ptr());
+
+            if module.is_null() {
+                return;
+            }
+
+            let Some(address) = GetProcAddress(
+                module,
+                b"SetWindowCompositionAttribute\0".as_ptr(),
+            ) else {
+                return;
+            };
+
+            let function: SetWindowCompositionAttributeFn = std::mem::transmute(address);
+
+            function(
                 hwnd,
                 WCA_ACCENT_POLICY,
                 &mut policy as *mut AccentPolicy as *mut std::ffi::c_void,
