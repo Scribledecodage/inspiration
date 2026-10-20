@@ -63,3 +63,6 @@ scripts/firebase-config.json
 
 # Build de verification (NEXT_DIST_DIR)
 .next-check/
+
+# Journal du serveur de developpement
+desktop/vite-dev.log
