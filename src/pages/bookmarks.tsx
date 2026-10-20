@@ -109,9 +109,7 @@ export default function Bookmarks(): JSX.Element {
         className='flex items-center justify-between'
         beforeTitle={
           <div className='flex flex-col'>
-            <h2 className='font-title text-xl font-bold tracking-tight'>
-              Signets
-            </h2>
+            <h2 className='text-[1.25rem] leading-tight'>Signets</h2>
             <p className='text-xs text-light-secondary dark:text-dark-secondary'>
               @{user?.username} · {tweetIds.length}{' '}
               {tweetIds.length > 1

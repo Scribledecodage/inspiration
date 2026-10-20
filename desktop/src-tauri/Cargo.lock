@@ -1918,7 +1918,7 @@ dependencies = [
 
 [[package]]
 name = "inspiration-desktop"
-version = "1.0.7"
+version = "1.0.9"
 dependencies = [
  "serde",
  "serde_json",

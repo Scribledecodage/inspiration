@@ -249,7 +249,7 @@ export function Sidebar(): JSX.Element {
                            dark:text-twitter-icon dark:hover:bg-dark-primary/10'
               >
                 <SiteLogo size={28} />
-                <span className='hidden font-title text-xl font-bold tracking-tight text-light-primary dark:text-dark-primary xl:block'>
+                <span className='hidden text-[1.25rem] leading-tight text-light-primary dark:text-dark-primary xl:block'>
                   Inspiration
                 </span>
               </a>

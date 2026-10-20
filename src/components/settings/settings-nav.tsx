@@ -138,7 +138,7 @@ export function SettingsNav({ className }: SettingsNavProps): JSX.Element {
     >
       <div className='flex flex-col gap-4 px-4 py-5 xs:px-5'>
         <div className='flex flex-col gap-1'>
-          <h1 className='text-xl font-bold text-light-primary dark:text-dark-primary'>
+          <h1 className='text-[1.25rem] leading-tight text-light-primary dark:text-dark-primary'>
             Réglages
           </h1>
           <p className='text-sm text-light-secondary dark:text-dark-secondary'>

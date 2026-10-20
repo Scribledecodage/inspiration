@@ -50,7 +50,7 @@ export function SettingsShell({
               </button>
             )}
             <div className='min-w-0'>
-              <h1 className='text-xl font-bold text-light-primary dark:text-dark-primary'>
+              <h1 className='text-[1.25rem] leading-tight text-light-primary dark:text-dark-primary'>
                 {title}
               </h1>
               {description && (
