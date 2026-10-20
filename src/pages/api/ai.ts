@@ -34,6 +34,19 @@ const MAX_INPUT_LENGTH = 12_000;
 const MAX_HISTORY = 20;
 const TIMEOUT_MS = 45_000;
 
+/* En flux, la réponse peut durer plus longtemps : le délai est remis à zéro
+   à chaque morceau reçu. */
+const STREAM_TIMEOUT_MS = 120_000;
+
+/* En-têtes d'une réponse en flux (SSE). */
+const STREAM_HEADERS = {
+  'Content-Type': 'text/event-stream; charset=utf-8',
+  'Cache-Control': 'no-cache, no-transform',
+  Connection: 'keep-alive',
+  /* Empêche les proxys de mettre la réponse en tampon. */
+  'X-Accel-Buffering': 'no'
+};
+
 type Role = 'system' | 'user' | 'assistant';
 
 type Turn = {
@@ -43,6 +56,8 @@ type Turn = {
 
 type Body = {
   task?: 'chat' | 'translate' | 'rewrite';
+  /** La réponse est-elle renvoyée en flux, morceau par morceau ? */
+  stream?: boolean;
   messages?: Turn[];
   model?: string;
   apiKey?: string;
@@ -54,9 +69,38 @@ type Body = {
 type ProviderAnswer = {
   choices?: {
     message?: { content?: string | { text?: string }[] | null };
+    delta?: { content?: string | null };
   }[];
   error?: { message?: string };
 };
+
+/**
+ * Extrait le texte d'un morceau de flux envoyé par le fournisseur.
+ *
+ * Le format est celui d'OpenAI : `data: {"choices":[{"delta":{"content":"…"}}]}`.
+ * On renvoie `null` pour les morceaux qui ne portent pas de texte (fin de
+ * flux, métadonnées, prolongations).
+ */
+function extractDelta(frame: string): string | null {
+  const line = frame.trim();
+
+  if (!line.startsWith('data:')) return null;
+
+  const data = line.slice(5).trim();
+
+  if (!data || data === '[DONE]') return null;
+
+  try {
+    const payload = JSON.parse(data) as ProviderAnswer;
+    const content = payload.choices?.[0]?.delta?.content;
+
+    if (typeof content === 'string' && content) return content;
+
+    return null;
+  } catch {
+    return null;
+  }
+}
 
 /** Première valeur non vide d'une liste. */
 function firstNonEmpty(...values: (string | undefined)[]): string {
@@ -160,8 +204,13 @@ export default async function handler(
 
   /* Deux clés possibles : celle de la personne (dans son profil) et celle
      du serveur. La première est refusée si elle est fausse ou périmée : on
-     tente alors la seconde, pour que la personne ne soit pas bloquée. */
-  const serverKey = normalizeApiKey(process.env.AI_API_KEY);
+     tente alors la seconde, pour que la personne ne soit pas bloquée.
+
+     Le nom de la variable suit l'usage du projet : `OPENROUTER_API_KEY`
+     (déjà configuré sur l'hébergement) ou `AI_API_KEY` (usage local). */
+  const serverKey =
+    normalizeApiKey(process.env.OPENROUTER_API_KEY) ||
+    normalizeApiKey(process.env.AI_API_KEY);
   const personalKey = normalizeApiKey(body.apiKey);
 
   let currentKey = personalKey || serverKey;
@@ -218,20 +267,115 @@ export default async function handler(
     headers['X-Title'] = 'Inspiration';
   }
 
+  /* On essaie le modèle demandé, puis les suivants : un point gratuit
+     indisponible (429, 503…) ne doit pas priver la personne de réponse. */
+  const candidates = [
+    model,
+    ...AI_MODELS.filter((candidate) => candidate !== model)
+  ].filter((candidate, index, all) => all.indexOf(candidate) === index);
+
   try {
-    /* On essaie le modèle demandé, puis les suivants : un point gratuit
-       indisponible (429, 503…) ne doit pas priver la personne de réponse. */
-    const tried: string[] = [];
-    const candidates = [
-      model,
-      ...AI_MODELS.filter((candidate) => candidate !== model)
-    ].filter((candidate, index, all) => all.indexOf(candidate) === index);
+    /* --- Réponse en flux : les morceaux arrivent au fur et à mesure. --- */
+    if (body.stream) {
+      res.writeHead(200, STREAM_HEADERS);
+
+      let lastReason = 'Le modèle n’a rien renvoyé.';
+
+      for (const candidate of candidates.slice(0, MAX_MODEL_ATTEMPTS)) {
+        let response: Response;
+
+        try {
+          response = await fetch(endpoint, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({
+              model: candidate,
+              messages,
+              temperature: task === 'chat' ? 0.7 : 0.2,
+              stream: true
+            }),
+            signal: controller.signal
+          });
+        } catch {
+          break;
+        }
+
+        if (!response.ok || !response.body) {
+          const payload = (await response
+            .json()
+            .catch(() => ({}))) as ProviderAnswer;
+
+          lastReason = payload.error?.message ?? lastReason;
+
+          /* La clé est peut-être refusée : on tente celle du serveur. */
+          if (response.status === 401 && currentKey !== serverKey && serverKey) {
+            currentKey = serverKey;
+            headers.Authorization = `Bearer ${currentKey}`;
+            continue;
+          }
+
+          if (response.status === 401 || response.status === 400) break;
+
+          continue;
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+
+        let buffer = '';
+
+        /* Le délai est remis à zéro à chaque morceau : une longue réponse
+           ne doit pas être coupée au bout de quarante-cinq secondes. */
+        let streamTimeout = setTimeout(() => controller.abort(), STREAM_TIMEOUT_MS);
+
+        try {
+          for (;;) {
+            const { done, value } = await reader.read();
+
+            if (done) break;
+
+            clearTimeout(streamTimeout);
+            streamTimeout = setTimeout(() => controller.abort(), STREAM_TIMEOUT_MS);
+
+            buffer += decoder.decode(value, { stream: true });
+
+            const frames = buffer.split('\n\n');
+            buffer = frames.pop() ?? '';
+
+            for (const frame of frames) {
+              const delta = extractDelta(frame);
+
+              if (delta)
+                res.write(
+                  `data: ${JSON.stringify({ text: delta })}\n\n`
+                );
+            }
+          }
+        } catch {
+          /* Coupure en cours de route : on renvoie ce qui a été reçu. */
+        } finally {
+          clearTimeout(streamTimeout);
+        }
+
+        res.write('data: [DONE]\n\n');
+        res.end();
+        return;
+      }
+
+      res.write(
+        `data: ${JSON.stringify({
+          error: lastReason || 'Le modèle n’a rien renvoyé.'
+        })}\n\n`
+      );
+      res.write('data: [DONE]\n\n');
+      res.end();
+      return;
+    }
 
     let lastStatus = 502;
     let lastReason = 'Le modèle n’a renvoyé aucune réponse.';
 
     for (const candidate of candidates.slice(0, MAX_MODEL_ATTEMPTS)) {
-      tried.push(candidate);
 
       const response = await fetch(endpoint, {
         method: 'POST',

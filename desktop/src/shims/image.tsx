@@ -47,6 +47,7 @@ export default function Image({
   blurDataURL,
   loader,
   onLoadingComplete,
+  onLoad,
   style,
   ...rest
 }: ImageProps) {
@@ -59,7 +60,17 @@ export default function Image({
       className={rest.className}
       decoding='async'
       height={isFill ? undefined : height}
-      loading={priority ? 'eager' : 'lazy'}
+      /* Le chargement paresseux n'apporte rien dans une fenêtre fixe, et
+         Chrome ne chargeait jamais les images situées hors du champ de
+         vision initial. */
+      loading='eager'
+      onLoad={(event) => {
+        onLoad?.(event);
+        /* Le site garde l'image masquee (opacite 0) jusqu'a ce signal :
+           sans lui, les photos de profil et les bannieres restent
+           invisibles. */
+        onLoadingComplete?.();
+      }}
       sizes={sizes}
       src={source}
       style={

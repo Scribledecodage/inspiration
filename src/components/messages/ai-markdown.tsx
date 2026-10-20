@@ -1,13 +1,22 @@
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import remarkBreaks from 'remark-breaks';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import cn from 'clsx';
+import type { ReactNode } from 'react';
 
 type AiMarkdownProps = {
   text: string;
   className?: string;
 };
+
+/* Les composants de react-markdown ne sont pas typés : on précise nous-mêmes
+   ce qu'on attend de chacun. */
+type MarkdownCodeProps = {
+  children?: ReactNode;
+  className?: string;
+} & Record<string, unknown>;
 
 /**
  * Rendu d'une réponse de l'assistant.
@@ -27,11 +36,11 @@ export function AiMarkdown({ text, className }: AiMarkdownProps): JSX.Element {
   return (
     <div className={cn('ai-markdown break-words', className)}>
       <ReactMarkdown
-        /* Dans une conversation, un retour à la ligne doit rester un retour à
-           la ligne (comme dans n'importe quel chat). */
-        breaks
         rehypePlugins={[rehypeKatex]}
-        remarkPlugins={[remarkGfm, remarkMath]}
+        /* Dans une conversation, un retour à la ligne doit rester un retour à
+           la ligne (comme dans n'importe quel chat) : c'est le rôle de
+           `remark-breaks`, que react-markdown n'embarque plus. */
+        remarkPlugins={[remarkGfm, remarkBreaks, remarkMath]}
         components={{
           a: ({ children, ...props }) => (
             <a
@@ -51,9 +60,9 @@ export function AiMarkdown({ text, className }: AiMarkdownProps): JSX.Element {
               {children}
             </blockquote>
           ),
-          code: ({ children, className: codeClass, ...props }) => {
+          code: ({ children, className: codeClass, ...props }: MarkdownCodeProps) => {
             /* Le bloc de code est traité plus bas (dans `pre`). */
-            const isBlock = codeClass?.startsWith('language-');
+            const isBlock = codeClass?.startsWith('language-') ?? false;
 
             if (isBlock) return <code {...props}>{children}</code>;
 

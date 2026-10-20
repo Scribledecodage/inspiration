@@ -632,9 +632,14 @@ export default function MessagesPage(): JSX.Element {
 
   /* Ouvre la conversation avec l'assistant : la ligne existe déjà dans la
      boîte, mais le document de conversation doit être créé au premier
-     message. */
+     message. Re-cliquer dessus la referme, comme pour les groupes. */
   const openAssistantConversation = async (): Promise<void> => {
     if (!user) return;
+
+    if (selectedAi) {
+      setSelectedAi(false);
+      return;
+    }
 
     setSelectedUser(null);
     setSelectedGroup(null);

@@ -47,16 +47,17 @@ import { GroupAvatar } from './group-avatar';
 import { ChannelAvatar } from '@components/channel/channel-avatar';
 import { AiAvatar } from './ai-avatar';
 import { AiMarkdown } from './ai-markdown';
-import { AiMessageTools } from './ai-message-tools';
+import { AiMessageTools, hasAiActions } from './ai-message-tools';
 import {
   aiBotUser,
   appendAiMessage,
   ensureAiConversation,
+  AI_BOT_ID,
   AI_BOT_NAME
 } from '@lib/ai-bot';
 import {
-  chatWithAi,
   rewriteWithAi,
+  streamChatWithAi,
   translateWithAi,
   withAiDefaults
 } from '@lib/ai';
@@ -371,6 +372,13 @@ export function Conversation({
   /* Messages en cours d'envoi : leur bulle s'affiche tout de suite, tout en
      bas de la conversation, sans attendre la réponse du serveur. */
   const [pendingMessages, setPendingMessages] = useState<ChatMessage[]>([]);
+  /* Réponse de l'assistant en cours de rédaction : le texte arrive morceau
+     par morceau, il s'affiche donc au fur et à mesure. */
+  const [aiStream, setAiStream] = useState<{
+    id: string;
+    text: string;
+    createdAt: number;
+  } | null>(null);
 
   const [recording, setRecording] = useState(false);
   const [recordSeconds, setRecordSeconds] = useState(0);
@@ -429,7 +437,7 @@ export function Conversation({
 
   useEffect(() => {
     if (isAtBottomRef.current) scrollToBottom();
-  }, [messages?.length, pendingMessages.length]);
+  }, [messages?.length, pendingMessages.length, aiStream?.text.length]);
 
   /* Tant que la conversation est ouverte, les nouveaux messages sont lus :
      on repousse la marque de lecture pour que le badge reste éteint, y
@@ -450,10 +458,29 @@ export function Conversation({
 
   /* Les messages en cours d'envoi s'ajoutent à la suite de la conversation :
      ils occupent donc le bas de la liste pendant l'envoi. */
-  const visibleMessages = useMemo(
-    () => [...(messages ?? []), ...pendingMessages],
-    [messages, pendingMessages]
-  );
+  const visibleMessages = useMemo(() => {
+    const list = [...(messages ?? []), ...pendingMessages];
+
+    /* La réponse de l'assistant, encore en cours, est affichée comme un
+       message ordinaire : elle s'écrit sous les yeux de la personne. */
+    if (aiStream)
+      list.push({
+        id: aiStream.id,
+        text: aiStream.text,
+        audioURL: null,
+        audioDuration: null,
+        imageURL: null,
+        poll: null,
+        pollVotes: null,
+        location: null,
+        linkPreview: null,
+        createdBy: AI_BOT_ID,
+        createdAt: aiStream.createdAt,
+        fromAI: true
+      });
+
+    return list;
+  }, [messages, pendingMessages, aiStream]);
 
   /* La bulle d'un message en cours d'envoi s'efface dès que le vrai message
      est arrivé, pour qu'il ne disparaisse jamais entre les deux. Un envoi
@@ -841,7 +868,9 @@ export function Conversation({
     removeAttachedImage();
   };
 
-  /* Demande une réponse à l'assistant et l'écrit dans la conversation. */
+  /* Demande une réponse à l'assistant et l'écrit dans la conversation.
+     La réponse arrive en flux : elle s'affiche au fur et à mesure, puis elle
+     est enregistrée une fois terminée. */
   const askAssistant = async (question: string): Promise<void> => {
     const history = [...(messages ?? [])]
       .filter((message) => message.text?.trim())
@@ -851,16 +880,31 @@ export function Conversation({
         content: (message.text as string).trim()
       }));
 
+    const stream = {
+      id: `pending-ai-${Date.now()}`,
+      text: '',
+      createdAt: Date.now()
+    };
+
+    setAiStream(stream);
+    isAtBottomRef.current = true;
+
     try {
-      const reply = await chatWithAi(
+      const reply = await streamChatWithAi(
         [...history, { role: 'user', content: question }],
-        aiSettings
+        aiSettings,
+        (partial) => {
+          setAiStream({ ...stream, text: partial });
+          scrollToBottom();
+        }
       );
 
-      await appendAiMessage(user.id, reply);
+      setAiStream(null);
 
-      isAtBottomRef.current = true;
+      if (reply.trim()) await appendAiMessage(user.id, reply.trim());
     } catch (error) {
+      setAiStream(null);
+
       toast.error(
         (error as Error)?.message ??
           'L’assistant n’a pas pu répondre. Vérifiez vos réglages.'
@@ -1075,6 +1119,16 @@ export function Conversation({
                   {group?.description ?? 'Posez votre question.'}
                 </p>
               </div>
+              {/* Sur téléphone, la conversation recouvre la liste : le bouton
+                  « retour » doit être franc pour qu'on puisse revenir
+                  choisir une autre conversation. */}
+              <button
+                className='ml-auto shrink-0 rounded-full border border-light-border px-3 py-1.5 text-sm font-semibold text-light-primary transition hover:bg-light-primary/5 dark:border-dark-border dark:text-dark-primary dark:hover:bg-dark-primary/5 md:hidden'
+                onClick={onBack}
+                type='button'
+              >
+                Conversations
+              </button>
             </>
           ) : !isGroup && contact?.username ? (
             <Link href={`/user/${contact.username}`}>
@@ -1266,6 +1320,16 @@ export function Conversation({
               const isLastOfGroup =
                 !next || next.createdBy !== message.createdBy;
 
+              /* Heure affichée sous la bulle. */
+              const time = new Date(message.createdAt).toLocaleTimeString(
+                'fr-FR',
+                { hour: '2-digit', minute: '2-digit' }
+              );
+
+              /* Le message a-t-il des actions (traduire, copier) ? Si oui,
+                 l'heure rejoint leur ligne : sinon les deux se chevauchent. */
+              const aiRow = hasAiActions(message, aiSettings);
+
               return (
                 <div
                   className={cn(
@@ -1311,22 +1375,33 @@ export function Conversation({
                     )}
                     <div
                       className={cn(
-                        'relative flex min-w-0 max-w-[75%] flex-col',
+                        'relative flex min-w-0 flex-col',
+                        /* La réponse de l'assistant n'est pas dans une bulle :
+                           elle est posée sur la page, comme un article. */
+                        message.fromAI ? 'w-full' : 'max-w-[75%]',
                         mine ? 'items-end' : 'items-start'
                       )}
                     >
                       {isGroup && !mine && isFirstOfGroup && sender && (
-                        <span className='mb-0.5 px-2 text-xs font-semibold text-light-secondary dark:text-dark-secondary'>
+                        <span className='mb-1 text-xs font-semibold text-light-secondary dark:text-dark-secondary'>
                           {sender.name}
                         </span>
                       )}
                       <div
                         className={cn(
-                          'whitespace-pre-wrap break-words px-4 py-2.5 text-[15px] leading-[1.45]',
-                          'rounded-2xl transition-colors duration-150',
-                          mine
-                            ? 'rounded-br-md bg-main-accent text-white'
-                            : 'rounded-bl-md bg-main-search-background text-light-primary dark:text-dark-primary',
+                          'text-[15px] leading-[1.45]',
+                          message.fromAI
+                            ? /* Pas de bulle : le texte est posé directement
+                                 sur la page, avec un simple liseré à gauche
+                                 pour le détacher du message précédent. */
+                              'break-words border-l-2 border-main-accent/30 pl-3 text-light-primary dark:text-dark-primary'
+                            : cn(
+                                'whitespace-pre-wrap break-words px-4 py-2.5',
+                                'rounded-2xl transition-colors duration-150',
+                                mine
+                                  ? 'rounded-br-md bg-main-accent text-white'
+                                  : 'rounded-bl-md bg-main-search-background text-light-primary dark:text-dark-primary'
+                              ),
                           isPending && 'opacity-70'
                         )}
                         title={new Date(message.createdAt).toLocaleString(
@@ -1360,7 +1435,23 @@ export function Conversation({
                              les astérisques des mots en gras et les listes
                              sont rendues, pas laissées brutes. */
                           message.fromAI ? (
-                            <AiMarkdown text={message.text ?? ''} />
+                            message.text ? (
+                              <AiMarkdown text={message.text} />
+                            ) : (
+                              /* L'assistant rédige : trois points qui
+                                 clignotent. */
+                              <span className='flex items-center gap-1 py-1'>
+                                {[0, 1, 2].map((index) => (
+                                  <span
+                                    className='h-1.5 w-1.5 animate-pulse rounded-full bg-light-secondary dark:bg-dark-secondary'
+                                    key={index}
+                                    style={{
+                                      animationDelay: `${index * 160}ms`
+                                    }}
+                                  />
+                                ))}
+                              </span>
+                            )
                           ) : (
                             <LinkifiedText
                               mine={mine}
@@ -1427,20 +1518,17 @@ export function Conversation({
                           </>
                         )}
                       </div>
-                      {isLastOfGroup && (
+                      {/* L'heure est posée sous la bulle. Quand le message a
+                          des actions (traduire, copier), elle rejoint leur
+                          ligne : les deux se chevauchaient sinon. */}
+                      {isLastOfGroup && !aiRow && (
                         <span
                           className={cn(
                             'absolute top-full mt-0.5 px-2 text-[11px] text-light-secondary dark:text-dark-secondary',
                             mine ? 'right-0 text-right' : 'left-0 text-left'
                           )}
                         >
-                          {new Date(message.createdAt).toLocaleTimeString(
-                            'fr-FR',
-                            {
-                              hour: '2-digit',
-                              minute: '2-digit'
-                            }
-                          )}
+                          {time}
                         </span>
                       )}
                     </div>
@@ -1473,41 +1561,15 @@ export function Conversation({
                     />
                   )}
 
-                  {/* Traduction : demandée à l'IA, affichée sous le
-                      message, sans jamais modifier le message d'origine. */}
-                  {aiEnabled && (
+                  {/* Heure et actions (traduire, copier) sur une seule ligne
+                      sous la bulle. */}
+                  {aiRow && (
                     <AiMessageTools
                       message={message}
                       mine={mine}
                       settings={aiSettings}
+                      time={time}
                     />
-                  )}
-
-                  {/* Copier la réponse : la réponse de l'assistant est
-                      souvent destinée à être reprise ailleurs. */}
-                  {message.fromAI && message.text && !isPending && (
-                    <div
-                      className={cn(
-                        'mt-0.5 flex items-center gap-1',
-                        mine ? 'justify-end' : 'justify-start'
-                      )}
-                    >
-                      <button
-                        className='flex items-center gap-1 rounded-full px-1.5 py-0.5 text-xs font-semibold text-light-secondary transition hover:bg-light-primary/5 hover:text-main-accent dark:text-dark-secondary dark:hover:bg-dark-primary/5'
-                        onClick={(): void => {
-                          void navigator.clipboard
-                            ?.writeText(message.text as string)
-                            .then(() => toast.success('Réponse copiée.'))
-                            .catch(() =>
-                              toast.error('Impossible de copier la réponse.')
-                            );
-                        }}
-                        type='button'
-                      >
-                        <MaterialIcon className='h-3.5 w-3.5' iconName='content_copy' />
-                        Copier
-                      </button>
-                    </div>
                   )}
                 </div>
               );

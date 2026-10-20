@@ -26,17 +26,32 @@ function absolute(url: string): string {
 }
 
 /**
- * Rend absolues les URL d'images relatives du site.
+ * Rend absolues les URL d'images relatives du site, et charge immédiatement
+ * les images.
+ *
+ * Deux adjustments sont nécessaires dans une fenêtre de bureau :
+ *
+ *  - les images du site sont stockées avec une URL relative
+ *    (« /api/image/… ») : il faut la rendre absolue, sinon elle pointe
+ *    sur la fenêtre elle-même et ne renvoie rien ;
+ *  - le site demande un chargement paresseux (« loading="lazy" »). Sur une
+ *    page qui défile, c'est utile ; dans une fenêtre fixe, Chrome remplace
+ *    les images par des rectangles gris et ne les charge jamais. On les
+ *    charge donc immédiatement.
  */
 function rewriteImages(root: ParentNode): void {
-  const images = root.querySelectorAll?.('img[src^="/api/"]');
+  const images = root.querySelectorAll?.('img');
 
   if (!images) return;
 
   images.forEach((image) => {
     const source = image.getAttribute('src');
 
-    if (source) image.setAttribute('src', absolute(source));
+    if (source && source.startsWith('/api/'))
+      image.setAttribute('src', absolute(source));
+
+    if (image.getAttribute('loading') === 'lazy')
+      image.setAttribute('loading', 'eager');
   });
 }
 
@@ -64,7 +79,7 @@ export function installSiteBridge(): void {
     childList: true,
     subtree: true,
     attributes: true,
-    attributeFilter: ['src']
+    attributeFilter: ['src', 'loading']
   });
 
   if (document.readyState === 'loading')

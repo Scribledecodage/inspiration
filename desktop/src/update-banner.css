@@ -1,0 +1,94 @@
+/* Bandeau de mise a jour et pastille de version.
+ *
+ * Ces deux elements sont poses par-dessus la page (le site occupe toute la
+ * fenetre) : ils restent visibles quelle que soit la page affichee. */
+
+.update-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: rgb(29 155 240 / 14%);
+  border-bottom: 1px solid rgb(29 155 240 / 35%);
+  color: #0f1419;
+  font-size: 14px;
+  font-weight: 500;
+  backdrop-filter: blur(8px);
+}
+
+@media (prefers-color-scheme: dark) {
+  .update-banner {
+    color: #e7e9ea;
+  }
+}
+
+.update-banner .spacer {
+  flex: 1;
+}
+
+.update-banner .button {
+  padding: 6px 14px;
+  font-size: 13px;
+}
+
+.update-banner .icon-button {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  font-size: 14px;
+  opacity: 0.7;
+}
+
+.update-banner .icon-button:hover {
+  opacity: 1;
+}
+
+.update-banner .progress {
+  width: 140px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgb(15 20 25 / 12%);
+  overflow: hidden;
+}
+
+.update-banner .progress > i {
+  display: block;
+  height: 100%;
+  background: #1d9bf0;
+  transition: width 160ms ease;
+}
+
+/* Pastille de version, en bas a droite. */
+.version-pill {
+  position: fixed;
+  right: 12px;
+  bottom: 12px;
+  z-index: 9998;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid rgb(15 20 25 / 12%);
+  background: rgb(255 255 255 / 85%);
+  color: #536471;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  opacity: 0.55;
+  transition: opacity 120ms ease;
+}
+
+.version-pill:hover {
+  opacity: 1;
+}
+
+@media (prefers-color-scheme: dark) {
+  .version-pill {
+    background: rgb(22 24 28 / 85%);
+    border-color: rgb(255 255 255 / 15%);
+    color: #8b98a5;
+  }
+}

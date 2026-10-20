@@ -177,3 +177,23 @@ export async function currentVersion(): Promise<string> {
     return '1.0.0';
   }
 }
+
+/**
+ * Version annoncée par le manifeste distant (celle de la dernière version
+ * publiée). Sert à afficher l'état du système de mise à jour.
+ */
+export async function latestPublishedVersion(): Promise<string | null> {
+  try {
+    const response = await fetch(
+      'https://github.com/Scribledecodage/inspiration/releases/latest/download/latest.json'
+    );
+
+    if (!response.ok) return null;
+
+    const manifest = (await response.json()) as { version?: string };
+
+    return manifest.version ?? null;
+  } catch {
+    return null;
+  }
+}

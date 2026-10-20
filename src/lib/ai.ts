@@ -24,6 +24,8 @@ export type AiRequest = {
   instruction?: string;
   /** Texte à traduire ou à reformuler. */
   text?: string;
+  /** La réponse est-elle demandée en flux, morceau par morceau ? */
+  stream?: boolean;
 };
 
 export type AiResponse = {
@@ -135,6 +137,106 @@ export async function chatWithAi(
   if (!reply) throw new AiError('Le modèle n’a rien répondu.');
 
   return reply;
+}
+
+/**
+ * Dialogue avec l'assistant, réponse en flux.
+ *
+ * Le texte arrive morceau par morceau : `onUpdate` est appelé à chaque
+ * fragment avec le texte complet, pour que la réponse s'écrive à l'écran
+ * pendant qu'elle est produite.
+ */
+export async function streamChatWithAi(
+  history: { role: 'user' | 'assistant'; content: string }[],
+  settings: AiSettings,
+  onUpdate: (text: string) => void
+): Promise<string> {
+  const body: AiRequest = {
+    task: 'chat',
+    apiKey: settings.apiKey,
+    language: settings.language,
+    model: settings.model,
+    stream: true,
+    messages: [
+      { role: 'system', content: baseInstruction(settings) },
+      ...buildHistory(history)
+    ]
+  };
+
+  let response: Response;
+
+  try {
+    response = await fetch('/api/ai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(
+        body.apiKey
+          ? {
+              ...body,
+              apiKey: body.apiKey.trim().replace(/^bearer\s+/i, '')
+            }
+          : body
+      )
+    });
+  } catch {
+    throw new AiError(
+      'Impossible de joindre le service d’intelligence artificielle.'
+    );
+  }
+
+  if (!response.ok) {
+    const data = (await response.json().catch(() => ({}))) as AiResponse;
+
+    throw new AiError(
+      data.error ?? 'Le service d’intelligence artificielle a renvoyé une erreur.',
+      response.status
+    );
+  }
+
+  if (!response.body)
+    throw new AiError('Le service d’intelligence artificielle n’a rien renvoyé.');
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+
+  let buffer = '';
+  let full = '';
+
+  for (;;) {
+    const { done, value } = await reader.read();
+
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+
+    const frames = buffer.split('\n\n');
+    buffer = frames.pop() ?? '';
+
+    for (const frame of frames) {
+      const line = frame.trim();
+
+      if (!line.startsWith('data:')) continue;
+
+      const data = line.slice(5).trim();
+
+      if (!data || data === '[DONE]') continue;
+
+      try {
+        const parsed = JSON.parse(data) as { text?: string; error?: string };
+
+        if (parsed.error) throw new AiError(parsed.error);
+
+        if (parsed.text) {
+          full += parsed.text;
+          onUpdate(full);
+        }
+      } catch (error) {
+        if (error instanceof AiError) throw error;
+      }
+    }
+  }
+
+  return full;
 }
 
 /** Traduit un texte dans la langue choisie. */
