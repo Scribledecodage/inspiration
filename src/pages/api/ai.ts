@@ -147,7 +147,10 @@ export default async function handler(
 ): Promise<void> {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
-    res.status(405).json({ error: 'Méthode non autorisée.' });
+    res.status(405).json({
+      error:
+        'Cette adresse attend une requête POST : elle ne s’ouvre pas dans un onglet de navigateur.'
+    });
     return;
   }
 
@@ -155,10 +158,15 @@ export default async function handler(
 
   const task = body.task ?? 'chat';
 
-  const apiKey =
-    normalizeApiKey(body.apiKey) || normalizeApiKey(process.env.AI_API_KEY);
+  /* Deux clés possibles : celle de la personne (dans son profil) et celle
+     du serveur. La première est refusée si elle est fausse ou périmée : on
+     tente alors la seconde, pour que la personne ne soit pas bloquée. */
+  const serverKey = normalizeApiKey(process.env.AI_API_KEY);
+  const personalKey = normalizeApiKey(body.apiKey);
 
-  if (!apiKey) {
+  let currentKey = personalKey || serverKey;
+
+  if (!currentKey) {
     res.status(503).json({
       error:
         'L’intelligence artificielle n’est pas configurée sur ce serveur. Ajoutez une clé dans Réglages › Intelligence artificielle, ou demandez à l’administration du site d’en configurer une.'
@@ -202,7 +210,7 @@ export default async function handler(
      appelle son service (ils sont facultatifs). */
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    Authorization: `Bearer ${apiKey}`
+    Authorization: `Bearer ${currentKey}`
   };
 
   if (endpoint.includes('openrouter.ai')) {
@@ -249,6 +257,15 @@ export default async function handler(
         lastStatus = status;
         lastReason = payload.error?.message ?? lastReason;
 
+        /* La clé personnelle a pu être refusée (fausse, périmée, mal
+           collée) : on tente alors la clé du serveur, pour que la personne
+           ne soit pas bloquée. */
+        if (status === 401 && currentKey !== serverKey && serverKey) {
+          currentKey = serverKey;
+          headers.Authorization = `Bearer ${currentKey}`;
+          continue;
+        }
+
         /* Une clé refusée (401) ou une demande invalide (400) ne passera pas
            mieux avec un autre modèle. En revanche, un 403 peut venir du
            modèle lui-même (certains ne sont ouverts qu'à certains usages) :
@@ -275,7 +292,7 @@ export default async function handler(
         lastStatus === 401
           ? `Le fournisseur a refusé la clé${
               lastReason ? ` : ${lastReason}` : ''
-            }. Vérifiez la clé dans Réglages › Intelligence artificielle (sans le préfixe « Bearer »).`
+            }. Effacez-la dans Réglages › Intelligence artificielle, ou vérifiez qu’elle est complète (sans le préfixe « Bearer »).`
           : lastStatus === 403
           ? `Le modèle a refusé la demande${
               lastReason ? ` : ${lastReason}` : ''

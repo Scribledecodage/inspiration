@@ -31,9 +31,7 @@ export function Toggle({
       aria-label={label}
       className={cn(
         'relative h-6 w-10 shrink-0 rounded-full transition-colors duration-200',
-        checked
-          ? 'bg-main-accent'
-          : 'bg-light-border dark:bg-dark-border',
+        checked ? 'bg-main-accent' : 'bg-light-border dark:bg-dark-border',
         disabled && 'cursor-not-allowed opacity-50',
         className
       )}

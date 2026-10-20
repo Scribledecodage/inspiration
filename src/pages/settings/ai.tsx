@@ -29,7 +29,9 @@ export default function SettingsAiPage(): JSX.Element {
   });
 
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const savedRef = useRef<string>(JSON.stringify(withAiDefaults(user?.aiSettings)));
+  const savedRef = useRef<string>(
+    JSON.stringify(withAiDefaults(user?.aiSettings))
+  );
 
   const persist = (next: AiSettings, immediate: boolean): void => {
     if (timerRef.current) clearTimeout(timerRef.current);
@@ -112,8 +114,8 @@ export default function SettingsAiPage(): JSX.Element {
           <p className='text-sm leading-6 text-light-secondary dark:text-dark-secondary'>
             Une conversation dédiée à l’assistant est disponible dans votre
             messagerie, en haut de la liste. Vous y posez vos questions, vous
-            lui demandez de reformuler un texte, et il
-            répond dans la langue que vous avez choisie.
+            lui demandez de reformuler un texte, et il répond dans la langue que
+            vous avez choisie.
           </p>
           <Link href='/messages'>
             <a className='w-fit rounded-full bg-main-accent px-4 py-2 text-sm font-bold text-white transition hover:brightness-90'>
@@ -139,9 +141,9 @@ export default function SettingsAiPage(): JSX.Element {
           <p>
             Le traitement est réalisé par le fournisseur d’intelligence
             artificielle que vous avez choisi. Vos contenus privés ne servent
-            pas à entraîner des modèles et ne sont ni vendus ni cédés à des
-            fins publicitaires. Vous pouvez à tout moment couper l’ensemble
-            des fonctions, changer de fournisseur ou supprimer votre clé.
+            pas à entraîner des modèles et ne sont ni vendus ni cédés à des fins
+            publicitaires. Vous pouvez à tout moment couper l’ensemble des
+            fonctions, changer de fournisseur ou supprimer votre clé.
           </p>
           <p>
             Un système d’intelligence artificielle peut se tromper : vérifiez
