@@ -27,7 +27,12 @@ export default function SettingsAiPage(): JSX.Element {
     setSaving(true);
 
     try {
-      await saveAiSettings(user.id, settings);
+      /* La clé est souvent copiée avec son préfixe « Bearer » : on le retire
+         pour ne pas stocker une clé inutilisable. */
+      await saveAiSettings(user.id, {
+        ...settings,
+        apiKey: settings.apiKey.trim().replace(/^bearer\s+/i, '')
+      });
       toast.success('Réglages enregistrés.');
     } catch {
       toast.error('Impossible d’enregistrer les réglages.');

@@ -303,7 +303,11 @@ export function AiSettingsCard({
         </label>
         <p className='text-xs leading-5 text-light-secondary dark:text-dark-secondary'>
           Si le site n’a pas de clé configurée, indiquez la vôtre : elle reste
-          sur votre compte et n’est jamais transmise à un tiers.
+          sur votre compte et n’est jamais transmise à un tiers. Le préfixe{' '}
+          <code className='rounded bg-main-search-background px-1 py-0.5 text-[10px]'>
+            Bearer
+          </code>{' '}
+          est retiré automatiquement.
         </p>
         <input
           autoComplete='off'

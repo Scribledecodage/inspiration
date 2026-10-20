@@ -129,11 +129,9 @@ export default async function imageProxy(
     res.send(Buffer.from(imageBuffer));
   } catch (error) {
     console.error('Image proxy error:', error);
-    res
-      .status(500)
-      .json({
-        error: 'Failed to fetch image',
-        details: error instanceof Error ? error.message : 'Unknown error'
-      });
+    res.status(500).json({
+      error: 'Failed to fetch image',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 }

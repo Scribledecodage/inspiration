@@ -49,6 +49,18 @@ function firstNonEmpty(...values: (string | undefined)[]): string {
   return found?.trim() ?? '';
 }
 
+/**
+ * Nettoie une clé de fournisseur.
+ *
+ * La clé est souvent collée avec son préfixe « Bearer » (c'est ce que
+ * affichent la plupart des interfaces). On l'enlève : sinon l'en-tête
+ * envoyé devient « Bearer Bearer … », et le fournisseur répond « Missing
+ * Authentication header ».
+ */
+function normalizeApiKey(value?: string): string {
+  return firstNonEmpty(value).replace(/^bearer\s+/i, '');
+}
+
 /** Extrait le texte de la réponse, quel que soit le format du fournisseur. */
 function extractReply(payload: ProviderAnswer): string {
   const content = payload.choices?.[0]?.message?.content;
@@ -135,7 +147,8 @@ export default async function handler(
 
   const task = body.task ?? 'chat';
 
-  const apiKey = firstNonEmpty(body.apiKey, process.env.AI_API_KEY);
+  const apiKey =
+    normalizeApiKey(body.apiKey) || normalizeApiKey(process.env.AI_API_KEY);
 
   if (!apiKey) {
     res.status(503).json({
@@ -200,17 +213,20 @@ export default async function handler(
     const payload = (await response.json().catch(() => ({}))) as ProviderAnswer;
 
     if (!response.ok) {
-      res
-        .status(
-          response.status >= 400 && response.status < 600
-            ? response.status
-            : 502
-        )
-        .json({
-          error:
-            payload.error?.message ??
-            'Le fournisseur d’intelligence artificielle a refusé la demande.'
-        });
+      const status =
+        response.status >= 400 && response.status < 600 ? response.status : 502;
+
+      const reason = payload.error?.message;
+
+      res.status(status).json({
+        error:
+          status === 401 || status === 403
+            ? `Le fournisseur a refusé la clé${
+                reason ? ` : ${reason}` : ''
+              }. Vérifiez la clé dans Réglages › Intelligence artificielle (sans le préfixe « Bearer »).`
+            : reason ??
+              'Le fournisseur d’intelligence artificielle a refusé la demande.'
+      });
       return;
     }
 
