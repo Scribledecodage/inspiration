@@ -35,12 +35,21 @@ export async function askAiToReply(
   await ensureAiAccount();
 
   /* L'URL de l'image est relative (« /api/image/… ») : le modèle doit pouvoir
-     la chercher, il lui faut une adresse absolue. */
-  const image = images?.find((item) => !item.type?.includes('video'));
+     la chercher, il lui faut une adresse absolue.
 
-  const imageUrl = image?.src
-    ? `${process.env.NEXT_PUBLIC_URL ?? ''}${image.src}`
-    : undefined;
+     C'est l'adresse publique du site qu'on utilise : dans l'application de
+     bureau, l'origine de la fenêtre n'est pas celle du site, et le modèle ne
+     pourrait pas y aller. */
+  const site = (process.env.NEXT_PUBLIC_URL ?? '').replace(/\/+$/, '');
+
+  /* Seule une vraie image est envoyée : ni GIF, ni vidéo — le modèle ne
+     sait pas regarder cela. */
+  const image = images?.find(
+    (item) =>
+      item.src && !item.type?.includes('video') && !item.type?.includes('gif')
+  );
+
+  const imageUrl = image?.src ? `${site}${image.src}` : undefined;
 
   try {
     const response = await fetch('/api/ai/reply', {
