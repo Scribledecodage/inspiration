@@ -60,7 +60,21 @@ pub fn run() {
     builder
         // Mémorise la taille et la position de la fenêtre entre deux
         // ouvertures (et le plein écran).
-        .plugin(tauri_plugin_window_state::Builder::default().build())
+        //
+        // La visibilité n'est pas mémorisée : la croix ferme la fenêtre sans
+        // quitter l'application (elle reste dans la zone de notification),
+        // et l'application doit malgré tout s'ouvrir à la prochaine
+        // ouverture.
+        .plugin(
+            tauri_plugin_window_state::Builder::default()
+                .with_state_flags(
+                    tauri_plugin_window_state::StateFlags::SIZE
+                        | tauri_plugin_window_state::StateFlags::POSITION
+                        | tauri_plugin_window_state::StateFlags::MAXIMIZED
+                        | tauri_plugin_window_state::StateFlags::FULLSCREEN,
+                )
+                .build(),
+        )
         // Mise à jour automatique : les paquets sont signés, l'application
         // refuse d'installer une mise à jour non signée.
         .plugin(tauri_plugin_updater::Builder::new().build())

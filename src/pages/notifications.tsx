@@ -150,6 +150,33 @@ function NotificationThread({
                   : 'Créé automatiquement à la création de votre compte'}
               </span>
             </div>
+
+            {/* Action « Copier », en bas du message : la notification se
+                copie comme un message de la messagerie. */}
+            <div className='mt-3 flex items-center gap-3 text-[11px] text-light-secondary dark:text-dark-secondary'>
+              <button
+                className='flex items-center gap-1 rounded-full px-1.5 py-0.5 font-semibold transition hover:bg-light-primary/5 hover:text-main-accent disabled:opacity-50 dark:hover:bg-dark-primary/5'
+                onClick={(): void => {
+                  const clipboard = navigator.clipboard;
+
+                  if (!clipboard) {
+                    toast.error('Impossible de copier la notification.');
+                    return;
+                  }
+
+                  void clipboard
+                    .writeText(notif.body)
+                    .then(() => toast.success('Notification copiée.'))
+                    .catch(() =>
+                      toast.error('Impossible de copier la notification.')
+                    );
+                }}
+                type='button'
+              >
+                <MaterialIcon className='h-3.5 w-3.5' iconName='content_copy' />
+                Copier
+              </button>
+            </div>
           </div>
         </div>
       </div>

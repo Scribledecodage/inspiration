@@ -195,20 +195,35 @@
     }
   }
 
+  /* Barre du haut : un voile flouté, pas un aplat. Le contenu qui défile
+     dessous reste visible.
+     Le `@supports` est écrit à la main (et non via `@apply`) : le
+     reformatage automatique des classes Tailwind réordonne la liste, et
+     Tailwind refuse alors la variante `supports-[…]` dans un `@apply`. */
   .glass-header {
-    @apply supports-[backdrop-filter]:bg-main-background/65 bg-main-background/75 backdrop-blur-xl;
+    @apply bg-main-background/75 backdrop-blur-xl;
 
-    /* Sur téléphone, la barre devient translucide elle aussi : le contenu
-       qui défile dessous reste visible, flouté. C'est l'effet « verre » des
-       applications modernes ; la lisibilité est conservée grâce au voile
-       flouté, pas grâce à un fond opaque. */
+    @supports (backdrop-filter: blur(1px)) {
+      background-color: rgb(var(--main-background) / 0.65);
+    }
+
+    /* Sur téléphone, la barre est translucide elle aussi : le contenu qui
+       défile dessous reste visible, flouté. */
     @media (max-width: 499px) {
-      @apply supports-[backdrop-filter]:bg-main-background/65 bg-main-background/75 backdrop-blur-xl;
+      @apply bg-main-background/75 backdrop-blur-xl;
+
+      @supports (backdrop-filter: blur(1px)) {
+        background-color: rgb(var(--main-background) / 0.65);
+      }
     }
   }
 
   .glass-bar {
-    @apply bg-main-background/85 backdrop-blur-lg supports-[backdrop-filter]:bg-main-background/75;
+    @apply bg-main-background/85 backdrop-blur-lg;
+
+    @supports (backdrop-filter: blur(1px)) {
+      background-color: rgb(var(--main-background) / 0.75);
+    }
 
     @media (max-width: 499px) {
       @apply bg-main-background backdrop-blur-0;
