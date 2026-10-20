@@ -46,6 +46,7 @@ import { MessagePoll } from './message-poll';
 import { GroupAvatar } from './group-avatar';
 import { ChannelAvatar } from '@components/channel/channel-avatar';
 import { AiAvatar } from './ai-avatar';
+import { AiMarkdown } from './ai-markdown';
 import { AiMessageTools } from './ai-message-tools';
 import {
   aiBotUser,
@@ -1355,10 +1356,17 @@ export function Conversation({
                           </span>
                         )}
                         {!message.audioURL && !message.imageURL && (
-                          <LinkifiedText
-                            mine={mine}
-                            text={message.text ?? ''}
-                          />
+                          /* Les réponses de l'assistant sont en Markdown :
+                             les astérisques des mots en gras et les listes
+                             sont rendues, pas laissées brutes. */
+                          message.fromAI ? (
+                            <AiMarkdown text={message.text ?? ''} />
+                          ) : (
+                            <LinkifiedText
+                              mine={mine}
+                              text={message.text ?? ''}
+                            />
+                          )
                         )}
                         {message.poll && !isPending && (
                           <MessagePoll
@@ -1473,6 +1481,33 @@ export function Conversation({
                       mine={mine}
                       settings={aiSettings}
                     />
+                  )}
+
+                  {/* Copier la réponse : la réponse de l'assistant est
+                      souvent destinée à être reprise ailleurs. */}
+                  {message.fromAI && message.text && !isPending && (
+                    <div
+                      className={cn(
+                        'mt-0.5 flex items-center gap-1',
+                        mine ? 'justify-end' : 'justify-start'
+                      )}
+                    >
+                      <button
+                        className='flex items-center gap-1 rounded-full px-1.5 py-0.5 text-xs font-semibold text-light-secondary transition hover:bg-light-primary/5 hover:text-main-accent dark:text-dark-secondary dark:hover:bg-dark-primary/5'
+                        onClick={(): void => {
+                          void navigator.clipboard
+                            ?.writeText(message.text as string)
+                            .then(() => toast.success('Réponse copiée.'))
+                            .catch(() =>
+                              toast.error('Impossible de copier la réponse.')
+                            );
+                        }}
+                        type='button'
+                      >
+                        <MaterialIcon className='h-3.5 w-3.5' iconName='content_copy' />
+                        Copier
+                      </button>
+                    </div>
                   )}
                 </div>
               );

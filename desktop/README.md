@@ -147,27 +147,37 @@ Le système est complet et sûr :
 
 ### Publier une version
 
+**C'est automatique** : il suffit de pousser un tag.
+
 ```bash
-npm run release -- --notes "Correction du défilement, nouveaux emojis"
+# La version de l'application est calée sur celle du tag.
+npm version 1.0.1 --no-git-tag-version   # optionnel : le workflow le fait
+git tag -a v1.0.1 -m "Version 1.0.1"
+git push origin main
+git push origin v1.0.1
 ```
 
-Le script :
+Le workflow GitHub (`.github/workflows/release.yml`) exécute alors, sur Windows :
 
-1. compile l'application ;
-2. signe les artefacts (`.exe.sig`) ;
-3. écrit `release/latest.json`, le manifeste lu par l'application.
+1. l'installation des dépendances du site et de l'application ;
+2. la copie des images et le téléchargement des polices ;
+3. l'alignement de la version sur le tag ;
+4. la compilation, la **signature** de l'installateur et la génération du
+   manifeste `latest.json` ;
+5. la publication de la release, avec l'installateur, sa signature et le
+   manifeste.
 
-Il reste à téléverser sur la release GitHub `v1.0.0` du dépôt
-`ccrsxx/twitter-clone` :
+L'application installée détecte la nouvelle version (au démarrage, puis
+toutes les six heures), la télécharge en tâche de fond et l'installe
+silencieusement.
 
-- `Inspiration_1.0.0_x64-setup.exe` et son `.sig`
-- `latest.json` (à la racine de la release)
+La clé de signature est un **secret du dépôt**
+(`TAURI_SIGNING_PRIVATE_KEY` et `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`) :
+elle n'est jamais versionnée. **Si vous la perdez, plus aucune mise à jour
+ne pourra être signée.**
 
-L'adresse du manifeste est celle déclarée dans `tauri.conf.json`
-(`plugins.updater.endpoints`) : un simple fichier statique, aucun serveur
-à maintenir. **Si vous perdez la clé privée, plus aucune mise à jour ne
-pourra être signée** : la clé est dans `.keys/`, qui n'est jamais versionné —
-sauvegardez-la en lieu sûr.
+Pour changer de dépôt ou d'adresse de déploiement, tout est regroupé dans
+`src/site-url.ts` (adresse du site, dépôt GitHub, adresse du manifeste).
 
 ---
 
@@ -198,6 +208,12 @@ Tout ce que le site sait faire, plus ce que le bureau apporte en plus :
 - L'application lit et écrit dans le **même projet Firebase** que le site :
   une publication faite dans l'application apparaît immédiatement sur le
   site, et réciproquement. Les comptes sont les mêmes.
+- Les quelques requêtes que le site adresse à son propre serveur
+  (téléversement d'images, d'avatars et de bannières, GIF, tendances,
+  assistant) sont faites **par la couche native** : elles ne sont donc pas
+  bloquées par les règles CORS du navigateur, et l'application n'a besoin
+  d'aucun serveur. Elles visent le même déploiement que le site (voir
+  `src/site-url.ts`).
 - Elle est **hors ligne pour la lecture** : le fil servi vient du cache
   local, les écritures sont mises en file d'attente et synchronisées au
   retour du réseau.
