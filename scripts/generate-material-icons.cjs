@@ -62,6 +62,7 @@ const ICONS = [
   'dashboard_customize',
   'delete',
   'description',
+  'download',
   'edit',
   'edit_square',
   'favorite',

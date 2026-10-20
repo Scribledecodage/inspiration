@@ -12,6 +12,10 @@ export type Notification = {
   createdAt: number;
   /** Lu ou non. */
   read?: boolean;
+  /** Lien associé à la notification (téléchargement, page…). */
+  link?: string | null;
+  /** Libellé du bouton qui mène au lien. */
+  linkLabel?: string | null;
 };
 
 export const notificationConverter: FirestoreDataConverter<Notification> = {

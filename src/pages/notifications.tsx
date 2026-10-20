@@ -127,6 +127,21 @@ function NotificationThread({
               </p>
             </div>
 
+            {/* Le lien de la notification (téléchargement de l'application
+                de bureau…). Il est interne au site : le téléchargement se
+                fait sans quitter la page. */}
+            {notif.link && (
+              <a
+                className='mt-4 flex w-fit items-center gap-2 rounded-full bg-main-accent px-4 py-2 text-sm font-bold text-white transition hover:brightness-90'
+                download
+                href={notif.link}
+                rel='noopener noreferrer'
+              >
+                <MaterialIcon className='h-4 w-4' iconName='download' />
+                {notif.linkLabel ?? 'Télécharger'}
+              </a>
+            )}
+
             <div className='mt-3 flex items-center gap-2 text-xs text-light-secondary dark:text-dark-secondary'>
               <NotificationIcon notif={notif} size={32} />
               <span>

@@ -39,7 +39,9 @@ const payload = JSON.parse(fs.readFileSync(filePath, 'utf8'));
             body: payload.body,
             type: payload.type || 'announcement',
             createdAt: Date.now(),
-            read: false
+            read: false,
+            link: payload.link || null,
+            linkLabel: payload.linkLabel || null
           });
         done += 1;
         if (done % 10 === 0)

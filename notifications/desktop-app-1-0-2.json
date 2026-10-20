@@ -1,0 +1,9 @@
+{
+  "id": "desktop-app-1-0-2",
+  "title": "Inspiration est disponible sur votre ordinateur",
+  "body": "L’application de bureau d’Inspiration est arrivée.\n\nElle reprend tout le site : publications, messagerie, chaînes, notifications, statuts… et elle se met à jour toute seule au démarrage.\n\nLe fichier se téléchargera directement depuis cette page : vous ne quittez pas Inspiration.\n\nSi l’installation vous le demande, autorisez simplement le programme à s’exécuter — c’est l’installateur signé de l’équipe Inspiration.",
+  "type": "announcement",
+  "link": "/api/download/desktop",
+  "linkLabel": "Télécharger pour Windows",
+  "createdAt": 1760000000000
+}
