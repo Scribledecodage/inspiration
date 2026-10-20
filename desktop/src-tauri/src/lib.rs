@@ -41,11 +41,19 @@ macro_rules! ensure_sane_size {
 }
 
 /// Zone utilisable de l'écran : elle exclut la barre des tâches.
+struct WorkArea {
+    x: i32,
+    y: i32,
+    width: u32,
+    height: u32,
+}
+
+/// La zone utilisable de l'écran (celle qui exclut la barre des tâches).
 ///
 /// Windows ne la donne pas par l'intermédiaire de Tauri : on la demande
 /// directement au système.
 #[cfg(target_os = "windows")]
-fn work_area() -> Option<tauri::Rect> {
+fn work_area() -> Option<WorkArea> {
     use windows_sys::Win32::Foundation::RECT;
     use windows_sys::Win32::UI::WindowsAndMessaging::{
         SystemParametersInfoW, SPI_GETWORKAREA
@@ -73,18 +81,17 @@ fn work_area() -> Option<tauri::Rect> {
         return None;
     }
 
-    Some(tauri::Rect {
-        position: tauri::PhysicalPosition::new(rect.left, rect.top),
-        size: tauri::PhysicalSize::new(
-            (rect.right - rect.left).max(0) as u32,
-            (rect.bottom - rect.top).max(0) as u32,
-        ),
+    Some(WorkArea {
+        x: rect.left,
+        y: rect.top,
+        width: (rect.right - rect.left).max(0) as u32,
+        height: (rect.bottom - rect.top).max(0) as u32,
     })
 }
 
 /// Sur les autres systèmes, on ne bride rien.
 #[cfg(not(target_os = "windows"))]
-fn work_area() -> Option<tauri::Rect> {
+fn work_area() -> Option<WorkArea> {
     None
 }
 
@@ -96,22 +103,20 @@ macro_rules! constrain_to_work_area {
     ($window:expr) => {{
         let window = $window;
 
-        if !window.is_maximized() {
+        if !window.is_maximized().unwrap_or(false) {
             if let Some(area) = work_area() {
                 if let (Ok(size), Ok(position)) =
                     (window.outer_size(), window.outer_position())
                 {
-                    let width = size.width.min(area.size.width).max(MIN_WIDTH);
-                    let height = size.height.min(area.size.height).max(MIN_HEIGHT);
+                    let width = size.width.min(area.width).max(MIN_WIDTH);
+                    let height = size.height.min(area.height).max(MIN_HEIGHT);
 
-                    let x = position.x.clamp(
-                        area.position.x,
-                        area.position.x + area.size.width.saturating_sub(width),
-                    );
-                    let y = position.y.clamp(
-                        area.position.y,
-                        area.position.y + area.size.height.saturating_sub(height),
-                    );
+                    let x = position
+                        .x
+                        .clamp(area.x, area.x + area.width.saturating_sub(width) as i32);
+                    let y = position
+                        .y
+                        .clamp(area.y, area.y + area.height.saturating_sub(height) as i32);
 
                     if width != size.width || height != size.height {
                         let _ = window.set_size(tauri::PhysicalSize::new(width, height));
