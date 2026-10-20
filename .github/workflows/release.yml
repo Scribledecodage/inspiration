@@ -36,7 +36,13 @@ jobs:
       - name: Installer Rust
         uses: dtolnay/rust-toolchain@stable
 
-      - name: Installer les dépendances
+      - name: Installer les dépendances du site
+        # La configuration Tailwind du site est reprise par l'application de
+        # bureau : elle a besoin des dépendances du site (tailwindcss,
+        # daisyui…).
+        run: npm ci
+
+      - name: Installer les dépendances de l'application
         working-directory: desktop
         run: npm ci
 

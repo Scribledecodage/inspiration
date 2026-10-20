@@ -243,34 +243,8 @@ export function AiSettingsCard({
               value={settings.translateLanguage}
             />
           </Row>
-
-          <Row
-            description='Modèles proposés par OpenRouter : les gratuits d’abord, puis les plus récents.'
-            title='Modèle'
-          >
-            <SearchSelect
-              allowCustom
-              emptyLabel={
-                modelsError ?? 'Aucun modèle trouvé. Tapez un identifiant.'
-              }
-              loading={modelsLoading}
-              onChange={(model): void => update({ model })}
-              options={modelOptions}
-              placeholder='Choisir un modèle'
-              searchPlaceholder='Rechercher un modèle…'
-              value={settings.model}
-            />
-          </Row>
         </div>
       </div>
-
-      {modelsError && (
-        <p className='flex items-start gap-2 rounded-lg border border-light-border bg-main-search-background/30 px-3 py-2 text-xs leading-5 text-light-secondary dark:border-dark-border dark:text-dark-secondary'>
-          <MaterialIcon className='mt-0.5 h-4 w-4 shrink-0' iconName='info' />
-          {modelsError} Vous pouvez tout de même saisir un identifiant de modèle
-          à la main.
-        </p>
-      )}
 
       <div className='flex flex-col gap-2 rounded-xl border border-light-border bg-main-background p-4 dark:border-dark-border'>
         <label
