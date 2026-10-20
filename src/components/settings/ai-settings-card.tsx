@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import cn from 'clsx';
 import { toast } from 'react-hot-toast';
 import { chatWithAi } from '@lib/ai';
@@ -7,18 +7,15 @@ import { MaterialIcon } from '@components/ui/material-icon';
 import { CustomIcon } from '@components/ui/custom-icon';
 import { Toggle } from '@components/ui/toggle';
 import { SearchSelect } from '@components/ui/search-select';
-import type { AiModel, AiSettings } from '@lib/types/ai';
+import type { AiSettings } from '@lib/types/ai';
 import type { ReactNode } from 'react';
 
 type AiSettingsCardProps = {
   settings: AiSettings;
+  /** Chaque changement est enregistré automatiquement par la page. */
   onChange: (settings: AiSettings) => void;
-  onSave: () => Promise<void>;
   saving: boolean;
 };
-
-/* Un modèle est « nouveau » pendant un mois après sa sortie. */
-const NEW_MODEL_DAYS = 30;
 
 function Row({
   title,
@@ -46,19 +43,6 @@ function Row({
   );
 }
 
-/* Prix affiché : par million de jetons. */
-function formatPrice(price: number): string {
-  if (!price) return 'Gratuit';
-
-  const perMillion = price * 1_000_000;
-
-  if (perMillion < 0.01) return '< 0,01 $/M';
-
-  return `${perMillion.toLocaleString('fr-FR', {
-    maximumFractionDigits: 2
-  })} $/M`;
-}
-
 /**
  * Réglages des fonctions d'intelligence artificielle.
  *
@@ -68,80 +52,13 @@ function formatPrice(price: number): string {
 export function AiSettingsCard({
   settings,
   onChange,
-  onSave,
   saving
 }: AiSettingsCardProps): JSX.Element {
   const [testing, setTesting] = useState(false);
-  const [models, setModels] = useState<AiModel[]>([]);
-  const [modelsLoading, setModelsLoading] = useState(true);
-  const [modelsError, setModelsError] = useState<string | null>(null);
 
   const update = (patch: Partial<AiSettings>): void => {
     onChange({ ...settings, ...patch });
   };
-
-  /* Les modèles viennent d'OpenRouter : la liste est à jour, et les prix
-     aussi. */
-  useEffect(() => {
-    let cancelled = false;
-
-    const load = async (): Promise<void> => {
-      setModelsLoading(true);
-
-      try {
-        const response = await fetch('/api/ai/models');
-        const payload = (await response.json()) as {
-          models?: AiModel[];
-          error?: string;
-        };
-
-        if (cancelled) return;
-
-        if (!response.ok)
-          throw new Error(payload.error ?? 'Liste des modèles indisponible.');
-
-        setModels(payload.models ?? []);
-        setModelsError(null);
-      } catch (error) {
-        if (cancelled) return;
-
-        setModelsError(
-          (error as Error)?.message ??
-            'Impossible de joindre OpenRouter pour la liste des modèles.'
-        );
-      } finally {
-        if (!cancelled) setModelsLoading(false);
-      }
-    };
-
-    void load();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  /* Les gratuits d'abord, puis les plus récents. */
-  const modelOptions = useMemo(() => {
-    const now = Math.floor(Date.now() / 1000);
-
-    return [...models]
-      .sort((a, b) => {
-        if (a.free !== b.free) return a.free ? -1 : 1;
-        return b.created - a.created;
-      })
-      .map((model) => {
-        const isNew = now - model.created < NEW_MODEL_DAYS * 24 * 3600;
-
-        return {
-          value: model.id,
-          label: model.name,
-          free: model.free,
-          badge: isNew ? 'Nouveau' : undefined,
-          hint: model.free ? 'Gratuit' : formatPrice(model.promptPrice)
-        };
-      });
-  }, [models]);
 
   const languageOptions = useMemo(
     () =>
@@ -174,7 +91,7 @@ export function AiSettingsCard({
       <div className='overflow-hidden rounded-xl border border-light-border bg-main-background dark:border-dark-border'>
         <div className='divide-y divide-light-border dark:divide-dark-border'>
           <Row
-            description='Coupe d’un geste l’assistant, la traduction et les résumés.'
+            description='Coupe d’un geste l’assistant et la traduction.'
             title='Activer l’intelligence artificielle'
           >
             <Toggle
@@ -296,15 +213,6 @@ export function AiSettingsCard({
 
       <div className='flex flex-wrap items-center gap-3'>
         <button
-          className='flex items-center gap-2 rounded-full bg-main-accent px-4 py-2 text-sm font-bold text-white transition hover:brightness-90 disabled:opacity-60'
-          disabled={saving || testing}
-          onClick={(): void => void onSave()}
-          type='button'
-        >
-          {saving && <CustomIcon className='h-4 w-4' iconName='SpinnerIcon' />}
-          Enregistrer
-        </button>
-        <button
           className={cn(
             'flex items-center gap-2 rounded-full border border-light-border px-4 py-2 text-sm font-bold transition',
             'text-light-primary hover:bg-light-primary/5 disabled:opacity-60',
@@ -321,6 +229,22 @@ export function AiSettingsCard({
           )}
           Tester le modèle
         </button>
+
+        {/* Tout est enregistré tout seul : l'indicateur rassure, sans
+            obliger à cliquer sur « Enregistrer ». */}
+        <span className='flex items-center gap-1.5 text-xs text-light-secondary dark:text-dark-secondary'>
+          {saving ? (
+            <>
+              <CustomIcon className='h-3.5 w-3.5' iconName='SpinnerIcon' />
+              Enregistrement…
+            </>
+          ) : (
+            <>
+              <MaterialIcon className='h-3.5 w-3.5' iconName='check_circle' />
+              Enregistré — les changements s’appliquent immédiatement
+            </>
+          )}
+        </span>
       </div>
     </div>
   );

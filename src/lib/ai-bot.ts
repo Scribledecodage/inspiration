@@ -24,7 +24,7 @@ export const AI_BOT_NAME = 'Assistant IA';
 
 /** Description affichée sous le nom de l'assistant. */
 export const AI_BOT_DESCRIPTION =
-  'Posez une question, demandez une traduction ou un résumé.';
+  'Posez une question, demandez une traduction ou une réécriture.';
 
 /** Profil de l'assistant, utilisé pour son avatar et son nom. */
 export const aiBotUser: User = {

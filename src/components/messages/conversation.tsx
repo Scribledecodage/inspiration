@@ -100,7 +100,7 @@ const AI_ATTACH_OPTIONS: readonly {
 /* Questions proposées à l'ouverture d'une conversation avec l'assistant. */
 const AI_SUGGESTIONS: readonly string[] = [
   'Aide-moi à écrire une publication',
-  'Résume ce texte en trois points',
+  'Améliore ce texte',
   'Traduis ce message en anglais'
 ];
 
@@ -1217,7 +1217,7 @@ export function Conversation({
             </p>
             <p className='max-w-xs text-sm leading-5 text-light-secondary dark:text-dark-secondary'>
               {isAi
-                ? 'L’assistant répond dans la langue de votre choix. Demandez-lui une idée, une correction, un résumé…'
+                ? 'L’assistant répond dans la langue de votre choix. Demandez-lui une idée, une correction, une reformulation…'
                 : isGroup
                 ? 'Envoyez votre premier message dans ce groupe.'
                 : `Envoyez votre premier message à @${
@@ -1465,7 +1465,7 @@ export function Conversation({
                     />
                   )}
 
-                  {/* Traduction et résumé : demandés à l'IA, affichés sous le
+                  {/* Traduction : demandée à l'IA, affichée sous le
                       message, sans jamais modifier le message d'origine. */}
                   {aiEnabled && (
                     <AiMessageTools

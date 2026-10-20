@@ -28,7 +28,7 @@
       }
     ],
     "security": {
-      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' asset: http://asset.localhost https://fonts.googleapis.com; img-src 'self' data: blob: https: asset: http://asset.localhost; font-src 'self' data: asset: http://asset.localhost https://fonts.gstatic.com; connect-src 'self' ipc: http://ipc.localhost https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.firebaseapp.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://accounts.google.com https://u-social.vercel.app https://api.backblazeb2.com https://f005.backblazeb2.com https://*.supabase.co; frame-src https://*.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self' https://accounts.google.com"
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' asset: http://asset.localhost https://fonts.googleapis.com; img-src 'self' data: blob: https: asset: http://asset.localhost; media-src 'self' data: blob: https:; font-src 'self' data: asset: http://asset.localhost https://fonts.gstatic.com; connect-src 'self' ipc: http://ipc.localhost https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.firebaseapp.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://accounts.google.com https://u-social.vercel.app https://api.backblazeb2.com https://f005.backblazeb2.com https://*.supabase.co; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com https://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self' https://accounts.google.com"
     },
     "trayIcon": {
       "id": "main",

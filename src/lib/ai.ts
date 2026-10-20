@@ -13,7 +13,7 @@ export type AiTurn = {
 };
 
 /** Nature de la demande envoyée au modèle. */
-export type AiTask = 'chat' | 'translate' | 'rewrite' | 'summarize';
+export type AiTask = 'chat' | 'translate' | 'rewrite';
 
 export type AiRequest = {
   task: AiTask;
@@ -22,7 +22,7 @@ export type AiRequest = {
   apiKey?: string;
   language?: string;
   instruction?: string;
-  /** Texte à traduire, reformuler ou résumer. */
+  /** Texte à traduire ou à reformuler. */
   text?: string;
 };
 
@@ -61,11 +61,17 @@ export function isKnownAiLanguage(language: string): boolean {
 export async function aiRequest(payload: AiRequest): Promise<string> {
   let response: Response;
 
+  /* La clé est souvent collée avec son préfixe « Bearer » : on l'enlève
+     avant de l'envoyer, pour ne pas dépendre du serveur. */
+  const body: AiRequest = payload.apiKey
+    ? { ...payload, apiKey: payload.apiKey.trim().replace(/^bearer\s+/i, '') }
+    : payload;
+
   try {
     response = await fetch('/api/ai', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(body)
     });
   } catch {
     throw new AiError(
@@ -165,24 +171,6 @@ export async function rewriteWithAi(
   });
 
   if (!reply) throw new AiError('La reformulation est vide.');
-
-  return reply;
-}
-
-/** Résume un texte. */
-export async function summarizeWithAi(
-  text: string,
-  settings: AiSettings
-): Promise<string> {
-  const reply = await aiRequest({
-    task: 'summarize',
-    apiKey: settings.apiKey,
-    language: settings.language,
-    model: settings.model,
-    text
-  });
-
-  if (!reply) throw new AiError('Le résumé est vide.');
 
   return reply;
 }

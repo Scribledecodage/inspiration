@@ -1,3 +1,4 @@
+import { AI_DEFAULT_MODEL, AI_MODELS } from '@lib/types/ai';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 /**
@@ -11,7 +12,22 @@ import type { NextApiRequest, NextApiResponse } from 'next';
  */
 
 const DEFAULT_ENDPOINT = 'https://openrouter.ai/api/v1/chat/completions';
-const DEFAULT_MODEL = 'openai/gpt-4o-mini';
+
+/* Nombre de modèles essayés à la suite : les points gratuits d'OpenRouter
+   tombent souvent en 429 quand ils sont très demandés. */
+const MAX_MODEL_ATTEMPTS = 3;
+
+/* Un modèle qui échoue n'a pas de raison de faire échouer la demande : on
+   passe au suivant. */
+function isRetryableStatus(status: number): boolean {
+  return (
+    status === 404 ||
+    status === 408 ||
+    status === 409 ||
+    status === 429 ||
+    (status >= 500 && status < 600)
+  );
+}
 
 /* Au-delà, la demande devient inutilement coûteuse : on la coupe. */
 const MAX_INPUT_LENGTH = 12_000;
@@ -26,7 +42,7 @@ type Turn = {
 };
 
 type Body = {
-  task?: 'chat' | 'translate' | 'rewrite' | 'summarize';
+  task?: 'chat' | 'translate' | 'rewrite';
   messages?: Turn[];
   model?: string;
   apiKey?: string;
@@ -101,14 +117,6 @@ function buildInstruction(body: Body): string {
       text
     ].join('\n');
 
-  if (body.task === 'summarize')
-    return [
-      `Résume le texte ci-dessous en ${language}.`,
-      'Rends un résumé court, en deux ou trois phrases au maximum, sans préambule.',
-      '',
-      text
-    ].join('\n');
-
   return '';
 }
 
@@ -159,7 +167,11 @@ export default async function handler(
   }
 
   const endpoint = firstNonEmpty(process.env.AI_API_URL) || DEFAULT_ENDPOINT;
-  const model = firstNonEmpty(body.model, process.env.AI_MODEL, DEFAULT_MODEL);
+  const model = firstNonEmpty(
+    body.model,
+    process.env.AI_MODEL,
+    AI_DEFAULT_MODEL
+  );
 
   const history = cleanHistory(body.messages);
   const instruction = buildInstruction(body);
@@ -199,45 +211,78 @@ export default async function handler(
   }
 
   try {
-    const response = await fetch(endpoint, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({
-        model,
-        messages,
-        temperature: task === 'chat' ? 0.7 : 0.2
-      }),
-      signal: controller.signal
-    });
+    /* On essaie le modèle demandé, puis les suivants : un point gratuit
+       indisponible (429, 503…) ne doit pas priver la personne de réponse. */
+    const tried: string[] = [];
+    const candidates = [
+      model,
+      ...AI_MODELS.filter((candidate) => candidate !== model)
+    ].filter((candidate, index, all) => all.indexOf(candidate) === index);
 
-    const payload = (await response.json().catch(() => ({}))) as ProviderAnswer;
+    let lastStatus = 502;
+    let lastReason = 'Le modèle n’a renvoyé aucune réponse.';
 
-    if (!response.ok) {
-      const status =
-        response.status >= 400 && response.status < 600 ? response.status : 502;
+    for (const candidate of candidates.slice(0, MAX_MODEL_ATTEMPTS)) {
+      tried.push(candidate);
 
-      const reason = payload.error?.message;
-
-      res.status(status).json({
-        error:
-          status === 401 || status === 403
-            ? `Le fournisseur a refusé la clé${
-                reason ? ` : ${reason}` : ''
-              }. Vérifiez la clé dans Réglages › Intelligence artificielle (sans le préfixe « Bearer »).`
-            : reason ??
-              'Le fournisseur d’intelligence artificielle a refusé la demande.'
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          model: candidate,
+          messages,
+          temperature: task === 'chat' ? 0.7 : 0.2
+        }),
+        signal: controller.signal
       });
-      return;
+
+      const payload = (await response
+        .json()
+        .catch(() => ({}))) as ProviderAnswer;
+
+      if (!response.ok) {
+        const status =
+          response.status >= 400 && response.status < 600
+            ? response.status
+            : 502;
+
+        lastStatus = status;
+        lastReason = payload.error?.message ?? lastReason;
+
+        /* Une clé refusée (401) ou une demande invalide (400) ne passera pas
+           mieux avec un autre modèle. En revanche, un 403 peut venir du
+           modèle lui-même (certains ne sont ouverts qu'à certains usages) :
+           on essaie alors le suivant. */
+        if (status === 401 || status === 400) break;
+        if (!isRetryableStatus(status)) break;
+
+        continue;
+      }
+
+      const reply = extractReply(payload);
+
+      if (reply) {
+        res.status(200).json({ reply });
+        return;
+      }
+
+      lastStatus = 502;
+      lastReason = 'Le modèle n’a renvoyé aucune réponse.';
     }
 
-    const reply = extractReply(payload);
-
-    if (!reply) {
-      res.status(502).json({ error: 'Le modèle n’a renvoyé aucune réponse.' });
-      return;
-    }
-
-    res.status(200).json({ reply });
+    res.status(lastStatus).json({
+      error:
+        lastStatus === 401
+          ? `Le fournisseur a refusé la clé${
+              lastReason ? ` : ${lastReason}` : ''
+            }. Vérifiez la clé dans Réglages › Intelligence artificielle (sans le préfixe « Bearer »).`
+          : lastStatus === 403
+          ? `Le modèle a refusé la demande${
+              lastReason ? ` : ${lastReason}` : ''
+            }.`
+          : lastReason ??
+            'Le fournisseur d’intelligence artificielle a refusé la demande.'
+    });
   } catch (error) {
     const aborted = (error as Error)?.name === 'AbortError';
 

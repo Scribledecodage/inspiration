@@ -88,15 +88,29 @@ export type AiModel = {
   free: boolean;
 };
 
-/** Modèles proposés, quand le serveur n'en impose aucun. */
+/**
+ * Modèles gratuits recommandés, du meilleur au suivant.
+ *
+ * Les points gratuits d'OpenRouter sont gratuits : ils tombent souvent en 429
+ * quand tout le monde s'en sert. On essaie donc les uns après les autres
+ * jusqu'à ce que l'un d'eux réponde.
+ *
+ * Classement d'octobre 2026 (score « Intelligence », contexte, date de
+ * sortie, usage sur 7 jours) :
+ *   1. MiniMax M3.1 Flash   — 42.7 · 1M · 19/10/2026 · 1,1 T jetons
+ *   2. Nemotron 3 Ultra     — 22.9 · 1M · 04/06/2026 · 4,6 T
+ *   3. Gemma 4 26B         — 98.5 au banc d'essai · 262 K
+ *
+ * Les modèles « thinkingmachines/inkling » en sont écartés : OpenRouter les
+ * réserve aux agents de programmation et refuse nos appels (403).
+ */
 export const AI_MODELS: readonly string[] = [
-  '',
-  'openai/gpt-4o-mini',
-  'openai/gpt-4o',
-  'anthropic/claude-3.5-haiku',
-  'anthropic/claude-3.5-sonnet',
-  'google/gemini-2.0-flash-001',
-  'meta-llama/llama-3.3-70b-instruct',
-  'mistralai/mistral-small',
-  'deepseek/deepseek-chat'
+  'minimax/minimax-m3.1-flash:free',
+  'nvidia/nemotron-3-ultra-550b-a55b:free',
+  'google/gemma-4-26b-a4b-it:free',
+  'qwen/qwen3.8-27b:free',
+  'poolside/laguna-xs-2.1:free'
 ];
+
+/** Modèle utilisé par défaut (le meilleur gratuit connu). */
+export const AI_DEFAULT_MODEL = AI_MODELS[0];

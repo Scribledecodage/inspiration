@@ -48,7 +48,7 @@ export default function SettingsHelpPage(): JSX.Element {
         title='Intelligence artificielle'
       >
         <SettingsRow
-          description='L’assistant de la messagerie, la traduction et les résumés'
+          description='L’assistant de la messagerie et la traduction'
           href='/settings/ai'
           iconName='auto_awesome_mosaic'
           label='Réglages de l’intelligence artificielle'
