@@ -57,7 +57,9 @@ const rules = [];
 let count = 0;
 
 for (const block of blocks) {
-  const subset = /\/\*\s*([a-z-]+)\s*\*\//.exec(css.slice(0, css.indexOf(block)))?.[1];
+  const subset = /\/\*\s*([a-z-]+)\s*\*\//.exec(
+    css.slice(0, css.indexOf(block))
+  )?.[1];
   const comment = block.match(/\/\*\s*([a-z-]+)\s*\*\//);
   const name = comment?.[1];
 
@@ -98,5 +100,7 @@ for (const block of blocks) {
 
 writeFileSync(join(outputDir, 'fonts.css'), `${rules.join('\n\n')}\n`);
 
-console.log(`[fonts] ${count} fichier(s) téléchargé(s), ${rules.length} règle(s).`);
+console.log(
+  `[fonts] ${count} fichier(s) téléchargé(s), ${rules.length} règle(s).`
+);
 console.log(`[fonts] CSS : src/fonts/fonts.css`);

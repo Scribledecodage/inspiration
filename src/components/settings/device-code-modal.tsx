@@ -58,7 +58,9 @@ export function DeviceCodeModal({
     event.preventDefault();
 
     if (!isValidDeviceCodeFormat(code)) {
-      setError(`Le code doit contenir exactement ${DEVICE_CODE_LENGTH} chiffres.`);
+      setError(
+        `Le code doit contenir exactement ${DEVICE_CODE_LENGTH} chiffres.`
+      );
       return;
     }
 

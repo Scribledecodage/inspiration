@@ -9,7 +9,9 @@ import type { AnchorHTMLAttributes, MouseEvent, ReactNode } from 'react';
  * dans le navigateur du système.
  */
 type LinkProps = Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'href'> & {
-  href: string | { pathname?: string; query?: Record<string, string>; hash?: string };
+  href:
+    | string
+    | { pathname?: string; query?: Record<string, string>; hash?: string };
   children?: ReactNode;
   prefetch?: boolean;
   replace?: boolean;

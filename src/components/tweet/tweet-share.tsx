@@ -387,7 +387,9 @@ export function TweetShare({
               <span className={tileClass}>
                 <MaterialIcon className='h-5 w-5' iconName='content_copy' />
               </span>
-              <span className='min-w-0 flex-1'>Copier le lien de la publication</span>
+              <span className='min-w-0 flex-1'>
+                Copier le lien de la publication
+              </span>
             </Button>
             <Button
               className={menuItemClass}
@@ -452,7 +454,7 @@ export function TweetShare({
                       </span>
                     )}
                   </p>
-                  <p className='mt-1 line-clamp-3 whitespace-pre-wrap break-words text-sm text-light-secondary dark:text-dark-secondary'>
+                  <p className='line-clamp-3 mt-1 whitespace-pre-wrap break-words text-sm text-light-secondary dark:text-dark-secondary'>
                     {previewText}
                   </p>
                 </div>
@@ -468,22 +470,24 @@ export function TweetShare({
             </div>
 
             <div className='flex flex-col'>
-              {shareTargets.map((target): JSX.Element => (
-                <Button
-                  className={menuItemClass}
-                  key={target.id}
-                  onClick={(): void => openTarget(target)}
-                >
-                  <ShareTargetIcon target={target} />
-                  <span className='min-w-0 flex-1 truncate font-semibold'>
-                    {target.label}
-                  </span>
-                  <MaterialIcon
-                    className='h-4 w-4 shrink-0 text-light-secondary dark:text-dark-secondary'
-                    iconName='chevron_right'
-                  />
-                </Button>
-              ))}
+              {shareTargets.map(
+                (target): JSX.Element => (
+                  <Button
+                    className={menuItemClass}
+                    key={target.id}
+                    onClick={(): void => openTarget(target)}
+                  >
+                    <ShareTargetIcon target={target} />
+                    <span className='min-w-0 flex-1 truncate font-semibold'>
+                      {target.label}
+                    </span>
+                    <MaterialIcon
+                      className='h-4 w-4 shrink-0 text-light-secondary dark:text-dark-secondary'
+                      iconName='chevron_right'
+                    />
+                  </Button>
+                )
+              )}
             </div>
           </div>
         )}

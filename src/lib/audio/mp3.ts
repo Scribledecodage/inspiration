@@ -41,8 +41,7 @@ const loadScript = (): Promise<void> =>
     script.async = true;
 
     script.onload = () => resolve();
-    script.onerror = () =>
-      reject(new Error('mp3-encoder-unavailable'));
+    script.onerror = () => reject(new Error('mp3-encoder-unavailable'));
 
     document.head.appendChild(script);
   });

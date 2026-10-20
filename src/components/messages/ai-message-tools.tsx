@@ -100,7 +100,10 @@ export function AiMessageTools({
             {busy === 'summarize' ? (
               <CustomIcon className='h-3.5 w-3.5' iconName='SpinnerIcon' />
             ) : (
-              <MaterialIcon className='h-3.5 w-3.5' iconName='auto_awesome_mosaic' />
+              <MaterialIcon
+                className='h-3.5 w-3.5'
+                iconName='auto_awesome_mosaic'
+              />
             )}
             Résumer
           </button>
@@ -123,7 +126,9 @@ export function AiMessageTools({
                 <MaterialIcon
                   className='h-3.5 w-3.5'
                   iconName={
-                    result.tool === 'translate' ? 'translate' : 'auto_awesome_mosaic'
+                    result.tool === 'translate'
+                      ? 'translate'
+                      : 'auto_awesome_mosaic'
                   }
                 />
                 {result.tool === 'translate' ? 'Traduction' : 'Résumé'}

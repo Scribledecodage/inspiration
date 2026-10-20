@@ -17,9 +17,7 @@ export function splitProfileEntries(
 }
 
 /* Rassemble la liste en une seule valeur ; `null` quand tout est vide. */
-export function joinProfileEntries(
-  entries: readonly string[]
-): string | null {
+export function joinProfileEntries(entries: readonly string[]): string | null {
   const cleaned = entries.map((entry) => entry.trim()).filter(Boolean);
   return cleaned.length > 0 ? cleaned.join('\n') : null;
 }

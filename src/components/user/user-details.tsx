@@ -132,7 +132,7 @@ export function UserDetails({
             verified={verified}
           />
           {customBadge && (
-            <span className='rounded-full bg-main-accent/15 px-2.5 py-0.5 text-xs font-semibold text-main-accent'>
+            <span className='bg-main-accent/15 rounded-full px-2.5 py-0.5 text-xs font-semibold text-main-accent'>
               {customBadge}
             </span>
           )}
@@ -144,7 +144,11 @@ export function UserDetails({
       </div>
 
       <div className='flex flex-col gap-2'>
-        {bio && <p className='whitespace-pre-line break-words text-[15px] leading-relaxed'>{bio}</p>}
+        {bio && (
+          <p className='whitespace-pre-line break-words text-[15px] leading-relaxed'>
+            {bio}
+          </p>
+        )}
         <div className='flex flex-wrap gap-x-4 gap-y-2 text-sm text-light-secondary dark:text-dark-secondary'>
           {profileDetails.map(
             ({ key, label, icon, href, favicon, tooltip }) =>
@@ -168,7 +172,10 @@ export function UserDetails({
                       {label}
                     </a>
                   ) : tooltip ? (
-                    <button className='custom-underline group relative truncate' type='button'>
+                    <button
+                      className='custom-underline group relative truncate'
+                      type='button'
+                    >
                       {label}
                       <ToolTip className='translate-y-1' tip={tooltip} />
                     </button>

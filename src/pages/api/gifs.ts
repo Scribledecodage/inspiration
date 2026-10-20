@@ -84,25 +84,36 @@ export default async function gifsEndpoint(
   req: NextApiRequest,
   res: NextApiResponse<{ gifs: GifResult[]; hasMore: boolean }>
 ): Promise<void> {
-  const query = typeof req.query.query === 'string' ? req.query.query.trim() : '';
+  const query =
+    typeof req.query.query === 'string' ? req.query.query.trim() : '';
   const category =
-    typeof req.query.category === 'string' ? req.query.category.trim() : 'trending';
+    typeof req.query.category === 'string'
+      ? req.query.category.trim()
+      : 'trending';
   const offset = Math.max(
     0,
-    parseInt(typeof req.query.offset === 'string' ? req.query.offset : '0', 10) || 0
+    parseInt(
+      typeof req.query.offset === 'string' ? req.query.offset : '0',
+      10
+    ) || 0
   );
   const limit = Math.min(
     50,
     Math.max(
       12,
-      parseInt(typeof req.query.limit === 'string' ? req.query.limit : '24', 10) || 24
+      parseInt(
+        typeof req.query.limit === 'string' ? req.query.limit : '24',
+        10
+      ) || 24
     )
   );
   const apiKey = process.env.Api ?? process.env.GIPHY_API_KEY;
 
   if (!apiKey) {
     res.setHeader('Cache-Control', 'no-store');
-    res.status(200).json({ gifs: offset === 0 ? fallbackGifs : [], hasMore: false });
+    res
+      .status(200)
+      .json({ gifs: offset === 0 ? fallbackGifs : [], hasMore: false });
     return;
   }
 
@@ -128,7 +139,9 @@ export default async function gifsEndpoint(
     );
 
     if (!response.ok) {
-      res.status(200).json({ gifs: offset === 0 ? fallbackGifs : [], hasMore: false });
+      res
+        .status(200)
+        .json({ gifs: offset === 0 ? fallbackGifs : [], hasMore: false });
       return;
     }
 
@@ -140,6 +153,8 @@ export default async function gifsEndpoint(
     res.setHeader('Cache-Control', 's-maxage=120, stale-while-revalidate=600');
     res.status(200).json({ gifs, hasMore: gifs.length >= limit });
   } catch {
-    res.status(200).json({ gifs: offset === 0 ? fallbackGifs : [], hasMore: false });
+    res
+      .status(200)
+      .json({ gifs: offset === 0 ? fallbackGifs : [], hasMore: false });
   }
 }

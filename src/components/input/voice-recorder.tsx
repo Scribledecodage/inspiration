@@ -238,7 +238,9 @@ export function VoiceRecorder({
         setRecording(true);
 
         timerRef.current = setInterval(() => {
-          const elapsed = Math.round((Date.now() - startedAtRef.current) / 1000);
+          const elapsed = Math.round(
+            (Date.now() - startedAtRef.current) / 1000
+          );
 
           setSeconds(elapsed);
 
@@ -309,11 +311,7 @@ export function VoiceRecorder({
             onClick={() => stop(false)}
             type='button'
           >
-            <MaterialIcon
-              className='h-4 w-4'
-              iconName='send'
-              solid
-            />
+            <MaterialIcon className='h-4 w-4' iconName='send' solid />
           </button>
         </>
       )}

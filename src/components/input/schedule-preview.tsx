@@ -35,7 +35,10 @@ export function SchedulePreview({
       transition={{ duration: 0.18 }}
     >
       <div className='flex items-center gap-2 pr-8'>
-        <MaterialIcon className='h-5 w-5 shrink-0 text-main-accent' iconName='calendar_month' />
+        <MaterialIcon
+          className='h-5 w-5 shrink-0 text-main-accent'
+          iconName='calendar_month'
+        />
         <div className='flex flex-col'>
           <p className='text-sm font-bold'>Publication programmée</p>
           <p className='text-xs capitalize text-light-secondary dark:text-dark-secondary'>

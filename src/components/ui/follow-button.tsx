@@ -80,7 +80,7 @@ export function FollowButton({
       </Modal>
       {userIsFollowed ? (
         <Button
-          className='dark-bg-tab relative flex min-w-[140px] self-start justify-center whitespace-nowrap border border-light-line-reply px-4 py-1.5
+          className='dark-bg-tab relative flex min-w-[140px] justify-center self-start whitespace-nowrap border border-light-line-reply px-4 py-1.5
                      font-bold transition-colors hover:border-accent-red hover:bg-accent-red hover:text-white
                      dark:border-light-secondary'
           onClick={preventBubbling(openModal)}

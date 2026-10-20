@@ -2,10 +2,7 @@ import { useRef, useState } from 'react';
 import cn from 'clsx';
 import { useDragControls } from 'framer-motion';
 import { getAvatarSrc, getBannerSrc } from '@lib/media';
-import {
-  getAvatarShapeClass,
-  isMaskedAvatarShape
-} from '@lib/avatar-shape';
+import { getAvatarShapeClass, isMaskedAvatarShape } from '@lib/avatar-shape';
 import { MainHeader } from '@components/home/main-header';
 import { Button } from '@components/ui/button';
 import { MaterialIcon } from '@components/ui/material-icon';
@@ -180,7 +177,9 @@ export function EditProfileModal({
           <div className='mb-4 flex items-start justify-between gap-4'>
             <div>
               <h2 className='text-lg font-bold'>Photo de profil</h2>
-              <p className='mt-1 text-sm text-light-secondary dark:text-dark-secondary'>Choisissez une action.</p>
+              <p className='mt-1 text-sm text-light-secondary dark:text-dark-secondary'>
+                Choisissez une action.
+              </p>
             </div>
             <Button
               className='-mr-2 -mt-2 p-2'
@@ -192,28 +191,34 @@ export function EditProfileModal({
           </div>
           <div className='space-y-1'>
             <Button
-              className='accent-tab flex min-h-12 w-full items-center gap-3 rounded-xl px-3.5 py-3 text-left text-[15px] hover:bg-light-primary/5 dark:hover:bg-dark-primary/10'
+              className='accent-tab min-h-12 flex w-full items-center gap-3 rounded-xl px-3.5 py-3 text-left text-[15px] hover:bg-light-primary/5 dark:hover:bg-dark-primary/10'
               onClick={() => {
                 setProfileMenuOpen(false);
                 setProfilePreviewOpen(true);
               }}
             >
-              <MaterialIcon className='h-5 w-5 shrink-0' iconName='visibility' />
+              <MaterialIcon
+                className='h-5 w-5 shrink-0'
+                iconName='visibility'
+              />
               Voir votre photo de profil
             </Button>
             <Button
-              className='accent-tab flex min-h-12 w-full items-center gap-3 rounded-xl px-3.5 py-3 text-left text-[15px] hover:bg-light-primary/5 dark:hover:bg-dark-primary/10'
+              className='accent-tab min-h-12 flex w-full items-center gap-3 rounded-xl px-3.5 py-3 text-left text-[15px] hover:bg-light-primary/5 dark:hover:bg-dark-primary/10'
               onClick={() => {
                 setProfileMenuOpen(false);
                 handleClick('profile')();
               }}
             >
-              <MaterialIcon className='h-5 w-5 shrink-0' iconName='photo_camera' />
+              <MaterialIcon
+                className='h-5 w-5 shrink-0'
+                iconName='photo_camera'
+              />
               Changer la photo de profil
             </Button>
             {hasCustomAvatar && (
               <Button
-                className='accent-tab flex min-h-12 w-full items-center gap-3 rounded-xl px-3.5 py-3 text-left text-[15px] text-red-600 hover:bg-red-500/5 dark:hover:bg-red-500/10'
+                className='accent-tab min-h-12 flex w-full items-center gap-3 rounded-xl px-3.5 py-3 text-left text-[15px] text-red-600 hover:bg-red-500/5 dark:hover:bg-red-500/10'
                 onClick={() => {
                   setProfileMenuOpen(false);
                   removeProfileImage();
@@ -310,7 +315,7 @@ export function EditProfileModal({
                     'main-tab relative aspect-square w-24 overflow-hidden bg-white !p-0 focus-visible:ring-2 focus-visible:ring-main-accent xs:w-32 sm:w-36',
                     shapeClass,
                     !isMaskedAvatarShape(avatarShape) &&
-                      'border-4 border-white dark:border-dark-background'
+                      'dark:border-dark-background border-4 border-white'
                   )}
                   onClick={() => setProfileMenuOpen(true)}
                   aria-label='Ouvrir les options de la photo de profil'

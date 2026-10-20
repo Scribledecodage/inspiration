@@ -80,7 +80,9 @@ export function UserHeader(): JSX.Element {
             : 'Aucune publication'
           : currentPage === 'media'
           ? totalPhotos
-            ? `${totalPhotos} photo${isPlural(totalPhotos) ? 's' : ''} et GIF${isPlural(totalPhotos) ? 's' : ''}`
+            ? `${totalPhotos} photo${isPlural(totalPhotos) ? 's' : ''} et GIF${
+                isPlural(totalPhotos) ? 's' : ''
+              }`
             : 'Aucune photo ni GIF'
           : totalLikes
           ? `${totalLikes} J’aime${isPlural(totalLikes) ? 's' : ''}`

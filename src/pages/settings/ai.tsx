@@ -91,9 +91,9 @@ export default function SettingsAiPage(): JSX.Element {
           <p>
             Le traitement est réalisé par le fournisseur d’intelligence
             artificielle que vous avez choisi. Vos contenus privés ne servent
-            pas à entraîner des modèles et ne sont ni vendus ni cédés à des
-            fins publicitaires. Vous pouvez à tout moment couper l’ensemble
-            des fonctions, changer de fournisseur ou supprimer votre clé.
+            pas à entraîner des modèles et ne sont ni vendus ni cédés à des fins
+            publicitaires. Vous pouvez à tout moment couper l’ensemble des
+            fonctions, changer de fournisseur ou supprimer votre clé.
           </p>
           <p>
             Un système d’intelligence artificielle peut se tromper : vérifiez

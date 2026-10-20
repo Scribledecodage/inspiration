@@ -29,7 +29,8 @@ export function getAuthErrorMessage(authError: unknown): string {
 
   if (code === 'auth/user-disabled') return 'Ce compte a été désactivé.';
 
-  if (code === 'auth/invalid-email') return 'Cette adresse e-mail n’est pas valide.';
+  if (code === 'auth/invalid-email')
+    return 'Cette adresse e-mail n’est pas valide.';
 
   if (code === 'auth/missing-password')
     return 'Saisissez votre mot de passe pour continuer.';

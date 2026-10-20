@@ -66,8 +66,8 @@ export default function AccessibilityPage(): JSX.Element {
               <strong className='text-light-primary dark:text-dark-primary'>
                 Navigation au clavier :
               </strong>{' '}
-              les liens et les boutons sont des éléments HTML natifs, atteignables
-              avec la touche Tab et activables au clavier.
+              les liens et les boutons sont des éléments HTML natifs,
+              atteignables avec la touche Tab et activables au clavier.
             </li>
             <li>
               <strong className='text-light-primary dark:text-dark-primary'>
@@ -81,9 +81,9 @@ export default function AccessibilityPage(): JSX.Element {
                 Libellés explicites :
               </strong>{' '}
               les boutons qui n’affichent qu’une icône possèdent un intitulé en
-              français destiné aux technologies d’assistance (par exemple
-              « Écrire une publication », « Fermer le sélecteur de GIF »,
-              « Suivre @nom »).
+              français destiné aux technologies d’assistance (par exemple «
+              Écrire une publication », « Fermer le sélecteur de GIF », « Suivre
+              @nom »).
             </li>
             <li>
               <strong className='text-light-primary dark:text-dark-primary'>
@@ -104,9 +104,9 @@ export default function AccessibilityPage(): JSX.Element {
               <strong className='text-light-primary dark:text-dark-primary'>
                 Thèmes :
               </strong>{' '}
-              plusieurs modes d’affichage sont disponibles dans le menu Affichage
-              (clair, sombre, dim, ou alignement sur le réglage de votre
-              système).
+              plusieurs modes d’affichage sont disponibles dans le menu
+              Affichage (clair, sombre, dim, ou alignement sur le réglage de
+              votre système).
             </li>
             <li>
               <strong className='text-light-primary dark:text-dark-primary'>
@@ -119,7 +119,8 @@ export default function AccessibilityPage(): JSX.Element {
               <strong className='text-light-primary dark:text-dark-primary'>
                 Avatar :
               </strong>{' '}
-              la forme et le cadre de votre photo de profil sont personnalisables.
+              la forme et le cadre de votre photo de profil sont
+              personnalisables.
             </li>
             <li>
               <strong className='text-light-primary dark:text-dark-primary'>
@@ -142,9 +143,9 @@ export default function AccessibilityPage(): JSX.Element {
           </p>
           <ul className='list-disc space-y-2 pl-5 text-light-secondary dark:text-dark-secondary'>
             <li>
-              Aucun audit d’accessibilité externe n’a encore été réalisé : l’état
-              décrit sur cette page résulte d’un travail interne et ne constitue
-              pas une déclaration de conformité au RGAA ou aux WCAG.
+              Aucun audit d’accessibilité externe n’a encore été réalisé :
+              l’état décrit sur cette page résulte d’un travail interne et ne
+              constitue pas une déclaration de conformité au RGAA ou aux WCAG.
             </li>
             <li>
               Certaines animations ne tiennent pas encore compte du réglage
@@ -169,11 +170,11 @@ export default function AccessibilityPage(): JSX.Element {
           </h2>
           <p className='text-light-secondary dark:text-dark-secondary'>
             Si une page ou une fonction vous pose problème, écrivez-nous à
-            l’adresse ci-dessous en précisant si possible : la page concernée, ce
-            qui s’est mal passé, votre appareil ou votre navigateur, ainsi que la
-            technologie d’assistance utilisée (lecteur d’écran, loupe,
-            navigation au clavier, etc.). Vos retours nous aident à prioriser les
-            corrections.
+            l’adresse ci-dessous en précisant si possible : la page concernée,
+            ce qui s’est mal passé, votre appareil ou votre navigateur, ainsi
+            que la technologie d’assistance utilisée (lecteur d’écran, loupe,
+            navigation au clavier, etc.). Vos retours nous aident à prioriser
+            les corrections.
           </p>
           <p className='text-light-secondary dark:text-dark-secondary'>
             Contact : <ContactLink />

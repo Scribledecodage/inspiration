@@ -7,7 +7,10 @@ type AsideProps = {
   inTrendsPage?: boolean;
 };
 
-export function Aside({ children, inTrendsPage }: AsideProps): JSX.Element | null {
+export function Aside({
+  children,
+  inTrendsPage
+}: AsideProps): JSX.Element | null {
   const { width } = useWindow();
 
   if (width < 1024) return null;

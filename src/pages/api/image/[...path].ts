@@ -1,7 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 const B2_ACCOUNT_ID = process.env.B2_ACCESS_KEY_ID ?? '1a1dec339876';
-const B2_APPLICATION_KEY = process.env.B2_SECRET_ACCESS_KEY ?? '005e6cbd9162ae7f1656e753cc81dc52d9f0988e42';
+const B2_APPLICATION_KEY =
+  process.env.B2_SECRET_ACCESS_KEY ??
+  '005e6cbd9162ae7f1656e753cc81dc52d9f0988e42';
 const B2_BUCKET = process.env.B2_BUCKET ?? 'inspirationcool2';
 const B2_BUCKET_ID = process.env.B2_BUCKET_ID ?? '010a31ad4eac4363a9180716';
 
@@ -77,7 +79,7 @@ export default async function imageProxy(
 ): Promise<void> {
   const { path } = req.query;
 
-  if (!path || Array.isArray(path) && path.length === 0) {
+  if (!path || (Array.isArray(path) && path.length === 0)) {
     res.status(400).json({ error: 'Missing path' });
     return;
   }
@@ -99,7 +101,9 @@ export default async function imageProxy(
     if (!response.ok && response.status !== 206) {
       const errorText = await response.text();
       console.error('B2 fetch error:', response.status, errorText);
-      res.status(response.status).json({ error: 'Image not found', details: errorText });
+      res
+        .status(response.status)
+        .json({ error: 'Image not found', details: errorText });
       return;
     }
 
@@ -125,6 +129,11 @@ export default async function imageProxy(
     res.send(Buffer.from(imageBuffer));
   } catch (error) {
     console.error('Image proxy error:', error);
-    res.status(500).json({ error: 'Failed to fetch image', details: error instanceof Error ? error.message : 'Unknown error' });
+    res
+      .status(500)
+      .json({
+        error: 'Failed to fetch image',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
   }
 }

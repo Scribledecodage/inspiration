@@ -22,9 +22,21 @@ export async function deleteAccountData(userId: string): Promise<void> {
   ]);
 
   const deletions: Array<() => Promise<void>> = [
-    ...tweets.docs.map(({ ref }) => (): Promise<void> => deleteDoc(ref)),
-    ...bookmarks.docs.map(({ ref }) => (): Promise<void> => deleteDoc(ref)),
-    ...contacts.docs.map(({ ref }) => (): Promise<void> => deleteDoc(ref)),
+    ...tweets.docs.map(
+      ({ ref }) =>
+        (): Promise<void> =>
+          deleteDoc(ref)
+    ),
+    ...bookmarks.docs.map(
+      ({ ref }) =>
+        (): Promise<void> =>
+          deleteDoc(ref)
+    ),
+    ...contacts.docs.map(
+      ({ ref }) =>
+        (): Promise<void> =>
+          deleteDoc(ref)
+    ),
     (): Promise<void> => deleteDoc(doc(usersCollection, userId)),
     (): Promise<void> => deleteDoc(doc(userStatsCollection(userId), 'stats'))
   ];

@@ -104,7 +104,7 @@ export function AudioPlayer({
     if (audio.paused)
       void audio.play().catch(() => {
         setFailed(true);
-        toast.error("Ce message vocal ne peut pas être lu sur cet appareil.");
+        toast.error('Ce message vocal ne peut pas être lu sur cet appareil.');
       });
     else audio.pause();
   };
@@ -146,7 +146,7 @@ export function AudioPlayer({
         className={cn(
           'flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition active:scale-95',
           mine
-            ? 'bg-white/25 text-white hover:bg-white/35'
+            ? 'hover:bg-white/35 bg-white/25 text-white'
             : 'bg-main-accent text-white hover:brightness-90'
         )}
         onClick={togglePlay}

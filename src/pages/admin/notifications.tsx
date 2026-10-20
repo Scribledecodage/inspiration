@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import { useAuth } from '@lib/context/auth-context';
 import { useCollection } from '@lib/hooks/useCollection';
-import { usersCollection, userNotificationsCollection } from '@lib/firebase/collections';
+import {
+  usersCollection,
+  userNotificationsCollection
+} from '@lib/firebase/collections';
 import { setDoc, doc, query } from 'firebase/firestore';
 import { MainContainer } from '@components/home/main-container';
 import { SEO } from '@components/common/seo';
@@ -47,14 +50,17 @@ export default function AdminNotifications(): JSX.Element {
       let done = 0;
       for (const u of list) {
         try {
-          await setDoc(doc(userNotificationsCollection(u.id), ANNOUNCEMENT.id), {
-            id: ANNOUNCEMENT.id,
-            title: ANNOUNCEMENT.title,
-            body: ANNOUNCEMENT.body,
-            type: ANNOUNCEMENT.type,
-            createdAt: Date.now(),
-            read: false
-          });
+          await setDoc(
+            doc(userNotificationsCollection(u.id), ANNOUNCEMENT.id),
+            {
+              id: ANNOUNCEMENT.id,
+              title: ANNOUNCEMENT.title,
+              body: ANNOUNCEMENT.body,
+              type: ANNOUNCEMENT.type,
+              createdAt: Date.now(),
+              read: false
+            }
+          );
           done += 1;
         } catch {
           // ignore
@@ -73,7 +79,7 @@ export default function AdminNotifications(): JSX.Element {
       <MainHeader
         useMobileSidebar
         title='Envoyer une notification'
-        className='flex min-h-14 items-center justify-between'
+        className='min-h-14 flex items-center justify-between'
       />
       <section className='flex flex-col gap-4 p-4'>
         <div className='rounded-xl border border-light-border bg-main-search-background/20 p-4 dark:border-dark-border'>

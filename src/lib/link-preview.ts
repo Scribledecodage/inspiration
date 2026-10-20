@@ -11,8 +11,7 @@ export type LinkPreviewData = {
 
 /* Repère un lien dans un texte : http(s)://… ou www.… jusqu'au premier espace.
    On exclut les points de fin qui feraient partie de la phrase. */
-const URL_PATTERN =
-  /\b(?:https?:\/\/|www\.)[^\s<>"']+/gi;
+const URL_PATTERN = /\b(?:https?:\/\/|www\.)[^\s<>"']+/gi;
 
 /** Retire la ponctuation collée en fin de lien (« https://x.fr. »). */
 function cleanUrl(value: string): string {
@@ -30,13 +29,13 @@ export function findLink(text: string): string | null {
   if (!cleaned) return null;
 
   /* On complète « www. » pour l'appel réseau. */
-  return cleaned.startsWith('www.')
-    ? `https://${cleaned}`
-    : cleaned;
+  return cleaned.startsWith('www.') ? `https://${cleaned}` : cleaned;
 }
 
 /** Découpe un texte en morceaux : soit du texte, soit un lien cliquable. */
-export type TextPart = { type: 'text'; value: string } | { type: 'link'; value: string };
+export type TextPart =
+  | { type: 'text'; value: string }
+  | { type: 'link'; value: string };
 
 export function splitLinks(text: string): TextPart[] {
   const parts: TextPart[] = [];
@@ -77,7 +76,9 @@ export function splitLinks(text: string): TextPart[] {
 }
 
 /** Demande l'aperçu d'un lien à notre route serveur. */
-export async function fetchLinkPreview(url: string): Promise<LinkPreviewData | null> {
+export async function fetchLinkPreview(
+  url: string
+): Promise<LinkPreviewData | null> {
   try {
     const response = await fetch(
       `/api/link-preview?url=${encodeURIComponent(url)}`

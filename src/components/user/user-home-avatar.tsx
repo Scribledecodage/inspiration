@@ -12,11 +12,13 @@ import { AvatarDecoration } from './avatar-frame';
 
 type UserHomeAvatarProps = {
   isOwner?: boolean;
-  profileData?: (ImageData & {
-    gender?: 'homme' | 'femme' | 'autre';
-    avatarShape?: AvatarShape;
-    avatarFrame?: AvatarFrame;
-  }) | null;
+  profileData?:
+    | (ImageData & {
+        gender?: 'homme' | 'femme' | 'autre';
+        avatarShape?: AvatarShape;
+        avatarFrame?: AvatarFrame;
+      })
+    | null;
 };
 
 export function UserHomeAvatar({

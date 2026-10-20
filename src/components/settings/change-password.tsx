@@ -25,8 +25,9 @@ type ChangePasswordProps = {
 export function ChangePassword({ user }: ChangePasswordProps): JSX.Element {
   const authUser = auth.currentUser;
   const usesPassword =
-    authUser?.providerData.some(({ providerId }) => providerId === 'password') ??
-    false;
+    authUser?.providerData.some(
+      ({ providerId }) => providerId === 'password'
+    ) ?? false;
   const { hasCode, unlocked, requestUnlock, modal } = useDeviceCode(user.id);
 
   const [currentPassword, setCurrentPassword] = useState('');
@@ -95,9 +96,7 @@ export function ChangePassword({ user }: ChangePasswordProps): JSX.Element {
     }
 
     if (newPassword === currentPassword) {
-      toast.error(
-        'Le nouveau mot de passe doit être différent de l’actuel.'
-      );
+      toast.error('Le nouveau mot de passe doit être différent de l’actuel.');
       return;
     }
 
@@ -198,10 +197,9 @@ export function ChangePassword({ user }: ChangePasswordProps): JSX.Element {
         ) : (
           <div className='flex flex-col gap-3 text-sm text-light-secondary dark:text-dark-secondary'>
             <p>
-              Votre compte utilise la connexion Google : il n’y a donc aucun
-              mot de passe Inspiration à modifier. Le mot de passe et la double
-              authentification se gèrent directement depuis votre compte
-              Google.
+              Votre compte utilise la connexion Google : il n’y a donc aucun mot
+              de passe Inspiration à modifier. Le mot de passe et la double
+              authentification se gèrent directement depuis votre compte Google.
             </p>
             <a
               className='inline-flex items-center gap-2 self-start text-main-accent hover:underline'
@@ -210,10 +208,7 @@ export function ChangePassword({ user }: ChangePasswordProps): JSX.Element {
               target='_blank'
             >
               Ouvrir la sécurité de mon compte Google
-              <MaterialIcon
-                className='h-4 w-4'
-                iconName='open_in_new'
-              />
+              <MaterialIcon className='h-4 w-4' iconName='open_in_new' />
             </a>
           </div>
         )}

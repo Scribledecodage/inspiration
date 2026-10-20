@@ -24,9 +24,7 @@ export function MainLayout({ children }: LayoutProps): JSX.Element {
           <Sidebar />
           <SWRConfig value={{ fetcher: fetchJSON }}>
             <div className='flex min-w-0 flex-1 justify-center gap-0 overflow-x-clip lg:gap-4'>
-              <SwipeContainer>
-                {children}
-              </SwipeContainer>
+              <SwipeContainer>{children}</SwipeContainer>
             </div>
           </SWRConfig>
         </div>

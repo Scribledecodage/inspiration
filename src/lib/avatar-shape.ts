@@ -73,8 +73,7 @@ const frameDecorationSrc: Partial<Record<AvatarFrame, string>> = {
     'https://img.avatardecoration.com/decorations/rec_room_lightning.png',
   new_year_2025:
     'https://img.avatardecoration.com/decorations/new_year_2025.png',
-  bush_camper:
-    'https://img.avatardecoration.com/decorations/bush_camper.png',
+  bush_camper: 'https://img.avatardecoration.com/decorations/bush_camper.png',
   hailey: 'https://img.avatardecoration.com/decorations/hailey.png'
 };
 

@@ -23,12 +23,12 @@ bureau en hérite immédiatement.
 Le site n'utilise que quatre choses de Next.js. Chacune a son équivalent
 local, écrit pour l'application de bureau :
 
-| Dans le site | Dans l'application | Rôle |
-|---|---|---|
-| `next/router` | `src/shims/router.tsx` | Historique du navigateur, `asPath`, `query`, `push`, `replace`, `back` |
-| `next/link` | `src/shims/link.tsx` | Liens internes (navigation sans rechargement) et liens externes (navigateur du système) |
-| `next/image` | `src/shims/image.tsx` | Simple `<img>` : le WebView met l'image en cache, il n'y a pas de serveur d'optimisation |
-| `next/head` | `src/shims/head.tsx` | Titre de la fenêtre (les balises Open Graph n'ont pas d'intérêt hors du web) |
+| Dans le site  | Dans l'application     | Rôle                                                                                     |
+| ------------- | ---------------------- | ---------------------------------------------------------------------------------------- |
+| `next/router` | `src/shims/router.tsx` | Historique du navigateur, `asPath`, `query`, `push`, `replace`, `back`                   |
+| `next/link`   | `src/shims/link.tsx`   | Liens internes (navigation sans rechargement) et liens externes (navigateur du système)  |
+| `next/image`  | `src/shims/image.tsx`  | Simple `<img>` : le WebView met l'image en cache, il n'y a pas de serveur d'optimisation |
+| `next/head`   | `src/shims/head.tsx`   | Titre de la fenêtre (les balises Open Graph n'ont pas d'intérêt hors du web)             |
 
 Le reste (Firebase, Auth, Thème, les hooks, les composants) est **le code
 du site**, importé tel quel.
@@ -40,13 +40,13 @@ du site**, importé tel quel.
 Le choix n'est pas Electron. Voici le comparatif (ordres de grandeur
 connus, mesurés sur des applications comparables) :
 
-| | **Tauri 2 (ici)** | Electron |
-|---|---|---|
-| Taille de l'installateur | **quelques Mo** | 80 à 200 Mo |
-| Mémoire au repos | **30 à 60 Mo** | 150 à 400 Mo |
-| Démarrage | **< 0,5 s** | 1 à 3 s |
-| Moteur embarqué | **aucun** (WebView2 du système) | Chromium complet |
-| Langage du moteur | **Rust** (sans garbage collector) | Node.js |
+|                          | **Tauri 2 (ici)**                 | Electron         |
+| ------------------------ | --------------------------------- | ---------------- |
+| Taille de l'installateur | **quelques Mo**                   | 80 à 200 Mo      |
+| Mémoire au repos         | **30 à 60 Mo**                    | 150 à 400 Mo     |
+| Démarrage                | **< 0,5 s**                       | 1 à 3 s          |
+| Moteur embarqué          | **aucun** (WebView2 du système)   | Chromium complet |
+| Langage du moteur        | **Rust** (sans garbage collector) | Node.js          |
 
 Conséquences concrètes :
 

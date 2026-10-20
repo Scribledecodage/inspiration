@@ -150,7 +150,9 @@ export default async function locationSuggestEndpoint(
 
   try {
     const response = await fetch(
-      `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=7&lang=fr`,
+      `https://photon.komoot.io/api/?q=${encodeURIComponent(
+        query
+      )}&limit=7&lang=fr`,
       { headers: { 'User-Agent': 'TwitterClone/1.0' } }
     );
 

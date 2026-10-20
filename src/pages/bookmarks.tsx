@@ -109,9 +109,14 @@ export default function Bookmarks(): JSX.Element {
         className='flex items-center justify-between'
         beforeTitle={
           <div className='flex flex-col'>
-            <h2 className='font-title text-xl font-bold tracking-tight'>Signets</h2>
+            <h2 className='font-title text-xl font-bold tracking-tight'>
+              Signets
+            </h2>
             <p className='text-xs text-light-secondary dark:text-dark-secondary'>
-              @{user?.username} · {tweetIds.length} {tweetIds.length > 1 ? 'publications sauvegardées' : 'publication sauvegardée'}
+              @{user?.username} · {tweetIds.length}{' '}
+              {tweetIds.length > 1
+                ? 'publications sauvegardées'
+                : 'publication sauvegardée'}
             </p>
           </div>
         }
@@ -124,7 +129,10 @@ export default function Bookmarks(): JSX.Element {
             onClick={openModal}
             aria-label='Supprimer tous les signets'
           >
-            <MaterialIcon className='h-5 w-5 text-light-secondary hover:text-accent-red dark:text-dark-secondary' iconName='delete' />
+            <MaterialIcon
+              className='h-5 w-5 text-light-secondary hover:text-accent-red dark:text-dark-secondary'
+              iconName='delete'
+            />
             <ToolTip tip='Effacer tous les signets' />
           </Button>
         )}

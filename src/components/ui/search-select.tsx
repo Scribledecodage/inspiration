@@ -191,7 +191,9 @@ export function SearchSelect({
                     }}
                     type='button'
                   >
-                    <span className='min-w-0 flex-1 truncate'>{option.label}</span>
+                    <span className='min-w-0 flex-1 truncate'>
+                      {option.label}
+                    </span>
                     {option.free && (
                       <span className='shrink-0 rounded-full bg-main-accent/10 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-main-accent'>
                         Gratuit

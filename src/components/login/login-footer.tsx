@@ -15,7 +15,7 @@ export function LoginFooter(): JSX.Element {
       <nav className='flex flex-wrap items-center justify-center gap-x-4 gap-y-2'>
         {footerLinks.map(([linkName, href]) => (
           <Link href={href} key={linkName}>
-            <a className='text-main-accent transition-colors hover:brightness-90 hover:underline'>
+            <a className='text-main-accent transition-colors hover:underline hover:brightness-90'>
               {linkName}
             </a>
           </Link>

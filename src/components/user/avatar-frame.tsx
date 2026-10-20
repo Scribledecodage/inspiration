@@ -11,7 +11,7 @@ type AvatarDecorationProps = {
 /* Décorations d'avatar : l'image est posée autour de la photo, comme les
    décorations Discord. Elle mesure une fois et demie la photo (son centre
    transparent laisse le visage bien visible).
-   Le parent doit être positionné (`relative` ou `absolute`). */export function AvatarDecoration({
+   Le parent doit être positionné (`relative` ou `absolute`). */ export function AvatarDecoration({
   frame,
   className
 }: AvatarDecorationProps): JSX.Element | null {

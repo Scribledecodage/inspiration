@@ -13,7 +13,9 @@ export function Error({ message }: ErrorProps): JSX.Element {
       <i>
         <MaterialIcon className='h-10 w-10' iconName='warning' />
       </i>
-      <p>{message ?? 'Une erreur s’est produite. Essayez de recharger la page.'}</p>
+      <p>
+        {message ?? 'Une erreur s’est produite. Essayez de recharger la page.'}
+      </p>
     </div>
   );
 }

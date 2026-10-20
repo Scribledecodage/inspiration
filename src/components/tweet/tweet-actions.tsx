@@ -156,7 +156,11 @@ export function TweetActions({
     ]);
 
     toast.success(
-      `${isInAdminControl ? `La publication de @${username}` : 'Votre publication'} a été supprimée`
+      `${
+        isInAdminControl
+          ? `La publication de @${username}`
+          : 'Votre publication'
+      } a été supprimée`
     );
 
     removeCloseModal();
@@ -165,7 +169,9 @@ export function TweetActions({
   const handlePin = async (): Promise<void> => {
     await managePinnedTweet(tweetIsPinned ? 'unpin' : 'pin', userId, tweetId);
     toast.success(
-      `Votre publication a été ${tweetIsPinned ? 'désépinglée' : 'épinglée'} sur votre profil`
+      `Votre publication a été ${
+        tweetIsPinned ? 'désépinglée' : 'épinglée'
+      } sur votre profil`
     );
     pinCloseModal();
   };
@@ -177,7 +183,9 @@ export function TweetActions({
     await manageFollow(type, userId, createdBy);
 
     toast.success(
-      `${type === 'follow' ? 'Vous suivez maintenant' : 'Vous ne suivez plus'} @${username}`
+      `${
+        type === 'follow' ? 'Vous suivez maintenant' : 'Vous ne suivez plus'
+      } @${username}`
     );
   };
 
@@ -206,9 +214,9 @@ export function TweetActions({
         aria-expanded={menuOpen}
         aria-haspopup='dialog'
         className={cn(
-          `main-tab group absolute top-2 right-4 p-2 xs:right-2
-           hover:bg-accent-blue/10 focus-visible:bg-accent-blue/10
-           focus-visible:!ring-accent-blue/80 active:bg-accent-blue/20`,
+          `main-tab group absolute top-2 right-4 p-2 hover:bg-accent-blue/10
+           focus-visible:bg-accent-blue/10 focus-visible:!ring-accent-blue/80
+           active:bg-accent-blue/20 xs:right-2`,
           menuOpen && 'bg-accent-blue/10 [&>div>svg]:text-accent-blue'
         )}
         onClick={preventBubbling((): void => setMenuOpen(true))}
@@ -308,9 +316,7 @@ export function TweetActions({
               <span className={tileClass}>
                 <MaterialIcon className='h-5 w-5' iconName='person_remove' />
               </span>
-              <span className='min-w-0 flex-1'>
-                Ne plus suivre @{username}
-              </span>
+              <span className='min-w-0 flex-1'>Ne plus suivre @{username}</span>
             </Button>
           ) : (
             <Button

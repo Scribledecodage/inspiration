@@ -11,11 +11,7 @@ import { Modal } from '@components/modal/modal';
 import type { ChangeEvent, ReactNode } from 'react';
 import type { Variants, PanInfo } from 'framer-motion';
 import type { WithFieldValue } from 'firebase/firestore';
-import type {
-  Report,
-  ReportAttachment,
-  ReportReason
-} from '@lib/types/report';
+import type { Report, ReportAttachment, ReportReason } from '@lib/types/report';
 
 type ReportModalProps = {
   open: boolean;
@@ -118,7 +114,8 @@ const reasons: Readonly<
   {
     value: 'other',
     label: 'Autre motif',
-    description: 'Le motif ne figure pas dans la liste : décrivez-le à l’étape suivante.'
+    description:
+      'Le motif ne figure pas dans la liste : décrivez-le à l’étape suivante.'
   }
 ];
 
@@ -466,10 +463,7 @@ export function ReportModal({
                 </p>
               </div>
 
-              <Acknowledgement
-                checked={hasRead}
-                onChange={setHasRead}
-              >
+              <Acknowledgement checked={hasRead} onChange={setHasRead}>
                 J’ai lu ces conditions et je signale uniquement un contenu qui
                 me paraît réellement interdit.
               </Acknowledgement>
@@ -608,7 +602,9 @@ export function ReportModal({
             <div className='flex flex-col gap-3'>
               <p className='rounded-xl border border-light-border bg-main-search-background/40 p-3 text-xs leading-5 text-light-secondary dark:border-dark-border dark:text-dark-secondary'>
                 La publication signalée est{' '}
-                <strong className='text-main-accent'>@{tweetAuthorUsername}</strong>
+                <strong className='text-main-accent'>
+                  @{tweetAuthorUsername}
+                </strong>
                 . Décrivez ce qui pose problème, ou joignez une capture : plus
                 votre description est précise, plus le traitement est rapide.
               </p>
@@ -675,8 +671,8 @@ export function ReportModal({
                 )}
                 <p className='text-xs leading-5 text-light-secondary dark:text-dark-secondary'>
                   Une seule pièce jointe, 8 Mo maximum. Les fichiers envoyés
-                  restent dans l’espace privé d’Inspiration Inc. pour
-                  l’examen de la demande : ils ne sont jamais publiés.
+                  restent dans l’espace privé d’Inspiration Inc. pour l’examen
+                  de la demande : ils ne sont jamais publiés.
                 </p>
               </div>
 
@@ -732,7 +728,11 @@ export function ReportModal({
                 <motion.span
                   animate={{ scale: [1, 1.35], opacity: [0.35, 0] }}
                   className='absolute inset-0 rounded-full border-2 border-main-accent'
-                  transition={{ duration: 1.1, repeat: Infinity, repeatDelay: 0.35 }}
+                  transition={{
+                    duration: 1.1,
+                    repeat: Infinity,
+                    repeatDelay: 0.35
+                  }}
                 />
                 <MaterialIcon className='h-10 w-10' iconName='check' solid />
               </motion.span>

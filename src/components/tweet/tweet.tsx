@@ -76,7 +76,21 @@ export const Tweet = forwardRef<HTMLElement, TweetProps>(function Tweet(
     user: tweetUserData
   } = tweet;
 
-  const { id: ownerId, name, username, verified, photoURL, gender } = tweetUserData ?? { id: '', name: '', username: '', verified: false, photoURL: '', gender: 'autre' };
+  const {
+    id: ownerId,
+    name,
+    username,
+    verified,
+    photoURL,
+    gender
+  } = tweetUserData ?? {
+    id: '',
+    name: '',
+    username: '',
+    verified: false,
+    photoURL: '',
+    gender: 'autre'
+  };
 
   const { user } = useAuth();
   const router = useRouter();
@@ -110,13 +124,17 @@ export const Tweet = forwardRef<HTMLElement, TweetProps>(function Tweet(
       tabIndex={modal ? -1 : 0}
       aria-label={`Ouvrir la publication de ${name}`}
       className={cn(
-        'accent-tab relative flex cursor-pointer flex-col gap-y-3 px-4 py-3.5 pr-6 outline-none transition-colors duration-150 ease-out hover:bg-light-primary/[0.025] dark:hover:bg-dark-primary/[0.03] active:bg-light-primary/[0.04] dark:active:bg-dark-primary/[0.05] xs:pr-4',
+        'accent-tab relative flex cursor-pointer flex-col gap-y-3 px-4 py-3.5 pr-6 outline-none transition-colors duration-150 ease-out hover:bg-light-primary/[0.025] active:bg-light-primary/[0.04] dark:hover:bg-dark-primary/[0.03] dark:active:bg-dark-primary/[0.05] xs:pr-4',
         parentTweet
           ? 'mt-0.5 pt-2.5 pb-0'
           : 'border-b border-light-border/60 dark:border-dark-border/60'
       )}
       onClick={(event) => {
-        if ((event.target as Element).closest('a, button, input, textarea, button.motion-button'))
+        if (
+          (event.target as Element).closest(
+            'a, button, input, textarea, button.motion-button'
+          )
+        )
           return;
         void router.push(tweetLink, undefined, { scroll: !reply });
       }}
@@ -134,150 +152,159 @@ export const Tweet = forwardRef<HTMLElement, TweetProps>(function Tweet(
     >
       <TweetReplyModal tweet={tweet} open={open} closeModal={closeModal} />
       <>
-          <div className='grid grid-cols-[auto,1fr] gap-x-3 gap-y-1'>
-            <AnimatePresence initial={false}>
-              {modal ? null : pinned ? (
-                <TweetStatus type='pin'>
-                  <p className='text-sm font-bold'>Publication épinglée</p>
-                </TweetStatus>
-              ) : (
-                tweetIsRetweeted && (
-                  <TweetStatus type='tweet'>
-                    <Link href={profileUsername as string}>
-                      <a className='custom-underline truncate text-sm font-bold'>
-                        {userId === profileId ? 'You' : profileName} Retweeted
-                      </a>
-                    </Link>
-                  </TweetStatus>
-                )
-              )}
-            </AnimatePresence>
-            <div className='flex flex-col items-center gap-2'>
-              <UserTooltip modal={modal} {...tweetUserData}>
-                <UserAvatar
-                  src={photoURL}
-                  alt={name}
-                  username={username}
-                  gender={gender}
-                  shape={tweetUserData?.avatarShape}
-                  frame={tweetUserData?.avatarFrame}
-                  statusEmoji={tweetUserData?.statusEmoji}
-                />
-              </UserTooltip>
-              {parentTweet && (
-                <i className='hover-animation h-full w-0.5 bg-light-line-reply dark:bg-dark-line-reply' />
-              )}
-            </div>
-            <div className='flex min-w-0 flex-col'>
-              <div className='flex justify-between gap-2 text-light-secondary dark:text-dark-secondary'>
-                <div className='flex gap-1 truncate xs:overflow-visible xs:whitespace-normal'>
-                  <UserTooltip modal={modal} {...tweetUserData}>
-                    <UserName
-                      name={name}
-                      username={username}
-                      verified={verified}
-                      className='text-light-primary dark:text-dark-primary'
-                    />
-                  </UserTooltip>
-                  <UserTooltip modal={modal} {...tweetUserData}>
-                    <UserUsername username={username} />
-                  </UserTooltip>
-                  <TweetDate tweetLink={tweetLink} createdAt={createdAt} />
-                </div>
-                <div className='px-4'>
-                  {!modal && (
-                    <TweetActions
-                      isOwner={isOwner}
-                      ownerId={ownerId}
-                      tweetId={tweetId}
-                      parentId={parentId}
-                      username={username}
-                      hasImages={!!images}
-                      createdBy={createdBy}
-                    />
-                  )}
-                </div>
-              </div>
-              {(reply || modal) && (
-                <p
-                  className={cn(
-                    'text-light-secondary dark:text-dark-secondary',
-                    modal && 'order-1 my-2'
-                  )}
-                >
-                  En réponse à{' '}
-                  <Link href={`/user/${parentUsername}`}>
-                    <a className='custom-underline text-main-accent'>
-                      @{parentUsername}
+        <div className='grid grid-cols-[auto,1fr] gap-x-3 gap-y-1'>
+          <AnimatePresence initial={false}>
+            {modal ? null : pinned ? (
+              <TweetStatus type='pin'>
+                <p className='text-sm font-bold'>Publication épinglée</p>
+              </TweetStatus>
+            ) : (
+              tweetIsRetweeted && (
+                <TweetStatus type='tweet'>
+                  <Link href={profileUsername as string}>
+                    <a className='custom-underline truncate text-sm font-bold'>
+                      {userId === profileId ? 'You' : profileName} Retweeted
                     </a>
                   </Link>
-                </p>
-              )}
-              {text && <TweetText text={text} />}
-              {location && (
-                <>
-                  <button
-                    type='button'
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      setMapOpen(true);
-                    }}
-                    className='flex w-fit items-center gap-1 rounded-full bg-main-accent/10 px-2.5 py-1 text-sm font-bold text-main-accent transition hover:bg-main-accent/20'
-                  >
-                    <MaterialIcon className='h-4 w-4 shrink-0' iconName='location_on' />
-                    <span className='truncate'>{location}</span>
-                  </button>
-                  <LocationMapModal
-                    open={mapOpen}
-                    closeModal={() => setMapOpen(false)}
-                    location={location}
-                  />
-                </>
-              )}
-              <div className='mt-1 flex flex-col gap-2'>
-                {images && (
-                  <ImagePreview
-                    tweet
-                    imagesPreview={images}
-                    previewCount={images.length}
-                  />
-                )}
-                {poll && <TweetPoll tweetId={tweetId} poll={poll} pollVotes={pollVotes} />}
-                {linkPreview && (
-                  <div className='mt-2'>
-                    <LinkPreviewCard preview={linkPreview} />
-                  </div>
-                )}
-                {audioURL && (
-                  <div className='rounded-2xl bg-main-search-background px-4 py-3'>
-                    <p className='mb-2 text-xs font-semibold text-light-secondary dark:text-dark-secondary'>
-                      Message vocal
-                    </p>
-                    <AudioPlayer duration={audioDuration} src={audioURL} />
-                  </div>
-                )}
-                {!modal && (
-                  <TweetStats
-                    reply={reply}
-                    userId={userId}
-                    isOwner={isOwner}
-                    tweetId={tweetId}
-                    userLikes={userLikes}
-                    userReplies={userReplies}
-                    userRetweets={safeRetweets}
-                    views={views}
-                    openModal={modal ? undefined : openModal}
-                    text={text}
+                </TweetStatus>
+              )
+            )}
+          </AnimatePresence>
+          <div className='flex flex-col items-center gap-2'>
+            <UserTooltip modal={modal} {...tweetUserData}>
+              <UserAvatar
+                src={photoURL}
+                alt={name}
+                username={username}
+                gender={gender}
+                shape={tweetUserData?.avatarShape}
+                frame={tweetUserData?.avatarFrame}
+                statusEmoji={tweetUserData?.statusEmoji}
+              />
+            </UserTooltip>
+            {parentTweet && (
+              <i className='hover-animation h-full w-0.5 bg-light-line-reply dark:bg-dark-line-reply' />
+            )}
+          </div>
+          <div className='flex min-w-0 flex-col'>
+            <div className='flex justify-between gap-2 text-light-secondary dark:text-dark-secondary'>
+              <div className='flex gap-1 truncate xs:overflow-visible xs:whitespace-normal'>
+                <UserTooltip modal={modal} {...tweetUserData}>
+                  <UserName
                     name={name}
                     username={username}
-                    photoURL={photoURL}
-                    previewImage={images?.[0]?.src}
-                    authorId={ownerId}
+                    verified={verified}
+                    className='text-light-primary dark:text-dark-primary'
+                  />
+                </UserTooltip>
+                <UserTooltip modal={modal} {...tweetUserData}>
+                  <UserUsername username={username} />
+                </UserTooltip>
+                <TweetDate tweetLink={tweetLink} createdAt={createdAt} />
+              </div>
+              <div className='px-4'>
+                {!modal && (
+                  <TweetActions
+                    isOwner={isOwner}
+                    ownerId={ownerId}
+                    tweetId={tweetId}
+                    parentId={parentId}
+                    username={username}
+                    hasImages={!!images}
+                    createdBy={createdBy}
                   />
                 )}
               </div>
             </div>
+            {(reply || modal) && (
+              <p
+                className={cn(
+                  'text-light-secondary dark:text-dark-secondary',
+                  modal && 'order-1 my-2'
+                )}
+              >
+                En réponse à{' '}
+                <Link href={`/user/${parentUsername}`}>
+                  <a className='custom-underline text-main-accent'>
+                    @{parentUsername}
+                  </a>
+                </Link>
+              </p>
+            )}
+            {text && <TweetText text={text} />}
+            {location && (
+              <>
+                <button
+                  type='button'
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    setMapOpen(true);
+                  }}
+                  className='flex w-fit items-center gap-1 rounded-full bg-main-accent/10 px-2.5 py-1 text-sm font-bold text-main-accent transition hover:bg-main-accent/20'
+                >
+                  <MaterialIcon
+                    className='h-4 w-4 shrink-0'
+                    iconName='location_on'
+                  />
+                  <span className='truncate'>{location}</span>
+                </button>
+                <LocationMapModal
+                  open={mapOpen}
+                  closeModal={() => setMapOpen(false)}
+                  location={location}
+                />
+              </>
+            )}
+            <div className='mt-1 flex flex-col gap-2'>
+              {images && (
+                <ImagePreview
+                  tweet
+                  imagesPreview={images}
+                  previewCount={images.length}
+                />
+              )}
+              {poll && (
+                <TweetPoll
+                  tweetId={tweetId}
+                  poll={poll}
+                  pollVotes={pollVotes}
+                />
+              )}
+              {linkPreview && (
+                <div className='mt-2'>
+                  <LinkPreviewCard preview={linkPreview} />
+                </div>
+              )}
+              {audioURL && (
+                <div className='rounded-2xl bg-main-search-background px-4 py-3'>
+                  <p className='mb-2 text-xs font-semibold text-light-secondary dark:text-dark-secondary'>
+                    Message vocal
+                  </p>
+                  <AudioPlayer duration={audioDuration} src={audioURL} />
+                </div>
+              )}
+              {!modal && (
+                <TweetStats
+                  reply={reply}
+                  userId={userId}
+                  isOwner={isOwner}
+                  tweetId={tweetId}
+                  userLikes={userLikes}
+                  userReplies={userReplies}
+                  userRetweets={safeRetweets}
+                  views={views}
+                  openModal={modal ? undefined : openModal}
+                  text={text}
+                  name={name}
+                  username={username}
+                  photoURL={photoURL}
+                  previewImage={images?.[0]?.src}
+                  authorId={ownerId}
+                />
+              )}
+            </div>
           </div>
+        </div>
       </>
     </motion.article>
   );

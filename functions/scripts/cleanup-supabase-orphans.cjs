@@ -13,9 +13,7 @@ const projectId =
 const bucketsToClean = ['Infini'];
 const pageSize = 100;
 const deleteBatchSize = 100;
-const minimumAgeHours = Number(
-  process.env.SUPABASE_ORPHAN_MIN_AGE_HOURS ?? 24
-);
+const minimumAgeHours = Number(process.env.SUPABASE_ORPHAN_MIN_AGE_HOURS ?? 24);
 const shouldDelete = process.argv.includes('--delete');
 
 if (!supabaseUrl || !supabaseKey) {
@@ -25,7 +23,9 @@ if (!supabaseUrl || !supabaseKey) {
 }
 
 if (!Number.isFinite(minimumAgeHours) || minimumAgeHours < 0) {
-  throw new Error('SUPABASE_ORPHAN_MIN_AGE_HOURS must be a non-negative number.');
+  throw new Error(
+    'SUPABASE_ORPHAN_MIN_AGE_HOURS must be a non-negative number.'
+  );
 }
 
 admin.initializeApp({
@@ -148,7 +148,9 @@ async function listFolder(bucket, prefix = '') {
 async function main() {
   const existingBuckets = await requestSupabase('/storage/v1/bucket');
   const availableBuckets = new Set(existingBuckets.map(({ name }) => name));
-  const buckets = bucketsToClean.filter((bucket) => availableBuckets.has(bucket));
+  const buckets = bucketsToClean.filter((bucket) =>
+    availableBuckets.has(bucket)
+  );
 
   if (!buckets.length) {
     throw new Error('Neither expected bucket (avatars, chat-files) exists.');
@@ -186,7 +188,9 @@ async function main() {
   console.log(`Mode: ${shouldDelete ? 'DELETE' : 'DRY RUN'}`);
   console.log(`Minimum age: ${minimumAgeHours} hour(s)`);
   console.log(`Orphan objects: ${orphanCount}`);
-  console.log(`Approximate space: ${(reclaimableBytes / 1024 / 1024).toFixed(2)} MiB`);
+  console.log(
+    `Approximate space: ${(reclaimableBytes / 1024 / 1024).toFixed(2)} MiB`
+  );
   if (skippedUnknownAge) {
     console.log(`Skipped objects with unknown age: ${skippedUnknownAge}`);
   }

@@ -1,1 +1,0 @@
-self.__REACT_LOADABLE_MANIFEST={"..\\lib\\audio\\voice.ts -> @lib/audio/mp3":{id:8766,files:["static/chunks/743.a0d7b031e64de3a2.js"]},"notification\\[id].tsx -> firebase/firestore":{id:5321,files:[]},"notifications.tsx -> firebase/firestore":{id:5321,files:[]}};

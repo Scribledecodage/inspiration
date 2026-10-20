@@ -1,7 +1,10 @@
 import Link from 'next/link';
 import cn from 'clsx';
 import { getAvatarSrc } from '@lib/media';
-import { getAvatarShapeClass, getAvatarFrameDecoration } from '@lib/avatar-shape';
+import {
+  getAvatarShapeClass,
+  getAvatarFrameDecoration
+} from '@lib/avatar-shape';
 import { useAuth } from '@lib/context/auth-context';
 import { useTheme } from '@lib/context/theme-context';
 import type { AvatarShape, AvatarFrame } from '@lib/types/theme';
@@ -54,7 +57,9 @@ export function UserAvatar({
 
   const fallbackAvatar = getDefaultAvatar();
 
-  const handleImageError = (event: React.SyntheticEvent<HTMLImageElement>): void => {
+  const handleImageError = (
+    event: React.SyntheticEvent<HTMLImageElement>
+  ): void => {
     const image = event.currentTarget;
     if (image.dataset.fallback) return;
     image.dataset.fallback = 'true';
@@ -103,7 +108,7 @@ export function UserAvatar({
           />
           {frameDecoration && (
             <img
-              className='absolute inset-0 h-full w-full object-cover pointer-events-none'
+              className='pointer-events-none absolute inset-0 h-full w-full object-cover'
               src={frameDecoration}
               alt=''
               width={pictureSize}

@@ -3,7 +3,10 @@ export const DEFAULT_BANNER = '/Banniere.png';
 
 type AvatarGender = 'homme' | 'femme' | 'autre' | undefined;
 
-function isLegacyAsset(src: string | null | undefined, assetName: string): boolean {
+function isLegacyAsset(
+  src: string | null | undefined,
+  assetName: string
+): boolean {
   if (!src) return true;
 
   const normalized = src.toLowerCase();

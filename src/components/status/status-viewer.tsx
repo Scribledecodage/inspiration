@@ -45,7 +45,8 @@ function formatRelative(timestamp: number): string {
 }
 
 function mediaDuration(media: StatusMedia | null, status?: Status): number {
-  if (isVideoMedia(media ?? { kind: 'image', type: '' })) return MAX_VIDEO_DURATION;
+  if (isVideoMedia(media ?? { kind: 'image', type: '' }))
+    return MAX_VIDEO_DURATION;
 
   /* Chaque statut a sa propre durée d'affichage. */
   return status?.duration ?? SLIDE_DURATION;
@@ -314,7 +315,8 @@ export function StatusViewer({
       const deletedStart =
         currentGroup?.slides.findIndex((s) => s.status.id === statusId) ?? -1;
       const deletedCount =
-        currentGroup?.slides.filter((s) => s.status.id === statusId).length ?? 0;
+        currentGroup?.slides.filter((s) => s.status.id === statusId).length ??
+        0;
 
       /* Il reste des diapositives dans le groupe : on continue sur la
          suivante (les index se décalent d'autant une fois le statut effacé). */
@@ -358,17 +360,18 @@ export function StatusViewer({
   };
 
   /* Plein écran : on passe par l'API du navigateur, donc l'écran devient
-     réellement plein écran (et non juste une grande fenêtre). */  const toggleFullscreen = (): void => {
-    if (typeof document === 'undefined') return;
+     réellement plein écran (et non juste une grande fenêtre). */ const toggleFullscreen =
+    (): void => {
+      if (typeof document === 'undefined') return;
 
-    if (document.fullscreenElement) {
-      void document.exitFullscreen().catch(() => undefined);
-      return;
-    }
+      if (document.fullscreenElement) {
+        void document.exitFullscreen().catch(() => undefined);
+        return;
+      }
 
-    const request = document.documentElement.requestFullscreen?.();
-    if (request) void request.catch(() => undefined);
-  };
+      const request = document.documentElement.requestFullscreen?.();
+      if (request) void request.catch(() => undefined);
+    };
 
   /* Suit l'état réel du plein écran (y compris quand on sort avec Échap). */
   useEffect(() => {
@@ -451,7 +454,11 @@ export function StatusViewer({
         const delta = now - last;
         last = now;
 
-        if (!pausedRef.current && !userPausedRef.current && !scrubbingRef.current)
+        if (
+          !pausedRef.current &&
+          !userPausedRef.current &&
+          !scrubbingRef.current
+        )
           elapsedRef.current += delta;
 
         const value = Math.min(1, elapsedRef.current / duration);
@@ -516,7 +523,7 @@ export function StatusViewer({
           <div
             ref={barRef}
             aria-label='Avancer ou reculer dans les statuts'
-            className='absolute inset-x-4 top-3 z-40 flex cursor-pointer gap-1 touch-none select-none'
+            className='absolute inset-x-4 top-3 z-40 flex cursor-pointer touch-none select-none gap-1'
             onPointerDown={handleBarPointerDown}
             onPointerMove={handleBarPointerMove}
             onPointerUp={handleBarPointerUp}
@@ -590,10 +597,7 @@ export function StatusViewer({
                   aria-label='Options du statut'
                   onClick={(): void => setMenuOpen(true)}
                 >
-                  <MaterialIcon
-                    className='h-6 w-6'
-                    iconName='more_horiz'
-                  />
+                  <MaterialIcon className='h-6 w-6' iconName='more_horiz' />
                 </button>
               </>
             )}
@@ -619,9 +623,7 @@ export function StatusViewer({
             >
               <MaterialIcon
                 className='h-6 w-6'
-                iconName={
-                  expanded ? 'close_fullscreen' : 'open_in_full'
-                }
+                iconName={expanded ? 'close_fullscreen' : 'open_in_full'}
               />
             </button>
             <button
@@ -695,7 +697,7 @@ export function StatusViewer({
             )}
 
             {slide.status.kind === 'media' && slide.status.text && (
-              <div className='absolute inset-0 flex flex-col items-center justify-end gap-3 bg-black/35 px-6 pb-6 text-center'>
+              <div className='bg-black/35 absolute inset-0 flex flex-col items-center justify-end gap-3 px-6 pb-6 text-center'>
                 <p
                   className='max-w-[min(32rem,90%)] whitespace-pre-wrap break-words rounded-[2rem] px-6 py-4 text-2xl font-semibold leading-snug shadow-lg backdrop-blur-sm'
                   style={{

@@ -4,7 +4,10 @@ import cn from 'clsx';
 import { preventBubbling } from '@lib/utils';
 import { getAvatarSrc } from '@lib/media';
 import { MaterialIcon } from '@components/ui/material-icon';
-import { getAvatarShapeClass, getAvatarFrameDecoration } from '@lib/avatar-shape';
+import {
+  getAvatarShapeClass,
+  getAvatarFrameDecoration
+} from '@lib/avatar-shape';
 import type { MobileNavLink } from '@components/modal/mobile-sidebar-modal';
 import type { AvatarShape, AvatarFrame } from '@lib/types/theme';
 

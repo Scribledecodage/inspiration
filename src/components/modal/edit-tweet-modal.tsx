@@ -74,7 +74,9 @@ function StepIndicator({ step }: StepIndicatorProps): JSX.Element {
         <span
           className={cn(
             'h-1 flex-1 rounded-full transition-colors',
-            index < step ? 'bg-main-accent' : 'bg-light-border dark:bg-dark-border'
+            index < step
+              ? 'bg-main-accent'
+              : 'bg-light-border dark:bg-dark-border'
           )}
           key={value}
         />
@@ -197,9 +199,7 @@ export function EditTweetModal({
         return;
       }
 
-      setImages((previous) =>
-        [...previous, ...uploaded].slice(0, MAX_FILES)
-      );
+      setImages((previous) => [...previous, ...uploaded].slice(0, MAX_FILES));
     } catch (uploadError) {
       setError(
         uploadError instanceof Error
@@ -238,11 +238,7 @@ export function EditTweetModal({
       const added = images.length - initialImageCount;
 
       if (added > 0) await manageTotalPhotos('increment', user.id);
-      if (added < 0)
-        await manageTotalPhotos(
-          'decrement',
-          user.id
-        );
+      if (added < 0) await manageTotalPhotos('decrement', user.id);
 
       toast.success('Publication modifiée');
       closeModal();
@@ -436,8 +432,8 @@ export function EditTweetModal({
               </Button>
 
               <p className='text-xs leading-5 text-light-secondary dark:text-dark-secondary'>
-                {images.length}/{MAX_FILES} médias. Le sondage et le message vocal
-                ne sont pas modifiables une fois la publication envoyée.
+                {images.length}/{MAX_FILES} médias. Le sondage et le message
+                vocal ne sont pas modifiables une fois la publication envoyée.
               </p>
 
               {error && (
@@ -485,8 +481,8 @@ export function EditTweetModal({
               </div>
 
               <p className='rounded-xl border border-light-line-reply bg-main-search-background/40 p-3 text-xs leading-5 text-light-secondary dark:border-dark-line-reply dark:text-dark-secondary'>
-                La publication sera mise à jour : le texte, le lieu et les médias
-                seront remplacés par ce que vous voyez ici.
+                La publication sera mise à jour : le texte, le lieu et les
+                médias seront remplacés par ce que vous voyez ici.
               </p>
 
               {error && (

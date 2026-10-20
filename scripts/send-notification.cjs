@@ -28,22 +28,30 @@ const payload = JSON.parse(fs.readFileSync(filePath, 'utf8'));
     let done = 0;
     for (const uid of users) {
       try {
-        await db.collection('users').doc(uid).collection('notifications').doc(payload.id).set({
-          id: payload.id,
-          title: payload.title,
-          body: payload.body,
-          type: payload.type || 'announcement',
-          createdAt: Date.now(),
-          read: false
-        });
+        await db
+          .collection('users')
+          .doc(uid)
+          .collection('notifications')
+          .doc(payload.id)
+          .set({
+            id: payload.id,
+            title: payload.title,
+            body: payload.body,
+            type: payload.type || 'announcement',
+            createdAt: Date.now(),
+            read: false
+          });
         done += 1;
-        if (done % 10 === 0) console.log('  ' + done + '/' + users.length + ' envoyes...');
+        if (done % 10 === 0)
+          console.log('  ' + done + '/' + users.length + ' envoyes...');
       } catch (err) {
         console.error('  Echec pour ' + uid + ':', err && err.message);
       }
     }
 
-    console.log('Termine : ' + done + '/' + users.length + ' notifications envoyees.');
+    console.log(
+      'Termine : ' + done + '/' + users.length + ' notifications envoyees.'
+    );
     process.exit(0);
   } catch (err) {
     console.error('Erreur :', err);

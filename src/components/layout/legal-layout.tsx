@@ -39,7 +39,9 @@ export function LegalLayout({ children }: LegalLayoutProps): JSX.Element {
           <Link href='/'>
             <a className='flex items-center gap-3'>
               <SiteLogo size={28} />
-              <span className='font-title text-xl font-bold tracking-tight'>Inspiration</span>
+              <span className='font-title text-xl font-bold tracking-tight'>
+                Inspiration
+              </span>
             </a>
           </Link>
         </div>

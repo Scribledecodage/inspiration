@@ -36,7 +36,9 @@ export function UpdateUsername(): JSX.Element {
       if (empty) setAvailable(true);
       else {
         setAvailable(false);
-        setErrorMessage('Ce nom d’utilisateur est déjà pris. Veuillez en choisir un autre.');
+        setErrorMessage(
+          'Ce nom d’utilisateur est déjà pris. Veuillez en choisir un autre.'
+        );
       }
 
       setSearching(false);

@@ -12,10 +12,7 @@
  * navigateurs plus anciens.
  */
 
-import {
-  encodePcmVoiceNote,
-  type EncodedVoiceNote
-} from '@lib/audio/voice';
+import { encodePcmVoiceNote, type EncodedVoiceNote } from '@lib/audio/voice';
 
 const WORKLET_URL = '/vendor/voice-worklet.js';
 const WORKLET_NAME = 'voice-capture';
@@ -236,8 +233,7 @@ export async function startVoiceCapture(
         const data: unknown = event.data;
 
         if (data === 'flushed') done();
-        else if (data instanceof Float32Array && data.length > 0)
-          collect(data);
+        else if (data instanceof Float32Array && data.length > 0) collect(data);
       };
 
       node.port.postMessage('flush');

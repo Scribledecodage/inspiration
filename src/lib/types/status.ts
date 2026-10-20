@@ -45,7 +45,9 @@ export type Status = {
   expiresAt: Timestamp;
 };
 
-export function isVideoMedia(media: Pick<StatusMedia, 'kind' | 'type'>): boolean {
+export function isVideoMedia(
+  media: Pick<StatusMedia, 'kind' | 'type'>
+): boolean {
   return media.kind === 'video' || media.type?.includes('video') === true;
 }
 

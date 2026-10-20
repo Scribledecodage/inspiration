@@ -44,7 +44,7 @@ export function LinkPreviewCard({
       >
         {image && (
           <span
-            className='block aspect-[3/1] w-full bg-cover bg-center bg-light-secondary/30 dark:bg-dark-secondary/30'
+            className='block aspect-[3/1] w-full bg-light-secondary/30 bg-cover bg-center dark:bg-dark-secondary/30'
             style={{ backgroundImage: `url("${image}")` }}
           />
         )}

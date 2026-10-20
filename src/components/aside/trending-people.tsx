@@ -67,8 +67,8 @@ export function TrendingPeople(): JSX.Element {
             <button
               className='accent-tab shrink-0 rounded-full p-2 text-light-secondary transition
                          hover:bg-light-secondary/10 hover:text-light-primary
-                         active:bg-light-secondary/20 focus-visible:outline-none
-                         focus-visible:ring-2 focus-visible:ring-main-accent
+                         focus-visible:outline-none focus-visible:ring-2
+                         focus-visible:ring-main-accent active:bg-light-secondary/20
                          dark:text-dark-secondary dark:hover:bg-dark-secondary/10
                          dark:hover:text-dark-primary dark:active:bg-dark-secondary/20'
               type='button'
@@ -107,9 +107,7 @@ export function TrendingPeople(): JSX.Element {
                 ))}
                 {allRankedUsers.length > 3 && (
                   <Link href='/people'>
-                    <a
-                      className='block w-full border-t border-light-border py-2.5 text-center text-sm text-main-accent transition hover:bg-light-primary/5 dark:border-dark-border dark:hover:bg-dark-primary/5'
-                    >
+                    <a className='block w-full border-t border-light-border py-2.5 text-center text-sm text-main-accent transition hover:bg-light-primary/5 dark:border-dark-border dark:hover:bg-dark-primary/5'>
                       Voir tout
                     </a>
                   </Link>

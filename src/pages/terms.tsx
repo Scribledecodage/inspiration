@@ -36,10 +36,10 @@ export default function TermsPage(): JSX.Element {
         </header>
 
         <p className='text-light-secondary dark:text-dark-secondary'>
-          Les présentes conditions encadrent l’accès à Inspiration, l’utilisation
-          de votre compte et les contenus publiés sur la plateforme. Elles
-          indiquent également qui édite le service et quels prestataires
-          techniques sont utilisés pour le faire fonctionner.
+          Les présentes conditions encadrent l’accès à Inspiration,
+          l’utilisation de votre compte et les contenus publiés sur la
+          plateforme. Elles indiquent également qui édite le service et quels
+          prestataires techniques sont utilisés pour le faire fonctionner.
         </p>
 
         <section className='space-y-3 border-b border-light-border pb-6 dark:border-dark-border'>
@@ -102,9 +102,9 @@ export default function TermsPage(): JSX.Element {
           </p>
           <ul className='list-disc space-y-2 pl-5 text-light-secondary dark:text-dark-secondary'>
             <li>
-              Vous devez avoir au moins 15 ans pour créer un compte. Si vous avez
-              moins de 15 ans, l’accord d’une personne titulaire de l’autorité
-              parentale est nécessaire.
+              Vous devez avoir au moins 15 ans pour créer un compte. Si vous
+              avez moins de 15 ans, l’accord d’une personne titulaire de
+              l’autorité parentale est nécessaire.
             </li>
             <li>
               Vous vous engagez à fournir des informations exactes et à les
@@ -131,10 +131,10 @@ export default function TermsPage(): JSX.Element {
             Vous conservez l’ensemble de vos droits sur les textes, images,
             GIFs, vidéos et autres créations que vous publiez sur Inspiration.
             Pour permettre au service de fonctionner, vous nous accordez une
-            licence mondiale, non exclusive et gratuite, limitée à l’hébergement,
-            à l’affichage et à la distribution de vos contenus auprès des
-            personnes qui y ont accès. Cette licence prend fin lorsque vous
-            supprimez le contenu concerné ou votre compte.
+            licence mondiale, non exclusive et gratuite, limitée à
+            l’hébergement, à l’affichage et à la distribution de vos contenus
+            auprès des personnes qui y ont accès. Cette licence prend fin
+            lorsque vous supprimez le contenu concerné ou votre compte.
           </p>
           <ul className='list-disc space-y-2 pl-5 text-light-secondary dark:text-dark-secondary'>
             <li>
@@ -171,10 +171,10 @@ export default function TermsPage(): JSX.Element {
           </h2>
           <p className='text-light-secondary dark:text-dark-secondary'>
             Pour que la Plateforme reste un espace accueillant, il est interdit
-            de publier ou de partager des contenus illégaux, violents,
-            haineux, harcelants, diffamatoires, trompeurs, à caractère sexuel
-            explicite, ou portant atteinte aux droits de propriété
-            intellectuelle d’autrui. Il est également interdit de :
+            de publier ou de partager des contenus illégaux, violents, haineux,
+            harcelants, diffamatoires, trompeurs, à caractère sexuel explicite,
+            ou portant atteinte aux droits de propriété intellectuelle d’autrui.
+            Il est également interdit de :
           </p>
           <ul className='list-disc space-y-2 pl-5 text-light-secondary dark:text-dark-secondary'>
             <li>usurper l’identité d’une personne ou d’une organisation ;</li>
@@ -234,8 +234,8 @@ export default function TermsPage(): JSX.Element {
             Firebase pour l’authentification et la base de données, Backblaze
             pour le stockage des images, GIPHY pour les GIFs). Une interruption
             ou une indisponibilité de ces services peut entraîner une
-            interruption temporaire de la Plateforme, sans que la
-            responsabilité de l’Éditeur puisse être engagée.
+            interruption temporaire de la Plateforme, sans que la responsabilité
+            de l’Éditeur puisse être engagée.
           </p>
           <p className='text-light-secondary dark:text-dark-secondary'>
             Dans les limites prévues par la loi, l’Éditeur ne peut être tenu

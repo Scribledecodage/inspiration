@@ -68,7 +68,7 @@ export function LoginMain(): JSX.Element {
             Rejoignez Inspiration aujourd’hui.
           </h2>
 
-          <div className='mt-4 flex flex-col gap-2.5 lg:mt-3 lg:gap-2 [&_button]:min-h-11 [&_button]:py-2.5'>
+          <div className='[&_button]:min-h-11 mt-4 flex flex-col gap-2.5 lg:mt-3 lg:gap-2 [&_button]:py-2.5'>
             <Button
               className='rounded-full bg-accent-blue font-semibold text-white transition hover:brightness-95 focus-visible:!ring-accent-blue/80 active:brightness-90'
               onClick={() => openAuthModal('signUp')}
@@ -103,7 +103,7 @@ export function LoginMain(): JSX.Element {
               Vous avez déjà un compte ?
             </p>
             <Button
-              className='mt-2 min-h-10 w-full rounded-full border border-light-line-reply font-semibold text-accent-blue hover:bg-accent-blue/10 focus-visible:bg-accent-blue/10 focus-visible:!ring-accent-blue/80 active:bg-accent-blue/20 dark:border-dark-line-reply sm:w-60'
+              className='min-h-10 mt-2 w-full rounded-full border border-light-line-reply font-semibold text-accent-blue hover:bg-accent-blue/10 focus-visible:bg-accent-blue/10 focus-visible:!ring-accent-blue/80 active:bg-accent-blue/20 dark:border-dark-line-reply sm:w-60'
               onClick={() => openAuthModal('signIn')}
             >
               Se connecter

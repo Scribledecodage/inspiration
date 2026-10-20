@@ -1,4 +1,8 @@
-import { AI_FALLBACK_LANGUAGE, AI_LANGUAGES, DEFAULT_AI_SETTINGS } from '@lib/types/ai';
+import {
+  AI_FALLBACK_LANGUAGE,
+  AI_LANGUAGES,
+  DEFAULT_AI_SETTINGS
+} from '@lib/types/ai';
 import type { AiSettings } from '@lib/types/ai';
 
 export type AiRole = 'system' | 'user' | 'assistant';
@@ -73,7 +77,8 @@ export async function aiRequest(payload: AiRequest): Promise<string> {
 
   if (!response.ok)
     throw new AiError(
-      data.error ?? 'Le service d’intelligence artificielle a renvoyé une erreur.',
+      data.error ??
+        'Le service d’intelligence artificielle a renvoyé une erreur.',
       response.status
     );
 

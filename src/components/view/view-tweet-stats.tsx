@@ -98,7 +98,15 @@ export function ViewTweetStats({
                   onClick={type ? handleOpen(type) : undefined}
                 >
                   <NumberStats move={move} stats={stats} />
-                  <p>{`${title}${stats > 1 ? index === 0 ? 's' : index === 1 ? 's' : 's' : ''}`}</p>
+                  <p>{`${title}${
+                    stats > 1
+                      ? index === 0
+                        ? 's'
+                        : index === 1
+                        ? 's'
+                        : 's'
+                      : ''
+                  }`}</p>
                 </button>
               )
           )}

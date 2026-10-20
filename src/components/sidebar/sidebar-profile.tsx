@@ -29,11 +29,26 @@ const menuVariants: Variants = {
 export function SidebarProfile(): JSX.Element {
   const { user, signOut } = useAuth();
   const { avatarShape: localShape, avatarFrame: localFrame } = useTheme();
-  const { open: logoutOpen, openModal: openLogoutModal, closeModal: closeLogoutModal } = useModal();
-  const { open: displayOpen, openModal: openDisplayModal, closeModal: closeDisplayModal } = useModal();
+  const {
+    open: logoutOpen,
+    openModal: openLogoutModal,
+    closeModal: closeLogoutModal
+  } = useModal();
+  const {
+    open: displayOpen,
+    openModal: openDisplayModal,
+    closeModal: closeDisplayModal
+  } = useModal();
 
-  const { name, username, verified, photoURL, gender, avatarShape, avatarFrame } =
-    user as User;
+  const {
+    name,
+    username,
+    verified,
+    photoURL,
+    gender,
+    avatarShape,
+    avatarFrame
+  } = user as User;
 
   /* Forme et cadre personnels : on utilise d'abord ce que contient le profil,
      puis la personnalisation locale (Apparence) pour que l'avatar et son
@@ -47,9 +62,21 @@ export function SidebarProfile(): JSX.Element {
         {/* Pas de `truncate` ici : son `overflow-hidden` rognait l'anneau / le
             cadre autour de l'avatar. */}
         <div className='flex min-w-0 items-center gap-3'>
-          <UserAvatar src={photoURL} alt={name} size={40} gender={gender} username={undefined} frame={frame} shape={shape} />
+          <UserAvatar
+            src={photoURL}
+            alt={name}
+            size={40}
+            gender={gender}
+            username={undefined}
+            frame={frame}
+            shape={shape}
+          />
           <div className='hidden min-w-0 truncate text-start leading-5 xl:block'>
-            <UserName name={name} className='start font-semibold' verified={verified} />
+            <UserName
+              name={name}
+              className='start font-semibold'
+              verified={verified}
+            />
             <UserUsername username={username} disableLink />
           </div>
         </div>

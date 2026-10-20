@@ -84,7 +84,10 @@ export const ROUTES: Route[] = [
     path: '/settings/personalization',
     component: SettingsPersonalization as Route['component']
   },
-  { path: '/settings/privacy', component: SettingsPrivacy as Route['component'] },
+  {
+    path: '/settings/privacy',
+    component: SettingsPrivacy as Route['component']
+  },
   {
     path: '/settings/security',
     component: SettingsSecurity as Route['component']

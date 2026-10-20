@@ -309,8 +309,8 @@ export default function PrivacyPage(): JSX.Element {
             comptes sont protégés par Firebase Authentication, l’accès à la base
             de données est encadré par des règles de sécurité Firestore, et les
             médias sont conservés dans un espace de stockage privé. Aucun
-            système n’étant infaillible, nous vous recommandons d’utiliser un mot
-            de passe unique et robuste.
+            système n’étant infaillible, nous vous recommandons d’utiliser un
+            mot de passe unique et robuste.
           </p>
         </section>
 
@@ -321,8 +321,8 @@ export default function PrivacyPage(): JSX.Element {
           <p className='text-light-secondary dark:text-dark-secondary'>
             Inspiration n’est pas destiné aux enfants de moins de 15 ans. Si
             vous avez moins de 15 ans, l’accord d’une personne titulaire de
-            l’autorité parentale est nécessaire. Si nous apprenons qu’un compte a
-            été créé par un enfant sans cet accord, nous procéderons à sa
+            l’autorité parentale est nécessaire. Si nous apprenons qu’un compte
+            a été créé par un enfant sans cet accord, nous procéderons à sa
             suppression.
           </p>
         </section>

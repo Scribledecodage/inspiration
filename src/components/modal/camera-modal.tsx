@@ -232,7 +232,7 @@ export function CameraModal({
 
               {canFlip && ready && (
                 <button
-                  className='absolute bottom-3 right-3 flex h-10 w-10 items-center justify-center rounded-full bg-black/45 text-white backdrop-blur transition hover:bg-black/65'
+                  className='bg-black/45 hover:bg-black/65 absolute bottom-3 right-3 flex h-10 w-10 items-center justify-center rounded-full text-white backdrop-blur transition'
                   type='button'
                   onClick={(): void =>
                     setFacingMode((mode) =>

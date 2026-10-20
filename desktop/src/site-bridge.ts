@@ -68,6 +68,8 @@ export function installSiteBridge(): void {
   });
 
   if (document.readyState === 'loading')
-    document.addEventListener('DOMContentLoaded', () => rewriteImages(document));
+    document.addEventListener('DOMContentLoaded', () =>
+      rewriteImages(document)
+    );
   else rewriteImages(document);
 }

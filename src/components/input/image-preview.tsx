@@ -128,14 +128,14 @@ export function ImagePreview({
         singleCompact
           ? 'flex justify-center'
           : singleImage
-            ? 'relative aspect-[4/3] w-full max-h-[420px] overflow-hidden rounded-2xl bg-light-secondary/30 dark:bg-dark-secondary/30 md:aspect-[16/10]'
-            : cn(
-                'grid grid-cols-2 grid-rows-2 rounded-2xl',
-                viewTweet
-                  ? 'h-[35vw] xs:h-[30vw] md:h-[220px]'
-                  : 'h-[30vw] xs:h-[25vw] md:h-[200px]',
-                isTweet ? 'gap-0.5' : 'gap-3'
-              ),
+          ? 'relative aspect-[4/3] max-h-[420px] w-full overflow-hidden rounded-2xl bg-light-secondary/30 dark:bg-dark-secondary/30 md:aspect-[16/10]'
+          : cn(
+              'grid grid-cols-2 grid-rows-2 rounded-2xl',
+              viewTweet
+                ? 'h-[35vw] xs:h-[30vw] md:h-[220px]'
+                : 'h-[30vw] xs:h-[25vw] md:h-[200px]',
+              isTweet ? 'gap-0.5' : 'gap-3'
+            ),
         isTweet && 'mt-2'
       )}
       style={singleImageRatio ? { aspectRatio: singleImageRatio } : undefined}
@@ -173,7 +173,8 @@ export function ImagePreview({
                   : {
                       'col-span-2 row-span-2': previewCount === 1,
                       'row-span-2':
-                        previewCount === 2 || (index === 0 && previewCount === 3)
+                        previewCount === 2 ||
+                        (index === 0 && previewCount === 3)
                     }
               )}
               {...(isTweet ? tweetVariants : variants)}
@@ -181,100 +182,109 @@ export function ImagePreview({
               key={`${id || src}-${index}`}
             >
               {singleCompact ? (
-                 singleVideo ? (
-                /* Vidéo seule : lecteur compact, format respecté, jamais coupé. */
-                <div className='relative overflow-hidden rounded-2xl bg-black/5 dark:bg-white/5'>
-                  <video
-                    ref={videoRef}
-                    className={cn(
-                      'block max-h-[45vh] w-auto max-w-full cursor-pointer object-contain',
-                      viewTweet ? 'md:max-h-[320px]' : 'md:max-h-[220px]'
-                    )}
-                    src={src}
-                    controls
-                    playsInline
-                    preload='metadata'
-                  />
-                  <button
-                    aria-label='Agrandir la vidéo'
-                    className='absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full
-                               bg-light-primary/75 text-dark-primary opacity-0 backdrop-blur-sm transition
-                               hover:bg-image-preview-hover/75 focus-visible:opacity-100 group-hover:opacity-100'
-                    onClick={preventBubbling(handleSelectedImage(index, isVideo))}
-                    type='button'
-                  >
-                    <MaterialIcon className='h-4 w-4' iconName='north_east' />
-                  </button>
-                </div>
-                 ) : (
-                   /* GIF seul : affiché un peu plus petit, sans recadrage. */
-                   <div className='relative overflow-hidden rounded-md bg-light-secondary/10 dark:bg-dark-secondary/10'>
-                     <img
-                       className={cn(
-                         'block max-h-[30vh] w-auto max-w-full cursor-pointer object-contain',
-                         viewTweet ? 'md:max-h-[200px]' : 'md:max-h-[180px]'
-                       )}
-                       src={src}
-                       alt={alt}
-                       onClick={preventBubbling(handleSelectedImage(index, isVideo))}
-                     />
-                     <button
-                       aria-label='Agrandir le GIF'
-                       className='absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full
-                                  bg-light-primary/75 text-dark-primary opacity-0 backdrop-blur-sm transition
-                                  hover:bg-image-preview-hover/75 focus-visible:opacity-100 group-hover:opacity-100'
-                       onClick={preventBubbling(handleSelectedImage(index, isVideo))}
-                       type='button'
-                     >
-                       <MaterialIcon className='h-4 w-4' iconName='north_east' />
-                     </button>
-                   </div>
-                 )
-               ) : (
-              <button
-                type='button'
-                className='absolute inset-0 w-full h-full'
-                onClick={preventBubbling(handleSelectedImage(index, isVideo))}
-              >
-                {isVideo ? (
-                  <>
-                    <Button
-                      className='visible absolute top-0 right-0 z-10 -translate-x-1 translate-y-1 
-                                 bg-light-primary/75 p-1 opacity-0 backdrop-blur-sm transition
-                                 hover:bg-image-preview-hover/75 group-hover:opacity-100 xs:invisible'
-                    >
-                      <MaterialIcon className='h-5 w-5' iconName='north_east' />
-                    </Button>
+                singleVideo ? (
+                  /* Vidéo seule : lecteur compact, format respecté, jamais coupé. */
+                  <div className='relative overflow-hidden rounded-2xl bg-black/5 dark:bg-white/5'>
                     <video
                       ref={videoRef}
                       className={cn(
-                        `relative h-full w-full cursor-pointer transition 
+                        'block max-h-[45vh] w-auto max-w-full cursor-pointer object-contain',
+                        viewTweet ? 'md:max-h-[320px]' : 'md:max-h-[220px]'
+                      )}
+                      src={src}
+                      controls
+                      playsInline
+                      preload='metadata'
+                    />
+                    <button
+                      aria-label='Agrandir la vidéo'
+                      className='absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full
+                               bg-light-primary/75 text-dark-primary opacity-0 backdrop-blur-sm transition
+                               hover:bg-image-preview-hover/75 focus-visible:opacity-100 group-hover:opacity-100'
+                      onClick={preventBubbling(
+                        handleSelectedImage(index, isVideo)
+                      )}
+                      type='button'
+                    >
+                      <MaterialIcon className='h-4 w-4' iconName='north_east' />
+                    </button>
+                  </div>
+                ) : (
+                  /* GIF seul : affiché un peu plus petit, sans recadrage. */
+                  <div className='relative overflow-hidden rounded-md bg-light-secondary/10 dark:bg-dark-secondary/10'>
+                    <img
+                      className={cn(
+                        'block max-h-[30vh] w-auto max-w-full cursor-pointer object-contain',
+                        viewTweet ? 'md:max-h-[200px]' : 'md:max-h-[180px]'
+                      )}
+                      src={src}
+                      alt={alt}
+                      onClick={preventBubbling(
+                        handleSelectedImage(index, isVideo)
+                      )}
+                    />
+                    <button
+                      aria-label='Agrandir le GIF'
+                      className='absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full
+                                  bg-light-primary/75 text-dark-primary opacity-0 backdrop-blur-sm transition
+                                  hover:bg-image-preview-hover/75 focus-visible:opacity-100 group-hover:opacity-100'
+                      onClick={preventBubbling(
+                        handleSelectedImage(index, isVideo)
+                      )}
+                      type='button'
+                    >
+                      <MaterialIcon className='h-4 w-4' iconName='north_east' />
+                    </button>
+                  </div>
+                )
+              ) : (
+                <button
+                  type='button'
+                  className='absolute inset-0 h-full w-full'
+                  onClick={preventBubbling(handleSelectedImage(index, isVideo))}
+                >
+                  {isVideo ? (
+                    <>
+                      <Button
+                        className='visible absolute top-0 right-0 z-10 -translate-x-1 translate-y-1 
+                                 bg-light-primary/75 p-1 opacity-0 backdrop-blur-sm transition
+                                 hover:bg-image-preview-hover/75 group-hover:opacity-100 xs:invisible'
+                      >
+                        <MaterialIcon
+                          className='h-5 w-5'
+                          iconName='north_east'
+                        />
+                      </Button>
+                      <video
+                        ref={videoRef}
+                        className={cn(
+                          `relative h-full w-full cursor-pointer transition 
                          hover:brightness-75 hover:duration-200`,
+                          isTweet
+                            ? postImageBorderRadius[previewCount][index]
+                            : 'rounded-2xl'
+                        )}
+                        src={src}
+                        controls
+                        muted
+                      />
+                    </>
+                  ) : (
+                    <NextImage
+                      className='relative h-full w-full cursor-pointer transition 
+                               hover:brightness-75 hover:duration-200'
+                      imgClassName={cn(
                         isTweet
                           ? postImageBorderRadius[previewCount][index]
                           : 'rounded-2xl'
                       )}
+                      previewCount={previewCount}
+                      layout='fill'
                       src={src}
-                      controls
-                      muted
+                      alt={alt}
+                      useSkeleton={isTweet}
                     />
-                  </>
-                ) : (
-                  <NextImage
-                    className='relative h-full w-full cursor-pointer transition 
-                               hover:brightness-75 hover:duration-200'
-                    imgClassName={cn(
-                      isTweet
-                        ? postImageBorderRadius[previewCount][index]
-                        : 'rounded-2xl'
-                    )}
-                    previewCount={previewCount}
-                    layout='fill'
-                    src={src}
-                    alt={alt}
-                    useSkeleton={isTweet}
-                  />
-                )}
+                  )}
                 </button>
               )}
               {removeImage && (

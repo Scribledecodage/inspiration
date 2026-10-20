@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="fr" data-theme="light">
   <head>
     <meta charset="UTF-8" />
@@ -12,7 +12,12 @@
          que celui du site.) */
       try {
         var theme = localStorage.getItem('theme') || 'auto';
-        if (theme !== 'auto' && theme !== 'light' && theme !== 'dim' && theme !== 'dark')
+        if (
+          theme !== 'auto' &&
+          theme !== 'light' &&
+          theme !== 'dim' &&
+          theme !== 'dark'
+        )
           theme = 'auto';
         var palette =
           theme === 'auto'
@@ -25,9 +30,18 @@
         root.setAttribute('data-theme', palette);
         root.style.colorScheme = isDark ? 'dark' : 'light';
         root.classList.toggle('dark', isDark);
-        root.style.setProperty('--main-background', 'var(--' + palette + '-background)');
-        root.style.setProperty('--main-search-background', 'var(--' + palette + '-search-background)');
-        root.style.setProperty('--main-sidebar-background', 'var(--' + palette + '-sidebar-background)');
+        root.style.setProperty(
+          '--main-background',
+          'var(--' + palette + '-background)'
+        );
+        root.style.setProperty(
+          '--main-search-background',
+          'var(--' + palette + '-search-background)'
+        );
+        root.style.setProperty(
+          '--main-sidebar-background',
+          'var(--' + palette + '-sidebar-background)'
+        );
         var accent = localStorage.getItem('accent') || 'blue';
         if (accent === 'yellow' || accent === 'cyan') accent = 'indigo';
         if (accent === 'orange') accent = 'red';

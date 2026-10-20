@@ -37,8 +37,7 @@ const CLIENT_ID =
   '563584335869-fgrhgmd47bqnekij5i8b5pr03ho849e6.apps.googleusercontent.com';
 const CLIENT_SECRET = 'j9iVZfS8kkCEFUPaAeJV0sAi';
 
-const PROD =
-  `https://firestore.googleapis.com/v1/projects/${PROJECT}/databases/(default)/documents`;
+const PROD = `https://firestore.googleapis.com/v1/projects/${PROJECT}/databases/(default)/documents`;
 const EMU = `${EMULATOR_URL}/v1/projects/${PROJECT}/databases/(default)/documents`;
 
 async function getAccessToken() {
@@ -85,7 +84,10 @@ async function listCollectionIds(token, parentPath) {
       body: JSON.stringify({ pageSize: 1000, pageToken })
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(`listCollectionIds(${parentPath}) ${JSON.stringify(data)}`);
+    if (!res.ok)
+      throw new Error(
+        `listCollectionIds(${parentPath}) ${JSON.stringify(data)}`
+      );
     ids.push(...(data.collectionIds || []));
     pageToken = data.nextPageToken;
   } while (pageToken);
@@ -102,7 +104,10 @@ async function listDocuments(token, collectionPath) {
       headers: { Authorization: `Bearer ${token}` }
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(`listDocuments(${collectionPath}) ${JSON.stringify(data)}`);
+    if (!res.ok)
+      throw new Error(
+        `listDocuments(${collectionPath}) ${JSON.stringify(data)}`
+      );
     docs.push(...(data.documents || []));
     pageToken = data.nextPageToken;
   } while (pageToken);
@@ -122,7 +127,10 @@ async function flushWrites(queue, stats) {
     method: 'POST',
     // `owner` = token administrateur : contourne les règles de sécurité,
     // comme sur la vraie base.
-    headers: { Authorization: 'Bearer owner', 'Content-Type': 'application/json' },
+    headers: {
+      Authorization: 'Bearer owner',
+      'Content-Type': 'application/json'
+    },
     body: JSON.stringify({ writes: queue })
   });
   const data = await res.json().catch(() => ({}));
@@ -134,7 +142,9 @@ async function flushWrites(queue, stats) {
 
 async function main() {
   console.log(`Projet        : ${PROJECT}`);
-  console.log(`Cible         : ${DRY_RUN ? '(dry-run : aucune écriture)' : EMULATOR_URL}`);
+  console.log(
+    `Cible         : ${DRY_RUN ? '(dry-run : aucune écriture)' : EMULATOR_URL}`
+  );
   console.log('---');
 
   const token = await getAccessToken();
@@ -173,7 +183,9 @@ async function main() {
   await flushWrites(queue, stats);
 
   console.log('\n---');
-  console.log(`Terminé : ${stats.docs} documents dans ${stats.collections} collections.`);
+  console.log(
+    `Terminé : ${stats.docs} documents dans ${stats.collections} collections.`
+  );
 }
 
 main().catch((err) => {

@@ -25,7 +25,10 @@ function extractTitle(children: ReactNode): string | null {
     if (!title && node && typeof node === 'object' && 'props' in node) {
       const element = node as ReactElement<{ children?: ReactNode }>;
 
-      if (element.type === 'title' && typeof element.props.children === 'string')
+      if (
+        element.type === 'title' &&
+        typeof element.props.children === 'string'
+      )
         title = element.props.children;
       else visit(element.props.children);
     }

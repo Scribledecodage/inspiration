@@ -46,11 +46,10 @@ export function UserEditBirthday({
   const handleKeyDown =
     (field: 'day' | 'month' | 'year') =>
     (e: KeyboardEvent<HTMLInputElement>): void => {
-      if (e.key === 'Backspace') 
+      if (e.key === 'Backspace')
         if (field === 'month' && !birthdayParts.month) dayRef.current?.focus();
         else if (field === 'year' && !birthdayParts.year)
           monthRef.current?.focus();
-      
     };
 
   const inputClass = cn(

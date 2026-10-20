@@ -144,7 +144,8 @@ export function AiSettingsCard({
   }, [models]);
 
   const languageOptions = useMemo(
-    () => AI_LANGUAGES.map((language) => ({ value: language, label: language })),
+    () =>
+      AI_LANGUAGES.map((language) => ({ value: language, label: language })),
     []
   );
 
@@ -191,7 +192,9 @@ export function AiSettingsCard({
               checked={settings.assistantEnabled}
               disabled={!settings.enabled}
               label='Activer l’assistant'
-              onChange={(assistantEnabled): void => update({ assistantEnabled })}
+              onChange={(assistantEnabled): void =>
+                update({ assistantEnabled })
+              }
             />
           </Row>
 
@@ -203,7 +206,9 @@ export function AiSettingsCard({
               checked={settings.translateEnabled}
               disabled={!settings.enabled}
               label='Activer la traduction'
-              onChange={(translateEnabled): void => update({ translateEnabled })}
+              onChange={(translateEnabled): void =>
+                update({ translateEnabled })
+              }
             />
           </Row>
         </div>
@@ -229,7 +234,9 @@ export function AiSettingsCard({
             title='Langue de traduction'
           >
             <SearchSelect
-              onChange={(translateLanguage): void => update({ translateLanguage })}
+              onChange={(translateLanguage): void =>
+                update({ translateLanguage })
+              }
               options={languageOptions}
               placeholder='Choisir une langue'
               searchPlaceholder='Rechercher une langue…'
@@ -259,12 +266,9 @@ export function AiSettingsCard({
 
       {modelsError && (
         <p className='flex items-start gap-2 rounded-lg border border-light-border bg-main-search-background/30 px-3 py-2 text-xs leading-5 text-light-secondary dark:border-dark-border dark:text-dark-secondary'>
-          <MaterialIcon
-            className='mt-0.5 h-4 w-4 shrink-0'
-            iconName='info'
-          />
-          {modelsError} Vous pouvez tout de même saisir un identifiant de
-          modèle à la main.
+          <MaterialIcon className='mt-0.5 h-4 w-4 shrink-0' iconName='info' />
+          {modelsError} Vous pouvez tout de même saisir un identifiant de modèle
+          à la main.
         </p>
       )}
 
@@ -282,7 +286,9 @@ export function AiSettingsCard({
         <textarea
           className='min-h-[5rem] w-full resize-y rounded-lg border border-light-line-reply bg-transparent px-3 py-2 text-sm leading-6 text-light-primary outline-none transition focus:border-main-accent focus:ring-2 focus:ring-main-accent/20 dark:border-dark-line-reply dark:text-dark-primary'
           id='ai-system-prompt'
-          onChange={(event): void => update({ systemPrompt: event.target.value })}
+          onChange={(event): void =>
+            update({ systemPrompt: event.target.value })
+          }
           placeholder='Ex. : réponds brièvement, en français, sans jargon.'
           value={settings.systemPrompt}
         />

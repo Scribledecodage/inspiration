@@ -24,13 +24,17 @@ export default async function geocodeEndpoint(
   const query = typeof q === 'string' ? q.trim() : '';
 
   if (!query) {
-    res.status(400).json({ lat: null, lon: null, label: null, error: 'Missing q' });
+    res
+      .status(400)
+      .json({ lat: null, lon: null, label: null, error: 'Missing q' });
     return;
   }
 
   try {
     const response = await fetch(
-      `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=1&lang=fr`,
+      `https://photon.komoot.io/api/?q=${encodeURIComponent(
+        query
+      )}&limit=1&lang=fr`,
       { headers: { 'User-Agent': 'TwitterClone/1.0' } }
     );
 

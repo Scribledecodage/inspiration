@@ -122,10 +122,10 @@ export function DeviceCodeCard({ userId }: DeviceCodeCardProps): JSX.Element {
         </div>
 
         <p className='text-xs text-light-secondary dark:text-dark-secondary'>
-          Le code reste uniquement dans ce navigateur : il n’est jamais envoyé
-          à nos serveurs et il n’existe aucune réinitialisation par e-mail.
-          Code oublié ? Supprimez les données du site dans votre navigateur :
-          cela réinitialisera le code et vous déconnectera de cet appareil.
+          Le code reste uniquement dans ce navigateur : il n’est jamais envoyé à
+          nos serveurs et il n’existe aucune réinitialisation par e-mail. Code
+          oublié ? Supprimez les données du site dans votre navigateur : cela
+          réinitialisera le code et vous déconnectera de cet appareil.
         </p>
       </SettingsCard>
       <DeviceCodeModal

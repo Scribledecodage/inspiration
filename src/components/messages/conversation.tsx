@@ -47,8 +47,18 @@ import { GroupAvatar } from './group-avatar';
 import { ChannelAvatar } from '@components/channel/channel-avatar';
 import { AiAvatar } from './ai-avatar';
 import { AiMessageTools } from './ai-message-tools';
-import { aiBotUser, appendAiMessage, ensureAiConversation, AI_BOT_NAME } from '@lib/ai-bot';
-import { chatWithAi, rewriteWithAi, translateWithAi, withAiDefaults } from '@lib/ai';
+import {
+  aiBotUser,
+  appendAiMessage,
+  ensureAiConversation,
+  AI_BOT_NAME
+} from '@lib/ai-bot';
+import {
+  chatWithAi,
+  rewriteWithAi,
+  translateWithAi,
+  withAiDefaults
+} from '@lib/ai';
 import type { ChangeEvent, ClipboardEvent, KeyboardEvent } from 'react';
 import type {
   ChatMessage,
@@ -95,15 +105,16 @@ const AI_SUGGESTIONS: readonly string[] = [
 ];
 
 /* Le menu se déplie au-dessus de la barre de saisie : la hauteur s'anime pour
-   « soulever » la barre, comme dans Google Messages. */const attachMenuAnimation = {
-  initial: { height: 0, opacity: 0 },
-  animate: {
-    height: 'auto',
-    opacity: 1,
-    transition: { type: 'spring' as const, damping: 30, stiffness: 300 }
-  },
-  exit: { height: 0, opacity: 0, transition: { duration: 0.2 } }
-};
+   « soulever » la barre, comme dans Google Messages. */ const attachMenuAnimation =
+  {
+    initial: { height: 0, opacity: 0 },
+    animate: {
+      height: 'auto',
+      opacity: 1,
+      transition: { type: 'spring' as const, damping: 30, stiffness: 300 }
+    },
+    exit: { height: 0, opacity: 0, transition: { duration: 0.2 } }
+  };
 
 /** Decorative waveform used both for the button icon and the audio player. */
 const WAVE_BARS = [10, 18, 13, 22, 9, 16, 20, 12, 15, 11, 17, 8];
@@ -834,12 +845,10 @@ export function Conversation({
     const history = [...(messages ?? [])]
       .filter((message) => message.text?.trim())
       .slice(-12)
-      .map(
-        (message): { role: 'user' | 'assistant'; content: string } => ({
-          role: message.fromAI ? 'assistant' : 'user',
-          content: (message.text as string).trim()
-        })
-      );
+      .map((message): { role: 'user' | 'assistant'; content: string } => ({
+        role: message.fromAI ? 'assistant' : 'user',
+        content: (message.text as string).trim()
+      }));
 
     try {
       const reply = await chatWithAi(
@@ -871,8 +880,7 @@ export function Conversation({
       setText(await translateWithAi(value, aiSettings));
     } catch (error) {
       toast.error(
-        (error as Error)?.message ??
-          'Impossible de traduire le message.'
+        (error as Error)?.message ?? 'Impossible de traduire le message.'
       );
     }
   };
@@ -890,8 +898,7 @@ export function Conversation({
       setText(await rewriteWithAi(value, aiSettings));
     } catch (error) {
       toast.error(
-        (error as Error)?.message ??
-          'Impossible de reformuler le message.'
+        (error as Error)?.message ?? 'Impossible de reformuler le message.'
       );
     }
   };
@@ -1560,47 +1567,48 @@ export function Conversation({
                     initial={attachMenuAnimation.initial}
                   >
                     <div className='flex flex-wrap items-center gap-1 rounded-3xl bg-main-search-background px-2 py-2'>
-                      {[...ATTACH_OPTIONS, ...(aiEnabled ? AI_ATTACH_OPTIONS : [])].map(
-                        ({ name, iconName }) => (
-                          <button
-                            aria-label={name}
-                            className='flex h-9 w-9 shrink-0 items-center justify-center rounded-full
+                      {[
+                        ...ATTACH_OPTIONS,
+                        ...(aiEnabled ? AI_ATTACH_OPTIONS : [])
+                      ].map(({ name, iconName }) => (
+                        <button
+                          aria-label={name}
+                          className='flex h-9 w-9 shrink-0 items-center justify-center rounded-full
                                      text-main-accent transition
                                      hover:bg-main-accent/10 active:bg-main-accent/20
                                      disabled:opacity-40'
-                            disabled={imageBusy}
-                            key={name}
-                            onClick={(event) => {
-                              setAttachOpen(false);
+                          disabled={imageBusy}
+                          key={name}
+                          onClick={(event) => {
+                            setAttachOpen(false);
 
-                              if (name === 'Media')
-                                attachInputRef.current?.click();
-                              else if (name === 'GIF') setGifOpen(true);
-                              else if (name === 'Traduire')
-                                void handleTranslateDraft();
-                              else if (name === 'Réécrire')
-                                void handleRewriteDraft();
-                              else if (name === 'Emoji') {
-                                const area = textAreaRef.current;
+                            if (name === 'Media')
+                              attachInputRef.current?.click();
+                            else if (name === 'GIF') setGifOpen(true);
+                            else if (name === 'Traduire')
+                              void handleTranslateDraft();
+                            else if (name === 'Réécrire')
+                              void handleRewriteDraft();
+                            else if (name === 'Emoji') {
+                              const area = textAreaRef.current;
 
-                                setEmojiCaret(
-                                  area?.selectionStart ?? text.length
-                                );
-                                setEmojiOpen(true);
-                              } else if (name === 'Sondage') setPollOpen(true);
-                              else if (name === 'Schedule') setScheduleOpen(true);
-                              else if (name === 'Location') setLocationOpen(true);
-                            }}
-                            title={name}
-                            type='button'
-                          >
-                            <MaterialIcon
-                              className='h-5 w-5'
-                              iconName={iconName}
-                            />
-                          </button>
-                        )
-                      )}
+                              setEmojiCaret(
+                                area?.selectionStart ?? text.length
+                              );
+                              setEmojiOpen(true);
+                            } else if (name === 'Sondage') setPollOpen(true);
+                            else if (name === 'Schedule') setScheduleOpen(true);
+                            else if (name === 'Location') setLocationOpen(true);
+                          }}
+                          title={name}
+                          type='button'
+                        >
+                          <MaterialIcon
+                            className='h-5 w-5'
+                            iconName={iconName}
+                          />
+                        </button>
+                      ))}
                     </div>
                   </motion.div>
                 )}

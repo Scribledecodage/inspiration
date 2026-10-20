@@ -93,10 +93,9 @@ export function TweetStatsPanel({
 }: TweetStatsPanelProps): JSX.Element {
   const dragControls = useDragControls();
 
-  const { data: tweet, loading } = useDocument(
-    doc(tweetsCollection, tweetId),
-    { disabled: !open }
-  );
+  const { data: tweet, loading } = useDocument(doc(tweetsCollection, tweetId), {
+    disabled: !open
+  });
 
   const likeIds = useMemo(() => tweet?.userLikes ?? [], [tweet?.userLikes]);
 

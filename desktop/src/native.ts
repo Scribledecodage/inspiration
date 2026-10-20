@@ -69,10 +69,9 @@ export function useNativeBridge(): void {
 
             sendNotification({
               title: 'Nouvelle publication',
-              body: (data.text ?? 'Une publication vient d’être publiée.').slice(
-                0,
-                140
-              )
+              body: (
+                data.text ?? 'Une publication vient d’être publiée.'
+              ).slice(0, 140)
             });
           })();
         }

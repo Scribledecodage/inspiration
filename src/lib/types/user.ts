@@ -1,4 +1,10 @@
-import type { Theme, Accent, FontType, AvatarShape, AvatarFrame } from './theme';
+import type {
+  Theme,
+  Accent,
+  FontType,
+  AvatarShape,
+  AvatarFrame
+} from './theme';
 import type { Timestamp, FirestoreDataConverter } from 'firebase/firestore';
 import type { AiSettings } from './ai';
 

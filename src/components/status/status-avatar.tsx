@@ -27,11 +27,15 @@ export function StatusAvatarImage({
   shape?: AvatarShape;
   frame?: AvatarFrame;
 }): JSX.Element {
-  const fallback = gender === 'femme' ? '/Avatar femme.png' : '/Avatar homme.png';
+  const fallback =
+    gender === 'femme' ? '/Avatar femme.png' : '/Avatar homme.png';
 
   return (
     <span
-      className={cn('relative block overflow-hidden', getAvatarShapeClass(shape))}
+      className={cn(
+        'relative block overflow-hidden',
+        getAvatarShapeClass(shape)
+      )}
       style={{
         width: size,
         height: size,
@@ -108,7 +112,13 @@ export function StatusRing({
   if (!ring)
     return (
       <span className={cn('block shrink-0', className)} title={alt}>
-        <StatusAvatarImage src={src} size={size} gender={gender} shape={shape} frame={frame} />
+        <StatusAvatarImage
+          src={src}
+          size={size}
+          gender={gender}
+          shape={shape}
+          frame={frame}
+        />
       </span>
     );
 

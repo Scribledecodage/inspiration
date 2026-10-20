@@ -121,7 +121,9 @@ export function AuthContextProvider({
           let available = false;
           let randomUsername = '';
           const normalizeName = (
-            displayName ?? authUser.email?.split('@')[0] ?? 'user'
+            displayName ??
+            authUser.email?.split('@')[0] ??
+            'user'
           )
             .replace(/\s/g, '')
             .toLowerCase();
@@ -134,7 +136,9 @@ export function AuthContextProvider({
             } catch {
               pendingSignupProfile.current = null;
               setError(
-                new Error('Impossible de vérifier le nom d’utilisateur. Réessayez.')
+                new Error(
+                  'Impossible de vérifier le nom d’utilisateur. Réessayez.'
+                )
               );
               // A temporary Firestore error must never delete a valid Firebase
               // account or sign the person out.
@@ -149,8 +153,7 @@ export function AuthContextProvider({
             }
 
             randomUsername = signupProfile.username;
-          }
-          else
+          } else
             while (!available) {
               const randomInt = getRandomInt(1, 10_000);
               randomUsername = `${normalizeName}${randomInt}`;
@@ -334,7 +337,9 @@ export function AuthContextProvider({
       const createdMs =
         typeof createdAt === 'number'
           ? createdAt
-          : createdAt && typeof (createdAt as { toMillis?: () => number }).toMillis === 'function'
+          : createdAt &&
+            typeof (createdAt as { toMillis?: () => number }).toMillis ===
+              'function'
           ? (createdAt as { toMillis: () => number }).toMillis()
           : Date.now();
 

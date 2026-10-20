@@ -97,7 +97,9 @@ export async function createDeviceCode(
   code: string
 ): Promise<void> {
   if (typeof window === 'undefined')
-    throw new Error('Le code de l’appareil ne peut être créé que dans un navigateur.');
+    throw new Error(
+      'Le code de l’appareil ne peut être créé que dans un navigateur.'
+    );
 
   const salt = randomSalt();
 

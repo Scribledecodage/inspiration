@@ -41,8 +41,7 @@ export function TweetText({
     const measure = (): void => {
       /* La hauteur d'une ligne vient du style calculé : la coupure tombe donc
          toujours entre deux lignes, jamais au milieu d'une ligne. */
-      const lineHeight =
-        parseFloat(getComputedStyle(element).lineHeight) || 20;
+      const lineHeight = parseFloat(getComputedStyle(element).lineHeight) || 20;
       const limit = Math.round(lineHeight * lines);
 
       setMaxHeight(limit);

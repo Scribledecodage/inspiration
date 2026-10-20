@@ -107,8 +107,7 @@ export async function encodePcmVoiceNote(
     const current = Math.min(samples.length - 1, Math.floor(position));
     const next = Math.min(samples.length - 1, current + 1);
     const fraction = position - current;
-    const value =
-      samples[current] * (1 - fraction) + samples[next] * fraction;
+    const value = samples[current] * (1 - fraction) + samples[next] * fraction;
 
     pcm[index] = toInt16(value);
   }

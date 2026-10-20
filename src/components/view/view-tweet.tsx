@@ -42,15 +42,23 @@ export function ViewTweet(tweet: ViewTweetProps): JSX.Element {
 
   /* L'auteur du tweet n'est pas toujours disponible (document utilisateur non
      chargé) : on retombe alors sur des valeurs vides au lieu de planter. */
-  const { id: ownerId, name, username, verified, photoURL, gender, avatarShape, avatarFrame } =
-    tweetUserData ?? {
-      id: '',
-      name: '',
-      username: '',
-      verified: false,
-      photoURL: '',
-      gender: 'autre'
-    };
+  const {
+    id: ownerId,
+    name,
+    username,
+    verified,
+    photoURL,
+    gender,
+    avatarShape,
+    avatarFrame
+  } = tweetUserData ?? {
+    id: '',
+    name: '',
+    username: '',
+    verified: false,
+    photoURL: '',
+    gender: 'autre'
+  };
 
   const { user } = useAuth();
 
@@ -87,7 +95,14 @@ export function ViewTweet(tweet: ViewTweetProps): JSX.Element {
         )}
         <div className='grid grid-cols-[auto,1fr] gap-3'>
           <UserTooltip {...tweetUserData}>
-          <UserAvatar src={photoURL} alt={name} username={username} gender={gender} frame={avatarFrame} shape={avatarShape} />
+            <UserAvatar
+              src={photoURL}
+              alt={name}
+              username={username}
+              gender={gender}
+              frame={avatarFrame}
+              shape={avatarShape}
+            />
           </UserTooltip>
           <div className='flex min-w-0 justify-between'>
             <div className='flex flex-col truncate xs:overflow-visible xs:whitespace-normal'>

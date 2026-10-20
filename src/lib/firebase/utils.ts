@@ -30,7 +30,12 @@ import type { WithFieldValue, Query } from 'firebase/firestore';
 import type { EditableUserData } from '@lib/types/user';
 import type { FilesWithId, ImagesPreview } from '@lib/types/file';
 import type { Bookmark } from '@lib/types/bookmark';
-import type { PollVote, Tweet, TweetPoll, ScheduledTweet } from '@lib/types/tweet';
+import type {
+  PollVote,
+  Tweet,
+  TweetPoll,
+  ScheduledTweet
+} from '@lib/types/tweet';
 import type { Theme, Accent } from '@lib/types/theme';
 
 export async function checkUsernameAvailability(
@@ -415,9 +420,7 @@ export type NewScheduledTweet = {
   location?: string | null;
 };
 
-export async function scheduleTweet(
-  data: NewScheduledTweet
-): Promise<string> {
+export async function scheduleTweet(data: NewScheduledTweet): Promise<string> {
   const scheduledData: WithFieldValue<Omit<ScheduledTweet, 'id'>> = {
     text: data.text,
     images: data.images,
@@ -477,9 +480,7 @@ export async function publishScheduledTweet(
     parent?.id ? manageReply('increment', parent.id) : null
   ]);
 
-  await deleteDoc(
-    doc(userScheduledTweetsCollection(createdBy), scheduled.id)
-  );
+  await deleteDoc(doc(userScheduledTweetsCollection(createdBy), scheduled.id));
 }
 
 /**

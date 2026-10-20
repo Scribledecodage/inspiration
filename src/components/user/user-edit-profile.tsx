@@ -8,10 +8,7 @@ import cn from 'clsx';
 import { useUser } from '@lib/context/user-context';
 import { useModal } from '@lib/hooks/useModal';
 import { updateUserData } from '@lib/firebase/utils';
-import {
-  getStorageErrorMessage,
-  uploadImages
-} from '@lib/supabase/storage';
+import { getStorageErrorMessage, uploadImages } from '@lib/supabase/storage';
 import { sleep } from '@lib/utils';
 import { getAvatarSrc, getBannerSrc, avatarImageOptions } from '@lib/media';
 import { getImagesData } from '@lib/validation';
@@ -94,7 +91,8 @@ function normalizeWebsite(value: string | null): string | null {
         : `https://${trimmedValue}`
     );
     if (!['http:', 'https:'].includes(url.protocol)) return null;
-    if (!url.hostname.includes('.') && url.hostname !== 'localhost') return null;
+    if (!url.hostname.includes('.') && url.hostname !== 'localhost')
+      return null;
     return url.toString().replace(/\/$/, '');
   } catch {
     return null;
@@ -142,7 +140,12 @@ export function UserEditProfile({
 }: UserEditProfileProps): JSX.Element {
   const { user } = useUser();
   const { push } = useRouter();
-  const { avatarShape: globalShape, avatarFrame: globalFrame, setAvatarShape, setAvatarFrame } = useTheme();
+  const {
+    avatarShape: globalShape,
+    avatarFrame: globalFrame,
+    setAvatarShape,
+    setAvatarFrame
+  } = useTheme();
   const { open, openModal, closeModal } = useModal();
   const dragControls = useDragControls();
   const [expanded, setExpanded] = useState(false);
@@ -196,8 +199,9 @@ export function UserEditProfile({
     customBadge: customBadge ?? null
   });
 
-  const [userImages, setUserImages] = useState<UserImages>({        photoURL: [],
-        coverPhotoURL: []
+  const [userImages, setUserImages] = useState<UserImages>({
+    photoURL: [],
+    coverPhotoURL: []
   });
   const [birthdayParts, setBirthdayParts] = useState<BirthdayParts>(
     getBirthdayParts(birthDate)
@@ -382,7 +386,10 @@ export function UserEditProfile({
         avatarFrame: editUserData.avatarFrame,
         ...trimmedTexts,
         birthDate: isValidBirthday
-          ? `${normalizedYear}-${birthdayParts.month.padStart(2, '0')}-${birthdayParts.day.padStart(2, '0')}`
+          ? `${normalizedYear}-${birthdayParts.month.padStart(
+              2,
+              '0'
+            )}-${birthdayParts.day.padStart(2, '0')}`
           : null,
         ...newImages
       };
@@ -401,9 +408,7 @@ export function UserEditProfile({
       toast.success('Photo et profil mis à jour');
     } catch (error) {
       toast.error(
-        error instanceof Error
-          ? error.message
-          : getStorageErrorMessage(error)
+        error instanceof Error ? error.message : getStorageErrorMessage(error)
       );
     } finally {
       setLoading(false);
@@ -464,9 +469,7 @@ export function UserEditProfile({
   /* Choix d'une photo déjà présente sur l'appareil : la photo est mise en
      aperçu, puis la fenêtre se referme pour laisser voir le grand aperçu. La
      case est vidée, pour pouvoir choisir deux fois la même photo. */
-  const pickPhotoFromDevice = (
-    event: ChangeEvent<HTMLInputElement>
-  ): void => {
+  const pickPhotoFromDevice = (event: ChangeEvent<HTMLInputElement>): void => {
     const { files } = event.target;
 
     if (!files?.length) return;
@@ -511,7 +514,6 @@ export function UserEditProfile({
       coverPhotoURL: []
     });
   };
-
 
   const handleChange =
     (key: EditableData) =>
@@ -750,7 +752,9 @@ export function UserEditProfile({
       avatarShape={editUserData.avatarShape}
       avatarFrame={editUserData.avatarFrame}
       coverPhotoURL={editUserData.coverPhotoURL}
-      inputNameError={inputNameError || websiteError || phoneNumberError || birthdayError}
+      inputNameError={
+        inputNameError || websiteError || phoneNumberError || birthdayError
+      }
       editImage={editImage}
       closeModal={pageMode ? handlePageClose : handleCloseModal}
       updateData={updateData}
@@ -758,196 +762,194 @@ export function UserEditProfile({
       removeProfileImage={removeProfileImage}
       dragControls={dragControls}
     >
-          {/* Forme de l'image de profil : la case du choix actuel, et la liste
+      {/* Forme de l'image de profil : la case du choix actuel, et la liste
               complète dans une fenêtre (menu sur téléphone). */}
-          <div className='flex flex-col gap-2'>
-            <span className='text-xs font-semibold text-light-secondary dark:text-dark-secondary'>
-              Forme de l’image de profil
-            </span>
+      <div className='flex flex-col gap-2'>
+        <span className='text-xs font-semibold text-light-secondary dark:text-dark-secondary'>
+          Forme de l’image de profil
+        </span>
 
-            {choiceCard({
-              label: currentShapeLabel,
-              description: 'Forme donnée à votre photo',
-              preview: renderShapePreview(currentShape, 'h-10 w-10'),
-              buttonLabel: 'Voir toutes les formes',
-              onOpen: (): void => setShapesOpen(true)
-            })}
-          </div>
+        {choiceCard({
+          label: currentShapeLabel,
+          description: 'Forme donnée à votre photo',
+          preview: renderShapePreview(currentShape, 'h-10 w-10'),
+          buttonLabel: 'Voir toutes les formes',
+          onOpen: (): void => setShapesOpen(true)
+        })}
+      </div>
 
-          {/* Cadre de l'avatar : la décoration actuelle, et la liste complète
+      {/* Cadre de l'avatar : la décoration actuelle, et la liste complète
               dans une fenêtre (menu sur téléphone). */}
-          <div className='flex flex-col gap-2'>
-            <span className='text-xs font-semibold text-light-secondary dark:text-dark-secondary'>
-              Cadre de l’avatar
+      <div className='flex flex-col gap-2'>
+        <span className='text-xs font-semibold text-light-secondary dark:text-dark-secondary'>
+          Cadre de l’avatar
+        </span>
+
+        {choiceCard({
+          label: currentFrameLabel,
+          description: 'Décoration posée autour de la photo',
+          preview: (
+            <span className='relative block h-10 w-10'>
+              <AvatarDecoration frame={currentFrame} />
+              {renderShapePreview(currentShape, 'h-10 w-10')}
             </span>
+          ),
+          buttonLabel: 'Voir tous les cadres',
+          onOpen: (): void => setFramesOpen(true)
+        })}
+      </div>
 
-            {choiceCard({
-              label: currentFrameLabel,
-              description: 'Décoration posée autour de la photo',
-              preview: (
-                <span className='relative block h-10 w-10'>
-                  <AvatarDecoration frame={currentFrame} />
-                  {renderShapePreview(currentShape, 'h-10 w-10')}
-                </span>
-              ),
-              buttonLabel: 'Voir tous les cadres',
-              onOpen: (): void => setFramesOpen(true)
-            })}
-          </div>
-
-          {/* Photo de profil : la photo actuelle, et les photos proposées dans
+      {/* Photo de profil : la photo actuelle, et les photos proposées dans
               une fenêtre (menu sur téléphone). */}
-          <div className='flex flex-col gap-2'>
-            <span className='text-xs font-semibold text-light-secondary dark:text-dark-secondary'>
-              Photo de profil
-            </span>
+      <div className='flex flex-col gap-2'>
+        <span className='text-xs font-semibold text-light-secondary dark:text-dark-secondary'>
+          Photo de profil
+        </span>
 
-            {choiceCard({
-              label: currentPhotoLabel,
-              description: 'Photo affichée sur votre profil',
-              preview: renderShapePreview(currentShape, 'h-10 w-10'),
-              buttonLabel: 'Choisir une photo',
-              onOpen: (): void => setPhotosOpen(true)
-            })}
-          </div>
+        {choiceCard({
+          label: currentPhotoLabel,
+          description: 'Photo affichée sur votre profil',
+          preview: renderShapePreview(currentShape, 'h-10 w-10'),
+          buttonLabel: 'Choisir une photo',
+          onOpen: (): void => setPhotosOpen(true)
+        })}
+      </div>
 
-          {/* Listes complètes : fenêtre sur ordinateur, menu sur téléphone. */}
-          <AvatarPickerModal
-            open={shapesOpen}
-            title='Forme de l’image de profil'
-            subtitle='Choisissez la forme donnée à votre photo.'
-            options={avatarShapeOptions}
-            value={currentShape}
-            gridClass='grid-cols-2 xs:grid-cols-3'
-            onClose={(): void => setShapesOpen(false)}
-            onSelect={(shapeKey): void =>
-              setEditUserData({
-                ...editUserData,
-                avatarShape: shapeKey as AvatarShape
-              })
-            }
-            renderPreview={(shapeKey): JSX.Element =>
-              renderShapePreview(shapeKey as AvatarShape, 'h-10 w-10')
-            }
-          />
+      {/* Listes complètes : fenêtre sur ordinateur, menu sur téléphone. */}
+      <AvatarPickerModal
+        open={shapesOpen}
+        title='Forme de l’image de profil'
+        subtitle='Choisissez la forme donnée à votre photo.'
+        options={avatarShapeOptions}
+        value={currentShape}
+        gridClass='grid-cols-2 xs:grid-cols-3'
+        onClose={(): void => setShapesOpen(false)}
+        onSelect={(shapeKey): void =>
+          setEditUserData({
+            ...editUserData,
+            avatarShape: shapeKey as AvatarShape
+          })
+        }
+        renderPreview={(shapeKey): JSX.Element =>
+          renderShapePreview(shapeKey as AvatarShape, 'h-10 w-10')
+        }
+      />
 
-          <AvatarPickerModal
-            open={framesOpen}
-            title='Cadre de l’avatar'
-            subtitle='Choisissez la décoration posée autour de votre photo.'
-            options={avatarFrameOptions}
-            value={currentFrame}
-            gridClass='grid-cols-2 xs:grid-cols-3'
-            onClose={(): void => setFramesOpen(false)}
-            onSelect={(frameKey): void =>
-              setEditUserData({
-                ...editUserData,
-                avatarFrame: frameKey as AvatarFrame
-              })
-            }
-            renderPreview={renderFramePreview}
-          />
+      <AvatarPickerModal
+        open={framesOpen}
+        title='Cadre de l’avatar'
+        subtitle='Choisissez la décoration posée autour de votre photo.'
+        options={avatarFrameOptions}
+        value={currentFrame}
+        gridClass='grid-cols-2 xs:grid-cols-3'
+        onClose={(): void => setFramesOpen(false)}
+        onSelect={(frameKey): void =>
+          setEditUserData({
+            ...editUserData,
+            avatarFrame: frameKey as AvatarFrame
+          })
+        }
+        renderPreview={renderFramePreview}
+      />
 
-          {/* Entrée de fichier cachée : elle sert à « Télécharger votre photo
+      {/* Entrée de fichier cachée : elle sert à « Télécharger votre photo
               de profil » (choisir une image déjà sur l'appareil). */}
-          <input
-            className='hidden'
-            type='file'
-            accept='image/*'
-            ref={uploadPhotoRef}
-            onChange={pickPhotoFromDevice}
-          />
+      <input
+        className='hidden'
+        type='file'
+        accept='image/*'
+        ref={uploadPhotoRef}
+        onChange={pickPhotoFromDevice}
+      />
 
-          {/* Prise de photo : la vraie caméra de l'appareil. */}
-          <CameraModal
-            open={cameraOpen}
-            onClose={(): void => setCameraOpen(false)}
-            onCapture={captureCameraPhoto}
-            onPickFile={(): void => {
-              setCameraOpen(false);
-              uploadPhotoRef.current?.click();
-            }}
-          />
+      {/* Prise de photo : la vraie caméra de l'appareil. */}
+      <CameraModal
+        open={cameraOpen}
+        onClose={(): void => setCameraOpen(false)}
+        onCapture={captureCameraPhoto}
+        onPickFile={(): void => {
+          setCameraOpen(false);
+          uploadPhotoRef.current?.click();
+        }}
+      />
 
-          <AvatarPickerModal
-            open={photosOpen}
-            title='Photo de profil'
-            subtitle='Choisissez la photo affichée sur votre profil.'
-            options={photoOptions}
-            value={avatarPreviewSrc}
-            gridClass='grid-cols-2 xs:grid-cols-3'
-            actions={photoActions}
-            optionsTitle='Photos proposées'
-            onClose={(): void => setPhotosOpen(false)}
-            onSelect={chooseAvatarImage}
-            renderPreview={renderPhotoPreview}
-          />
+      <AvatarPickerModal
+        open={photosOpen}
+        title='Photo de profil'
+        subtitle='Choisissez la photo affichée sur votre profil.'
+        options={photoOptions}
+        value={avatarPreviewSrc}
+        gridClass='grid-cols-2 xs:grid-cols-3'
+        actions={photoActions}
+        optionsTitle='Photos proposées'
+        onClose={(): void => setPhotosOpen(false)}
+        onSelect={chooseAvatarImage}
+        renderPreview={renderPhotoPreview}
+      />
 
-          {/* Nom & Biographie */}
-          {inputFields.map((inputData) => (
-            <InputField
-              {...inputData}
-              handleChange={handleChange(inputData.inputId)}
-              handleKeyboardShortcut={handleKeyboardShortcut}
-              key={inputData.inputId}
-            />
-          ))}
+      {/* Nom & Biographie */}
+      {inputFields.map((inputData) => (
+        <InputField
+          {...inputData}
+          handleChange={handleChange(inputData.inputId)}
+          handleKeyboardShortcut={handleKeyboardShortcut}
+          key={inputData.inputId}
+        />
+      ))}
 
-          {/* Lieu de résidence : plusieurs cases possibles, avec la recherche
+      {/* Lieu de résidence : plusieurs cases possibles, avec la recherche
               de vraies villes. */}
-          <UserEditLocation
-            locations={locationEntries}
-            onChange={setLocationEntries}
-          />
+      <UserEditLocation
+        locations={locationEntries}
+        onChange={setLocationEntries}
+      />
 
-          {/* Site web : plusieurs cases possibles, affichées sur le profil. */}
-          <UserEditWebsites
-            websites={websiteEntries}
-            errorMessage={websiteError}
-            onChange={setWebsiteEntries}
-          />
+      {/* Site web : plusieurs cases possibles, affichées sur le profil. */}
+      <UserEditWebsites
+        websites={websiteEntries}
+        errorMessage={websiteError}
+        onChange={setWebsiteEntries}
+      />
 
-          {/* Date de naissance avec cases jour / mois / année */}
-          <UserEditBirthday
-            birthdayParts={birthdayParts}
-            setBirthdayParts={setBirthdayParts}
-            birthdayError={birthdayError}
-          />
-          <div className='flex flex-col gap-1.5'>
-            <label
-              className='text-sm font-semibold text-light-secondary dark:text-dark-secondary'
-              htmlFor='phoneNumber'
-            >
-              Numéro de téléphone
-            </label>
-            <PhoneInput
-              id='phoneNumber'
-              className='profile-phone-input'
-              defaultCountry='FR'
-              labels={phoneLabels}
-              international={false}
-              value={editUserData.phoneNumber ?? undefined}
-              onChange={(value) =>
-                setEditUserData({ ...editUserData, phoneNumber: value ?? null })
-              }
-              onCountryChange={(value): void => {
-                if (value) setPhoneCountry(value);
-              }}
-              countrySelectProps={{ 'aria-label': 'Pays du numéro de téléphone' }}
-              placeholder={PHONE_PLACEHOLDERS[phoneCountry] ?? ''}
-              autoComplete='off'
-            />
-            {phoneNumberError && (
-              <p className='text-sm text-accent-red'>{phoneNumberError}</p>
-            )}
-          </div>
+      {/* Date de naissance avec cases jour / mois / année */}
+      <UserEditBirthday
+        birthdayParts={birthdayParts}
+        setBirthdayParts={setBirthdayParts}
+        birthdayError={birthdayError}
+      />
+      <div className='flex flex-col gap-1.5'>
+        <label
+          className='text-sm font-semibold text-light-secondary dark:text-dark-secondary'
+          htmlFor='phoneNumber'
+        >
+          Numéro de téléphone
+        </label>
+        <PhoneInput
+          id='phoneNumber'
+          className='profile-phone-input'
+          defaultCountry='FR'
+          labels={phoneLabels}
+          international={false}
+          value={editUserData.phoneNumber ?? undefined}
+          onChange={(value) =>
+            setEditUserData({ ...editUserData, phoneNumber: value ?? null })
+          }
+          onCountryChange={(value): void => {
+            if (value) setPhoneCountry(value);
+          }}
+          countrySelectProps={{ 'aria-label': 'Pays du numéro de téléphone' }}
+          placeholder={PHONE_PLACEHOLDERS[phoneCountry] ?? ''}
+          autoComplete='off'
+        />
+        {phoneNumberError && (
+          <p className='text-sm text-accent-red'>{phoneNumberError}</p>
+        )}
+      </div>
     </EditProfileModal>
   );
 
   if (pageMode)
-    return (
-      <div className='flex flex-1 flex-col'>{editProfileContent}</div>
-    );
+    return <div className='flex flex-1 flex-col'>{editProfileContent}</div>;
 
   return (
     <form className={cn(hide && 'hidden md:block')}>

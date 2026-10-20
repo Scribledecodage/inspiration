@@ -40,16 +40,16 @@ export const channelsCollection = collection(db, 'channels').withConverter(
 /* Signalements de contenu : rangés dans l'espace privé de la personne qui
    signale. Rien n'est transmis à la personne signalée et aucune mesure n'est
    appliquée automatiquement : la décision reste humaine. */
-export function userReportsCollection(
-  id: string
-): CollectionReference<Report> {
+export function userReportsCollection(id: string): CollectionReference<Report> {
   return collection(db, `users/${id}/reports`).withConverter(reportConverter);
 }
 
 export function userBookmarksCollection(
   id: string
 ): CollectionReference<Bookmark> {
-  return collection(db, `users/${id}/bookmarks`).withConverter(bookmarkConverter);
+  return collection(db, `users/${id}/bookmarks`).withConverter(
+    bookmarkConverter
+  );
 }
 
 export function userScheduledTweetsCollection(

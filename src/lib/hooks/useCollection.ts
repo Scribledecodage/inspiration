@@ -77,7 +77,10 @@ export function useCollection<T>(
        revient en haut) et les publications réapparaissent en fondu — un
        écran blanc à chaque changement. */
 
-    const publish = (currentData: DataWithRef<T>, isFromCache: boolean): void => {
+    const publish = (
+      currentData: DataWithRef<T>,
+      isFromCache: boolean
+    ): void => {
       filled.current = true;
 
       setData(

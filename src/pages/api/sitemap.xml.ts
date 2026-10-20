@@ -77,6 +77,9 @@ export default function sitemap(
 </urlset>`;
 
   res.setHeader('Content-Type', 'application/xml');
-  res.setHeader('Cache-Control', 'public, s-maxage=86400, stale-while-revalidate');
+  res.setHeader(
+    'Cache-Control',
+    'public, s-maxage=86400, stale-while-revalidate'
+  );
   res.status(200).send(sitemap);
 }

@@ -52,9 +52,7 @@ export const aiBotUser: User = {
 };
 
 /** La conversation est-elle celle de l'assistant ? */
-export function isAiConversation(
-  conversation?: Conversation | null
-): boolean {
+export function isAiConversation(conversation?: Conversation | null): boolean {
   return conversation?.type === 'ai';
 }
 
@@ -64,7 +62,9 @@ export function isAiConversation(
  * Elle est rangée dans la boîte de réception de la personne : elle apparaît
  * donc en haut de la liste, et les messages sont stockés chez elle.
  */
-export async function ensureAiConversation(userId: string): Promise<Conversation> {
+export async function ensureAiConversation(
+  userId: string
+): Promise<Conversation> {
   const now = Date.now();
 
   const conversation: Conversation = {

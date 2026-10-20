@@ -57,7 +57,7 @@ function extractReply(payload: ProviderAnswer): string {
 
   if (Array.isArray(content))
     return content
-      .map((part) => (typeof part === 'string' ? part : (part?.text ?? '')))
+      .map((part) => (typeof part === 'string' ? part : part?.text ?? ''))
       .join('')
       .trim();
 
@@ -200,11 +200,17 @@ export default async function handler(
     const payload = (await response.json().catch(() => ({}))) as ProviderAnswer;
 
     if (!response.ok) {
-      res.status(response.status >= 400 && response.status < 600 ? response.status : 502).json({
-        error:
-          payload.error?.message ??
-          'Le fournisseur d’intelligence artificielle a refusé la demande.'
-      });
+      res
+        .status(
+          response.status >= 400 && response.status < 600
+            ? response.status
+            : 502
+        )
+        .json({
+          error:
+            payload.error?.message ??
+            'Le fournisseur d’intelligence artificielle a refusé la demande.'
+        });
       return;
     }
 

@@ -30,7 +30,8 @@ export function App() {
      Windows. */
   useNativeBridge();
 
-  const Page = (match?.route.component ?? ROUTES[0]!.component) as PageComponent;
+  const Page = (match?.route.component ??
+    ROUTES[0]!.component) as PageComponent;
 
   const getLayout = Page.getLayout ?? ((page: ReactElement): ReactNode => page);
 

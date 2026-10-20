@@ -25,7 +25,9 @@ function emit(next: UpdateState): void {
   listeners.forEach((listener) => listener(next));
 }
 
-export function onUpdateState(listener: (state: UpdateState) => void): () => void {
+export function onUpdateState(
+  listener: (state: UpdateState) => void
+): () => void {
   listeners.add(listener);
   listener(state);
 
@@ -94,18 +96,37 @@ export async function installUpdate(): Promise<void> {
       switch (event.event) {
         case 'Started':
           total = event.data.contentLength ?? 0;
-          emit({ status: 'downloading', progress: 0, info: { version: update.version, notes: update.body ?? '', date: '' } });
+          emit({
+            status: 'downloading',
+            progress: 0,
+            info: {
+              version: update.version,
+              notes: update.body ?? '',
+              date: ''
+            }
+          });
           break;
         case 'Progress':
           downloaded += event.data.chunkLength;
           emit({
             status: 'downloading',
             progress: total ? Math.round((downloaded / total) * 100) : 0,
-            info: { version: update.version, notes: update.body ?? '', date: '' }
+            info: {
+              version: update.version,
+              notes: update.body ?? '',
+              date: ''
+            }
           });
           break;
         case 'Finished':
-          emit({ status: 'ready', info: { version: update.version, notes: update.body ?? '', date: '' } });
+          emit({
+            status: 'ready',
+            info: {
+              version: update.version,
+              notes: update.body ?? '',
+              date: ''
+            }
+          });
           break;
       }
     });

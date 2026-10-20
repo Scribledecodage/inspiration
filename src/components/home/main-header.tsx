@@ -34,7 +34,7 @@ export function MainHeader({
   return (
     <header
       className={cn(
-        'hover-animation z-20 glass-header border-b border-light-border/60 px-4 py-2.5 dark:border-dark-border/60 transition-colors',
+        'hover-animation glass-header z-20 border-b border-light-border/60 px-4 py-2.5 transition-colors dark:border-dark-border/60',
         !disableSticky && 'sticky top-0',
         className ?? 'flex items-center gap-6'
       )}

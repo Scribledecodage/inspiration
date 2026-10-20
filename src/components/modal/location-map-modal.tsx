@@ -37,7 +37,8 @@ declare global {
 
 /* Charge Leaflet (gratuit, sans clé) depuis le CDN si nécessaire. */
 function loadLeaflet(): Promise<any> {
-  if (typeof window === 'undefined') return Promise.reject(new Error('no window'));
+  if (typeof window === 'undefined')
+    return Promise.reject(new Error('no window'));
   if (window.L) return Promise.resolve(window.L);
 
   return new Promise((resolve, reject) => {
@@ -103,7 +104,10 @@ export function LocationMapModal({
             `/api/location/geocode?q=${encodeURIComponent(location)}`
           );
           if (res.ok) {
-            const data = (await res.json()) as { lat: number | null; lon: number | null };
+            const data = (await res.json()) as {
+              lat: number | null;
+              lon: number | null;
+            };
             if (data.lat != null && data.lon != null) {
               lat = data.lat;
               lon = data.lon;
@@ -230,9 +234,7 @@ export function LocationMapModal({
             <span className='inline-block h-6 w-6 animate-spin rounded-full border-2 border-main-accent border-t-transparent' />
           </div>
         )}
-        {error && (
-          <p className='px-4 py-2 text-sm text-accent-red'>{error}</p>
-        )}
+        {error && <p className='px-4 py-2 text-sm text-accent-red'>{error}</p>}
         <div
           ref={mapContainerRef}
           className={cn('w-full', isMobile ? 'h-[45vh]' : 'h-[60vh]')}
@@ -245,7 +247,7 @@ export function LocationMapModal({
             'rounded-full px-3 py-1.5 text-sm font-bold',
             mode === 'standard'
               ? 'bg-main-accent text-white'
-              : 'hover:bg-main-accent/10 text-main-accent'
+              : 'text-main-accent hover:bg-main-accent/10'
           )}
           onClick={() => setMode('standard')}
         >
@@ -256,7 +258,7 @@ export function LocationMapModal({
             'rounded-full px-3 py-1.5 text-sm font-bold',
             mode === 'satellite'
               ? 'bg-main-accent text-white'
-              : 'hover:bg-main-accent/10 text-main-accent'
+              : 'text-main-accent hover:bg-main-accent/10'
           )}
           onClick={() => setMode('satellite')}
         >
@@ -266,7 +268,10 @@ export function LocationMapModal({
           className='rounded-full px-3 py-1.5 text-sm font-bold text-main-accent hover:bg-main-accent/10'
           onClick={useGPS}
         >
-          <MaterialIcon className='mr-1 inline h-4 w-4' iconName='location_on' />
+          <MaterialIcon
+            className='mr-1 inline h-4 w-4'
+            iconName='location_on'
+          />
           Ma position
         </Button>
       </div>

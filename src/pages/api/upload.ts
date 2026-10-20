@@ -44,7 +44,9 @@ export default async function uploadEndpoint(
     const cleanBase64 = base64Data.replace(/^data:[^;]+;base64,/, '');
     const buffer = Buffer.from(cleanBase64, 'base64');
 
-    const cleanUser = userId ? userId.replace(/[^a-zA-Z0-9_-]/g, '') : 'uploads';
+    const cleanUser = userId
+      ? userId.replace(/[^a-zA-Z0-9_-]/g, '')
+      : 'uploads';
     const cleanName = fileName.replace(/[^a-zA-Z0-9._-]/g, '-');
     const storageKey = `${cleanUser}/${Date.now()}-${cleanName}`;
 

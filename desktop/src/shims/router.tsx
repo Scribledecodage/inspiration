@@ -20,11 +20,7 @@ export type RouterValue = {
   asPath: string;
   pathname: string;
   query: Record<string, string | string[]>;
-  push: (
-    url: string,
-    _as?: string,
-    options?: { scroll?: boolean }
-  ) => void;
+  push: (url: string, _as?: string, options?: { scroll?: boolean }) => void;
   replace: (
     url: string,
     _as?: string,
@@ -134,7 +130,9 @@ export function useRouter(): RouterValue {
   const context = useContext(RouterContext);
 
   if (!context)
-    throw new Error('useRouter doit être utilisé à l’intérieur de RouterProvider');
+    throw new Error(
+      'useRouter doit être utilisé à l’intérieur de RouterProvider'
+    );
 
   return context;
 }

@@ -19,7 +19,7 @@ export function ContactLink({
   return (
     <a
       className={cn(
-        'inline-flex items-center gap-1.5 text-main-accent transition hover:brightness-90 hover:underline',
+        'inline-flex items-center gap-1.5 text-main-accent transition hover:underline hover:brightness-90',
         className
       )}
       href={`mailto:${CONTACT_EMAIL}`}

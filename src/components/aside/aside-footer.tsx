@@ -25,7 +25,9 @@ type AsideFooterProps = {
   inTrendsPage?: boolean;
 };
 
-export function AsideFooter({ inTrendsPage }: AsideFooterProps = {}): JSX.Element {
+export function AsideFooter({
+  inTrendsPage
+}: AsideFooterProps = {}): JSX.Element {
   const [showActivity, setShowActivity] = useState(true);
   const [showAllLinks, setShowAllLinks] = useState(false);
 
@@ -35,22 +37,20 @@ export function AsideFooter({ inTrendsPage }: AsideFooterProps = {}): JSX.Elemen
 
   return (
     <footer
-      className='sticky top-0 flex flex-col gap-2.5 px-3 py-2 text-center text-xs
-                 text-light-secondary dark:text-dark-secondary bg-main-background dark:bg-main-background z-10'
+      className='sticky top-0 z-10 flex flex-col gap-2.5 bg-main-background px-3 py-2
+                 text-center text-xs text-light-secondary dark:bg-main-background dark:text-dark-secondary'
     >
       {inTrendsPage && (
         <div className='mt-3 overflow-hidden rounded-xl bg-main-sidebar-background text-left'>
-          <div
-            className='flex items-center justify-between gap-2 pb-1 pl-4 pr-1.5 pt-2'
-          >
+          <div className='flex items-center justify-between gap-2 pb-1 pl-4 pr-1.5 pt-2'>
             <h2 className='text-xl font-bold text-light-primary dark:text-dark-primary'>
               Activité de vos abonnements
             </h2>
             <button
               className='accent-tab shrink-0 rounded-full p-2 text-light-secondary transition
                          hover:bg-light-secondary/10 hover:text-light-primary
-                         active:bg-light-secondary/20 focus-visible:outline-none
-                         focus-visible:ring-2 focus-visible:ring-main-accent
+                         focus-visible:outline-none focus-visible:ring-2
+                         focus-visible:ring-main-accent active:bg-light-secondary/20
                          dark:text-dark-secondary dark:hover:bg-dark-secondary/10
                          dark:hover:text-dark-primary dark:active:bg-dark-secondary/20'
               type='button'
@@ -91,12 +91,12 @@ export function AsideFooter({ inTrendsPage }: AsideFooterProps = {}): JSX.Elemen
         </div>
       )}
       <nav className='flex flex-wrap justify-center gap-x-3 gap-y-1.5'>
-        {displayedLinks.map(([linkName, href, isStatic]) => (
+        {displayedLinks.map(([linkName, href, isStatic]) =>
           isStatic ? (
             <a
               href={href}
               key={linkName}
-              className='custom-underline text-main-accent hover:brightness-90 hover:underline'
+              className='custom-underline text-main-accent hover:underline hover:brightness-90'
               target='_blank'
               rel='noopener noreferrer'
             >
@@ -104,18 +104,18 @@ export function AsideFooter({ inTrendsPage }: AsideFooterProps = {}): JSX.Elemen
             </a>
           ) : (
             <Link href={href} key={linkName}>
-              <a className='custom-underline text-main-accent hover:brightness-90 hover:underline'>
+              <a className='custom-underline text-main-accent hover:underline hover:brightness-90'>
                 {linkName}
               </a>
             </Link>
           )
-        ))}
+        )}
         <ContactLink showEmail={showAllLinks} />
         <button
           type='button'
           aria-expanded={showAllLinks}
           onClick={(): void => setShowAllLinks((value) => !value)}
-          className='custom-underline text-main-accent hover:brightness-90 hover:underline'
+          className='custom-underline text-main-accent hover:underline hover:brightness-90'
         >
           {showAllLinks ? 'Voir moins' : 'Voir plus'}
         </button>

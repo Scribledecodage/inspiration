@@ -34,7 +34,9 @@ export function StatsEmpty({
             />
           )}
           <div className='flex flex-col gap-2 text-center'>
-            <p className={titleClassName ?? 'text-3xl font-extrabold'}>{title}</p>
+            <p className={titleClassName ?? 'text-3xl font-extrabold'}>
+              {title}
+            </p>
             <p className='text-light-secondary dark:text-dark-secondary'>
               {description}
             </p>

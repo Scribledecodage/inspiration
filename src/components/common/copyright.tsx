@@ -10,7 +10,9 @@ export function Copyright({ className }: CopyrightProps): JSX.Element {
   const currentYear = new Date().getFullYear();
 
   const years =
-    currentYear > START_YEAR ? `${START_YEAR} - ${currentYear}` : `${currentYear}`;
+    currentYear > START_YEAR
+      ? `${START_YEAR} - ${currentYear}`
+      : `${currentYear}`;
 
   return (
     <span className={className}>

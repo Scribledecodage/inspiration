@@ -88,7 +88,8 @@ export function UserEditWebsites({
           disabled={rows.length >= MAX_PROFILE_ENTRIES}
           className={cn(
             'inline-flex items-center gap-1 text-xs font-medium text-main-accent transition hover:underline',
-            rows.length >= MAX_PROFILE_ENTRIES && 'cursor-not-allowed opacity-50'
+            rows.length >= MAX_PROFILE_ENTRIES &&
+              'cursor-not-allowed opacity-50'
           )}
         >
           <MaterialIcon iconName='add' className='h-3.5 w-3.5' />

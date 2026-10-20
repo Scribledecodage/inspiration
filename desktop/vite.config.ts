@@ -26,7 +26,10 @@ export default defineConfig({
       // Les quatre dépendances Next.js, remplacées.
       { find: 'next/link', replacement: resolve(here, 'src/shims/link.tsx') },
       { find: 'next/image', replacement: resolve(here, 'src/shims/image.tsx') },
-      { find: 'next/router', replacement: resolve(here, 'src/shims/router.tsx') },
+      {
+        find: 'next/router',
+        replacement: resolve(here, 'src/shims/router.tsx')
+      },
       { find: 'next/head', replacement: resolve(here, 'src/shims/head.tsx') },
 
       // Le code du site.
@@ -84,9 +87,8 @@ export default defineConfig({
     'process.env.NEXT_PUBLIC_STORAGE_BUCKET': JSON.stringify(
       'mont2-tweet.firebasestorage.app'
     ),
-    'process.env.NEXT_PUBLIC_MESSAGING_SENDER_ID': JSON.stringify(
-      '261870386503'
-    ),
+    'process.env.NEXT_PUBLIC_MESSAGING_SENDER_ID':
+      JSON.stringify('261870386503'),
     'process.env.NEXT_PUBLIC_APP_ID': JSON.stringify(
       '1:261870386503:web:63092e30b24fb6b88b6062'
     ),

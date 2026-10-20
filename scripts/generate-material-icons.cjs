@@ -25,7 +25,14 @@ const SOURCE = path.join(
   STYLE
 );
 
-const DEST = path.join(__dirname, '..', 'src', 'components', 'ui', 'material-icons.ts');
+const DEST = path.join(
+  __dirname,
+  '..',
+  'src',
+  'components',
+  'ui',
+  'material-icons.ts'
+);
 
 /** Noms officiels Material Symbols réellement utilisés dans l'application. */
 const ICONS = [
@@ -125,7 +132,9 @@ const litIcone = (nom, plein) => {
 
   const svg = fs.readFileSync(fichier, 'utf8');
   const viewBox = (svg.match(/viewBox="([^"]+)"/) || [])[1] || '0 -960 960 960';
-  const traces = [...svg.matchAll(/<path[^>]*?\sd="([^"]+)"/g)].map((m) => m[1]);
+  const traces = [...svg.matchAll(/<path[^>]*?\sd="([^"]+)"/g)].map(
+    (m) => m[1]
+  );
 
   return { viewBox, traces };
 };
@@ -138,7 +147,9 @@ for (const nom of ICONS) {
   const plein = litIcone(nom, true);
 
   if (!contour || !plein) {
-    manquantes.push(nom + (contour ? '' : ' (contour)') + (plein ? '' : ' (plein)'));
+    manquantes.push(
+      nom + (contour ? '' : ' (contour)') + (plein ? '' : ' (plein)')
+    );
     continue;
   }
 
@@ -151,12 +162,17 @@ for (const nom of ICONS) {
     `    }`;
 
   blocs.push(
-    `  ${nom}: {\n${lignes('contour', contour)},\n${lignes('plein', plein)}\n  }`
+    `  ${nom}: {\n${lignes('contour', contour)},\n${lignes(
+      'plein',
+      plein
+    )}\n  }`
   );
 }
 
 if (manquantes.length) {
-  console.error('Icônes introuvables dans ' + STYLE + ' : ' + manquantes.join(', '));
+  console.error(
+    'Icônes introuvables dans ' + STYLE + ' : ' + manquantes.join(', ')
+  );
   const toutes = fs.readdirSync(SOURCE).filter((f) => !f.endsWith('-fill.svg'));
   for (const nom of manquantes) {
     const racine = nom.replace(/ \(.*\)$/, '');
@@ -185,6 +201,11 @@ const contenu =
 
 fs.writeFileSync(DEST, contenu, 'utf8');
 console.log(
-  'OK — ' + blocs.length + ' icônes écrites dans ' + path.relative(process.cwd(), DEST) +
-    ' (' + (Buffer.byteLength(contenu, 'utf8') / 1024).toFixed(1) + ' Ko)'
+  'OK — ' +
+    blocs.length +
+    ' icônes écrites dans ' +
+    path.relative(process.cwd(), DEST) +
+    ' (' +
+    (Buffer.byteLength(contenu, 'utf8') / 1024).toFixed(1) +
+    ' Ko)'
 );
