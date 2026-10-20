@@ -1,6 +1,6 @@
 [package]
 name = "inspiration-desktop"
-version = "1.0.7"
+version = "1.0.8"
 description = "Inspiration — le réseau social, en application de bureau"
 authors = ["Inspiration"]
 edition = "2021"
