@@ -30,12 +30,15 @@ import Bookmarks from '@site/pages/bookmarks';
 import People from '@site/pages/people';
 import Settings from '@site/pages/settings';
 import SettingsAccessibility from '@site/pages/settings/accessibility';
+import SettingsAi from '@site/pages/settings/ai';
+import SettingsApp from '@site/pages/settings/app';
 import SettingsNotifications from '@site/pages/settings/notifications';
 import SettingsPersonalization from '@site/pages/settings/personalization';
 import SettingsPrivacy from '@site/pages/settings/privacy';
 import SettingsSecurity from '@site/pages/settings/security';
 import SettingsUsername from '@site/pages/settings/username';
 import SettingsHelp from '@site/pages/settings/help';
+import AdminNotifications from '@site/pages/admin/notifications';
 import Terms from '@site/pages/terms';
 import Privacy from '@site/pages/privacy';
 import Cookies from '@site/pages/cookies';
@@ -76,6 +79,8 @@ export const ROUTES: Route[] = [
     path: '/settings/accessibility',
     component: SettingsAccessibility as Route['component']
   },
+  { path: '/settings/ai', component: SettingsAi as Route['component'] },
+  { path: '/settings/app', component: SettingsApp as Route['component'] },
   {
     path: '/settings/notifications',
     component: SettingsNotifications as Route['component']
@@ -97,6 +102,10 @@ export const ROUTES: Route[] = [
     component: SettingsUsername as Route['component']
   },
   { path: '/settings/help', component: SettingsHelp as Route['component'] },
+  {
+    path: '/admin/notifications',
+    component: AdminNotifications as Route['component']
+  },
   { path: '/terms', component: Terms as Route['component'] },
   { path: '/privacy', component: Privacy as Route['component'] },
   { path: '/cookies', component: Cookies as Route['component'] },

@@ -280,8 +280,10 @@ pub fn run() {
             None,
         ))
         .setup(|app| {
-            // La taille mémorisée est restaurée par le greffon : on vérifie
-            // qu'elle est bien utilisable avant d'afficher quoi que ce soit.
+            // La taille mémorisée est restaurée par le greffon : on la met
+            // au propre avant d'afficher quoi que ce soit. (Ces appels ne
+            // peuvent pas être faits depuis un gestionnaire d'événement de
+            // fenêtre : la boucle principale y est déjà occupée.)
             if let Some(window) = app.get_webview_window("main") {
                 ensure_sane_size!(&window);
                 constrain_to_work_area!(&window);
@@ -337,17 +339,11 @@ pub fn run() {
             Ok(())
         })
         .on_window_event(|window, event| {
-            // Une taille aberrante (restaurée ou imposée par le système)
-            // est remplacée par une taille utilisable.
-            if let WindowEvent::Resized(_) = event {
-                ensure_sane_size!(window);
-                constrain_to_work_area!(window);
-            }
-
-            // La fenêtre ne doit jamais passer devant la barre des tâches.
-            if let WindowEvent::Moved(_) = event {
-                constrain_to_work_area!(window);
-            }
+            /* On ne touche pas à la taille ni à la position depuis ici :
+               ces appels passent par la boucle principale, qui est
+               précisément celle qui est en train de nous delivers cet
+               événement — l'application se bloquerait. La mise au propre
+               se fait au démarrage (voir `setup`). */
 
             // La croix ferme la fenêtre sans quitter l'application (qui
             // reste dans la zone de notification).

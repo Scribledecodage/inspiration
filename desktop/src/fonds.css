@@ -1,13 +1,15 @@
 /*
- * Fond transparent de la fenêtre.
+ * Fond de la fenêtre en verre dépoli.
  *
- * L'option « Fond transparent » de la fenêtre Apparence n'existe que dans
- * l'application de bureau. Quand elle est active, la fenêtre ne peint plus
- * de fond : on voit le bureau derrière, flouté par Windows (comme la barre
- * des tâches).
+ * L'option « Verre dépoli » de la fenêtre Apparence n'existe que dans
+ * l'application de bureau. Quand elle est active, la fenêtre laisse voir
+ * le bureau derrière, flouté par Windows (comme la barre des tâches).
+ *
+ * Le fond garde les couleurs de l'application : il n'est pas entièrement
+ * transparent, seulement un peu voilé.
  */
 
 html.fond-transparent,
 html.fond-transparent body {
-  background: transparent !important;
+  background: rgb(var(--main-background) / 0.88) !important;
 }

@@ -285,16 +285,16 @@ export function DisplayModal({ closeModal }: DisplayModalProps): JSX.Element {
         <section className='flex flex-col gap-3'>
           <SectionHeader
             iconName='visibility'
-            title='Fond transparent'
-            description='La fenêtre laisse voir le bureau, flouté comme la barre des tâches de Windows.'
+            title='Verre dépoli'
+            description='La fenêtre laisse entrevoir le bureau, flouté comme la barre des tâches de Windows.'
           />
           <div className='flex items-center justify-between gap-4 rounded-xl border border-light-border bg-main-background px-4 py-3 dark:border-dark-border'>
             <span className='text-sm font-semibold text-light-primary dark:text-dark-primary'>
-              Fond flouté
+              Fond de la fenêtre
             </span>
             <Toggle
               checked={transparentWindow}
-              label='Fond transparent de la fenêtre'
+              label='Fond en verre dépoli'
               onChange={setTransparentWindow}
             />
           </div>
