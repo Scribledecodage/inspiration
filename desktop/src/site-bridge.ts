@@ -25,22 +25,53 @@ function absolute(url: string): string {
   return `${SITE_URL}${url.startsWith('/') ? '' : '/'}${url}`;
 }
 
+/* ------------------------------------------------------------------ */
+/* Les URL d'images                                                   */
+/* ------------------------------------------------------------------ */
+
 /**
- * Rend absolues les URL d'images relatives du site.
+ * Rend absolue une URL d'image du site.
  *
- * Le site stocke les images avec une URL relative (« /api/image/… »), qui
- * ne veut rien dire dans la fenêtre de bureau : il faut la faire pointer
- * vers le site déployé.
+ * Le site stocke les images avec une URL relative (« /api/image/… »), qui ne
+ * veut rien dire dans la fenêtre de bureau : elle pointe sur la fenêtre
+ * elle-même et ne renvoie jamais rien.
+ */
+function rewriteUrl(url: string): string {
+  return url && url.startsWith('/api/') ? absolute(url) : url;
+}
+
+/**
+ * Idem pour une liste d'URL (« srcset »), qui peut contenir plusieurs
+ * candidats séparés par des virgules, chacun suivi de son descripteur.
+ */
+function rewriteSrcset(value: string): string {
+  if (!value || !value.includes('/api/')) return value;
+
+  return value
+    .split(',')
+    .map((candidate) => {
+      const trimmed = candidate.trim();
+      const separator = trimmed.search(/\s/);
+      const url = separator === -1 ? trimmed : trimmed.slice(0, separator);
+      const descriptor = separator === -1 ? '' : trimmed.slice(separator);
+
+      return `${rewriteUrl(url)}${descriptor}`;
+    })
+    .join(', ');
+}
+
+/**
+ * Intercepte l'affectation d'une source d'image.
  *
- * La correction se fait sur la propriété `src` elle-même, et non sur les
+ * La correction se fait sur la propriété elle-même, et pas seulement sur les
  * images déjà présentes dans la page : le site précharge certaines images
- * avec `new Image()` (hors du DOM) pour savoir quand elles sont prêtes,
- * et c'est précisément ce préchargement qui bloquait l'ouverture des
- * images en grand.
+ * avec `new Image()` (hors du DOM) pour savoir quand elles sont prêtes, et
+ * c'est précisément ce préchargement qui bloquait l'ouverture des images en
+ * grand (le modal restait bloqué sur son indicateur de chargement).
  */
 function patchSourceProperty(
   prototype: object,
-  property: 'src' | 'srcSet' | 'srcset',
+  property: 'src' | 'srcSet',
   rewrite: (value: string) => string
 ): void {
   const descriptor = Object.getOwnPropertyDescriptor(prototype, property);
@@ -58,14 +89,37 @@ function patchSourceProperty(
 }
 
 function installSourceRewrite(): void {
-  const rewrite = (value: string): string =>
-    value && value.startsWith('/api/') ? absolute(value) : value;
+  patchSourceProperty(HTMLImageElement.prototype, 'src', rewriteUrl);
+  patchSourceProperty(HTMLImageElement.prototype, 'srcSet', rewriteSrcset);
+  patchSourceProperty(HTMLMediaElement.prototype, 'src', rewriteUrl);
+  patchSourceProperty(HTMLMediaElement.prototype, 'srcSet', rewriteSrcset);
+  patchSourceProperty(HTMLSourceElement.prototype, 'src', rewriteUrl);
+  patchSourceProperty(HTMLSourceElement.prototype, 'srcSet', rewriteSrcset);
 
-  patchSourceProperty(HTMLImageElement.prototype, 'src', rewrite);
-  patchSourceProperty(HTMLVideoElement.prototype, 'src', rewrite);
-  patchSourceProperty(HTMLSourceElement.prototype, 'src', rewrite);
-  patchSourceProperty(HTMLMediaElement.prototype, 'src', rewrite);
-  patchSourceProperty(HTMLElement.prototype, 'srcset', rewrite);
+  /* React écrit les sources avec `setAttribute` et non avec la propriété :
+     il faut donc aussi intercepter les attributs. */
+  const originalSetAttribute = Element.prototype.setAttribute;
+
+  Element.prototype.setAttribute = function (
+    name: string,
+    value: string
+  ): void {
+    if (typeof value === 'string') {
+      const attribute = name.toLowerCase();
+
+      if (attribute === 'src') {
+        originalSetAttribute.call(this, name, rewriteUrl(value));
+        return;
+      }
+
+      if (attribute === 'srcset') {
+        originalSetAttribute.call(this, name, rewriteSrcset(value));
+        return;
+      }
+    }
+
+    originalSetAttribute.call(this, name, value);
+  };
 }
 
 /**
@@ -80,28 +134,32 @@ function installSourceRewrite(): void {
  * l'image dans la page) arrive trop tard, Chrome a déjà mis l'image de côté.
  */
 function rewriteImages(root: ParentNode): void {
-  const images = root.querySelectorAll?.('img');
+  const elements = root.querySelectorAll?.('img, source, video');
 
-  if (!images) return;
+  if (!elements) return;
 
-  images.forEach((image) => {
-    const source = image.getAttribute('src');
+  elements.forEach((element) => {
+    const source = element.getAttribute('src');
 
     if (source && source.startsWith('/api/'))
-      image.setAttribute('src', absolute(source));
+      element.setAttribute('src', absolute(source));
 
-    if (image.getAttribute('loading') === 'lazy')
-      image.setAttribute('loading', 'eager');
+    const sourceSet = element.getAttribute('srcset');
+
+    if (sourceSet) element.setAttribute('srcset', rewriteSrcset(sourceSet));
+
+    if (element.getAttribute('loading') === 'lazy')
+      element.setAttribute('loading', 'eager');
   });
 }
 
 export function installSiteBridge(): void {
-  /* Les appels à l'API du site, passés par la couche native. */
-  const originalFetch = window.fetch.bind(window);
-
   /* Les URL d'images sont corrigées à la source : les images créées hors du
      DOM (préchargement du site) sont corrigées elles aussi. */
   installSourceRewrite();
+
+  /* Les appels à l'API du site, passés par la couche native. */
+  const originalFetch = window.fetch.bind(window);
 
   window.fetch = (async (
     input: RequestInfo | URL,
@@ -116,14 +174,14 @@ export function installSiteBridge(): void {
     return originalFetch(input, init);
   }) as typeof window.fetch;
 
-  /* Les images publications. */
+  /* Les images déjà dans la page. */
   const observer = new MutationObserver(() => rewriteImages(document));
 
   observer.observe(document.documentElement, {
     childList: true,
     subtree: true,
     attributes: true,
-    attributeFilter: ['src', 'loading']
+    attributeFilter: ['src', 'srcset', 'loading']
   });
 
   if (document.readyState === 'loading')

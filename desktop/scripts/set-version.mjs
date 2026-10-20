@@ -34,4 +34,24 @@ packageJson.version = clean;
 
 writeFileSync(packagePath, `${JSON.stringify(packageJson, null, 2)}\n`);
 
+/* Le crate Rust porte lui aussi une version : c'est elle que Windows affiche
+   dans la liste des applications installées, et celle inscrite dans le
+   fichier de l'exécutable. Sans cette mise à jour, l'application installée
+   continuait de se présenter en 1.0.0. */
+const cargoPath = join(here, 'src-tauri', 'Cargo.toml');
+const cargo = readFileSync(cargoPath, 'utf8');
+
+/* Seule la version du paquet est touchée : une dépendance peut elle aussi
+   porter une ligne « version = … ». */
+const section = cargo.match(/\[\s*package\s*\][\s\S]*?^version\s*=\s*"[^"]*"/m);
+
+if (section) {
+  const updated = cargo.replace(
+    section[0],
+    section[0].replace(/version\s*=\s*"[^"]*"/, 'version = "' + clean + '"')
+  );
+
+  writeFileSync(cargoPath, updated);
+} else console.warn('[version] Section [package] introuvable dans Cargo.toml.');
+
 console.log(`[version] ${clean}`);

@@ -39,6 +39,10 @@ const notes =
     ? process.argv[notesIndex + 1]
     : 'Nouvelles corrections et améliorations.';
 
+/* Le manifeste peut être régénéré seul (après une compilation déjà faite
+   et déjà signée) : inutile de recompiler l'application à chaque fois. */
+const skipBuild = process.argv.includes('--skip-build');
+
 const config = JSON.parse(
   readFileSync(join(root, 'src-tauri', 'tauri.conf.json'), 'utf8')
 );
@@ -91,17 +95,19 @@ if (!existsSync(tauriCli)) {
   process.exit(1);
 }
 
-console.log(`[release] Construction de la version ${version}…`);
+if (!skipBuild) {
+  console.log(`[release] Construction de la version ${version}…`);
 
-execFileSync(process.execPath, [tauriCli, 'build'], {
-  cwd: root,
-  stdio: 'inherit',
-  env: {
-    ...process.env,
-    TAURI_SIGNING_PRIVATE_KEY: privateKey,
-    TAURI_SIGNING_PRIVATE_KEY_PASSWORD: privateKeyPassword
-  }
-});
+  execFileSync(process.execPath, [tauriCli, 'build'], {
+    cwd: root,
+    stdio: 'inherit',
+    env: {
+      ...process.env,
+      TAURI_SIGNING_PRIVATE_KEY: privateKey,
+      TAURI_SIGNING_PRIVATE_KEY_PASSWORD: privateKeyPassword
+    }
+  });
+} else console.log(`[release] Compilation ignorée (--skip-build).`);
 
 /* Les artefacts produits : l'installateur NSIS (l'application) et son
    fichier de signature. Les noms changent avec la version : on cherche
@@ -165,7 +171,9 @@ console.log(`[release] Manifeste : ${manifestPath}`);
 console.log(
   '[release] À TELEVERSER sur la release GitHub « v' +
     version +
-    ' » du dépôt ccrsxx/twitter-clone :\n' +
+    ' » du dépôt ' +
+    repo +
+    ' :\n' +
     '  - l’installateur (…-setup.exe) et sa signature (…-setup.exe.sig)\n' +
     '  - latest.json (à la racine de la release)\n'
 );

@@ -1,7 +1,7 @@
 {
   "name": "inspiration-desktop",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.5",
   "type": "module",
   "description": "Inspiration — le réseau social, en application de bureau Windows",
   "scripts": {
