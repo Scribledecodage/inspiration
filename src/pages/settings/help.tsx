@@ -44,6 +44,18 @@ export default function SettingsHelpPage(): JSX.Element {
       </SettingsSection>
 
       <SettingsSection
+        description='Installer l’application et la mettre à jour.'
+        title='Application de bureau'
+      >
+        <SettingsRow
+          description='Télécharger la dernière version pour votre ordinateur'
+          href='/settings/app'
+          iconName='download'
+          label='Télécharger l’application'
+        />
+      </SettingsSection>
+
+      <SettingsSection
         description='Les outils d’assistance et la manière de les piloter.'
         title='Intelligence artificielle'
       >

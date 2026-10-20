@@ -5,9 +5,13 @@ import type { NextApiRequest, NextApiResponse } from 'next';
  *
  * Le fichier est hébergé sur GitHub (c'est là que l'application cherche
  * aussi ses mises à jour), mais il est servi par le site : la personne
- * clique sur le lien de la notification et le fichier arrive dans ses
- * téléchargements, sans qu'aucune page ne s'ouvre et sans quitter
- * Inspiration.
+ * clique sur le lien et le fichier arrive dans ses téléchargements, sans
+ * qu'aucune page ne s'ouvre et sans quitter Inspiration.
+ *
+ * Deux modes :
+ *   - `/api/download/desktop`          : le fichier lui-même ;
+ *   - `/api/download/desktop?info=1`  : les informations sur la dernière
+ *                                       version (numéro, taille, date).
  */
 
 const REPO = 'Scribledecodage/inspiration';
@@ -18,14 +22,6 @@ const USER_AGENT = 'inspiration-download';
    résolution (dernière version, nom du fichier) est gardée une heure. */
 const CACHE_TTL = 60 * 60 * 1000;
 
-type Cached = {
-  url: string;
-  fileName: string;
-  at: number;
-};
-
-let cache: Cached | null = null;
-
 type GithubAsset = {
   name?: string;
   browser_download_url?: string;
@@ -34,8 +30,21 @@ type GithubAsset = {
 
 type GithubRelease = {
   tag_name?: string;
+  name?: string;
+  body?: string;
+  published_at?: string;
+  html_url?: string;
   assets?: GithubAsset[];
 };
+
+type Cached = {
+  url: string;
+  fileName: string;
+  release: GithubRelease;
+  at: number;
+};
+
+let cache: Cached | null = null;
 
 /** L'installateur Windows : le premier `.exe` qui n'est pas une signature. */
 function findInstaller(assets: GithubAsset[]): GithubAsset | null {
@@ -50,11 +59,17 @@ function findInstaller(assets: GithubAsset[]): GithubAsset | null {
 }
 
 /** Cherche l'adresse du fichier à télécharger. */
-async function resolveInstaller(
-  version?: string
-): Promise<{ url: string; fileName: string } | null> {
+async function resolveInstaller(version?: string): Promise<{
+  url: string;
+  fileName: string;
+  release: GithubRelease;
+} | null> {
   if (cache && Date.now() - cache.at < CACHE_TTL && !version)
-    return { url: cache.url, fileName: cache.fileName };
+    return {
+      url: cache.url,
+      fileName: cache.fileName,
+      release: cache.release
+    };
 
   const response = await fetch(
     version ? `${RELEASES_API}/tags/v${version}` : `${RELEASES_API}/latest`,
@@ -77,13 +92,15 @@ async function resolveInstaller(
     cache = {
       url: installer.browser_download_url,
       fileName: installer.name,
+      release,
       at: Date.now()
     };
   }
 
   return {
     url: installer.browser_download_url,
-    fileName: installer.name
+    fileName: installer.name,
+    release
   };
 }
 
@@ -100,7 +117,11 @@ export default async function handler(
   const version =
     typeof req.query.version === 'string' ? req.query.version : undefined;
 
-  let installer: { url: string; fileName: string } | null = null;
+  let installer: {
+    url: string;
+    fileName: string;
+    release: GithubRelease;
+  } | null = null;
 
   try {
     installer = await resolveInstaller(version);
@@ -112,6 +133,26 @@ export default async function handler(
     res.status(404).json({
       error:
         'L’installateur est introuvable pour le moment. Réessayez dans un instant.'
+    });
+    return;
+  }
+
+  /* Mode « informations » : la page des réglages affiche la version, la
+     taille et la date de la dernière version. */
+  if (req.query.info === '1') {
+    const asset = (installer.release.assets ?? []).find(
+      (item) => item.name === installer?.fileName
+    );
+
+    res.setHeader('Cache-Control', 'public, max-age=600');
+    res.status(200).json({
+      version: installer.release.tag_name?.replace(/^v/, '') ?? '',
+      fileName: installer.fileName,
+      size: asset?.size ?? 0,
+      publishedAt: installer.release.published_at ?? null,
+      notes: installer.release.body ?? '',
+      releasesUrl:
+        installer.release.html_url ?? `https://github.com/${REPO}/releases`
     });
     return;
   }
@@ -160,7 +201,7 @@ export default async function handler(
       if (done) break;
 
       /* Le fichier est transmis morceau par morceau : la mémoire du serveur
-         n-explose pas, et le téléchargement commence tout de suite. */
+         n'explose pas, et le téléchargement commence tout de suite. */
       res.write(Buffer.from(value));
     }
 

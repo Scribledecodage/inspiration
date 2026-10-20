@@ -86,6 +86,24 @@ export function MoreSettings(): JSX.Element {
                   </Menu.Item>
                   <Menu.Item>
                     {({ active }): JSX.Element => (
+                      <MenuLink
+                        className={cn(
+                          'flex w-full items-center gap-3 rounded-xl px-3.5 py-3 text-[15px] transition-colors duration-150',
+                          active &&
+                            'bg-main-sidebar-background text-main-accent'
+                        )}
+                        href='/settings/app'
+                      >
+                        <MaterialIcon
+                          className='h-5 w-5 shrink-0'
+                          iconName='download'
+                        />
+                        <span>Télécharger l’application</span>
+                      </MenuLink>
+                    )}
+                  </Menu.Item>
+                  <Menu.Item>
+                    {({ active }): JSX.Element => (
                       <Button
                         className={cn(
                           'flex w-full items-center gap-3 rounded-xl px-3.5 py-3 text-left text-[15px] transition-colors duration-150',

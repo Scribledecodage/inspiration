@@ -88,6 +88,13 @@ const categories: readonly SettingsCategory[] = [
     disabled: true
   },
   {
+    key: 'app',
+    label: 'Télécharger l’application',
+    iconName: 'download',
+    href: '/settings/app',
+    matches: ['/settings/app']
+  },
+  {
     key: 'help',
     label: 'Centre d’aide',
     iconName: 'support_agent',

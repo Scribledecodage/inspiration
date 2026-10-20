@@ -26,18 +26,58 @@ function absolute(url: string): string {
 }
 
 /**
- * Rend absolues les URL d'images relatives du site, et charge immédiatement
- * les images.
+ * Rend absolues les URL d'images relatives du site.
  *
- * Deux adjustments sont nécessaires dans une fenêtre de bureau :
+ * Le site stocke les images avec une URL relative (« /api/image/… »), qui
+ * ne veut rien dire dans la fenêtre de bureau : il faut la faire pointer
+ * vers le site déployé.
  *
- *  - les images du site sont stockées avec une URL relative
- *    (« /api/image/… ») : il faut la rendre absolue, sinon elle pointe
- *    sur la fenêtre elle-même et ne renvoie rien ;
- *  - le site demande un chargement paresseux (« loading="lazy" »). Sur une
- *    page qui défile, c'est utile ; dans une fenêtre fixe, Chrome remplace
- *    les images par des rectangles gris et ne les charge jamais. On les
- *    charge donc immédiatement.
+ * La correction se fait sur la propriété `src` elle-même, et non sur les
+ * images déjà présentes dans la page : le site précharge certaines images
+ * avec `new Image()` (hors du DOM) pour savoir quand elles sont prêtes,
+ * et c'est précisément ce préchargement qui bloquait l'ouverture des
+ * images en grand.
+ */
+function patchSourceProperty(
+  prototype: object,
+  property: 'src' | 'srcSet' | 'srcset',
+  rewrite: (value: string) => string
+): void {
+  const descriptor = Object.getOwnPropertyDescriptor(prototype, property);
+
+  if (!descriptor?.get || !descriptor.set) return;
+
+  Object.defineProperty(prototype, property, {
+    configurable: true,
+    enumerable: descriptor.enumerable,
+    get: descriptor.get,
+    set(this: unknown, value: string) {
+      descriptor.set!.call(this, rewrite(value));
+    }
+  });
+}
+
+function installSourceRewrite(): void {
+  const rewrite = (value: string): string =>
+    value && value.startsWith('/api/') ? absolute(value) : value;
+
+  patchSourceProperty(HTMLImageElement.prototype, 'src', rewrite);
+  patchSourceProperty(HTMLVideoElement.prototype, 'src', rewrite);
+  patchSourceProperty(HTMLSourceElement.prototype, 'src', rewrite);
+  patchSourceProperty(HTMLMediaElement.prototype, 'src', rewrite);
+  patchSourceProperty(HTMLElement.prototype, 'srcset', rewrite);
+}
+
+/**
+ * Charge immédiatement toutes les images.
+ *
+ * Le site demande un chargement paresseux (« loading="lazy" »), ce qui est
+ * adapté à une page qui défile. Dans une fenêtre de bureau, Chrome remplace
+ * les images par des rectangles gris et ne les charge jamais : les photos de
+ * profil, les bannières et les pièces jointes restent invisibles.
+ *
+ * L'attribut est retiré à la compilation : le corriger après coup (une fois
+ * l'image dans la page) arrive trop tard, Chrome a déjà mis l'image de côté.
  */
 function rewriteImages(root: ParentNode): void {
   const images = root.querySelectorAll?.('img');
@@ -58,6 +98,10 @@ function rewriteImages(root: ParentNode): void {
 export function installSiteBridge(): void {
   /* Les appels à l'API du site, passés par la couche native. */
   const originalFetch = window.fetch.bind(window);
+
+  /* Les URL d'images sont corrigées à la source : les images créées hors du
+     DOM (préchargement du site) sont corrigées elles aussi. */
+  installSourceRewrite();
 
   window.fetch = (async (
     input: RequestInfo | URL,
