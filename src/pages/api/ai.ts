@@ -308,7 +308,11 @@ export default async function handler(
           lastReason = payload.error?.message ?? lastReason;
 
           /* La clé est peut-être refusée : on tente celle du serveur. */
-          if (response.status === 401 && currentKey !== serverKey && serverKey) {
+          if (
+            response.status === 401 &&
+            currentKey !== serverKey &&
+            serverKey
+          ) {
             currentKey = serverKey;
             headers.Authorization = `Bearer ${currentKey}`;
             continue;
@@ -326,7 +330,10 @@ export default async function handler(
 
         /* Le délai est remis à zéro à chaque morceau : une longue réponse
            ne doit pas être coupée au bout de quarante-cinq secondes. */
-        let streamTimeout = setTimeout(() => controller.abort(), STREAM_TIMEOUT_MS);
+        let streamTimeout = setTimeout(
+          () => controller.abort(),
+          STREAM_TIMEOUT_MS
+        );
 
         try {
           for (;;) {
@@ -335,7 +342,10 @@ export default async function handler(
             if (done) break;
 
             clearTimeout(streamTimeout);
-            streamTimeout = setTimeout(() => controller.abort(), STREAM_TIMEOUT_MS);
+            streamTimeout = setTimeout(
+              () => controller.abort(),
+              STREAM_TIMEOUT_MS
+            );
 
             buffer += decoder.decode(value, { stream: true });
 
@@ -346,9 +356,7 @@ export default async function handler(
               const delta = extractDelta(frame);
 
               if (delta)
-                res.write(
-                  `data: ${JSON.stringify({ text: delta })}\n\n`
-                );
+                res.write(`data: ${JSON.stringify({ text: delta })}\n\n`);
             }
           }
         } catch {
@@ -376,7 +384,6 @@ export default async function handler(
     let lastReason = 'Le modèle n’a renvoyé aucune réponse.';
 
     for (const candidate of candidates.slice(0, MAX_MODEL_ATTEMPTS)) {
-
       const response = await fetch(endpoint, {
         method: 'POST',
         headers,

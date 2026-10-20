@@ -1430,11 +1430,12 @@ export function Conversation({
                             <LinkifiedText mine={mine} text={message.text} />
                           </span>
                         )}
-                        {!message.audioURL && !message.imageURL && (
+                        {!message.audioURL &&
+                          !message.imageURL &&
                           /* Les réponses de l'assistant sont en Markdown :
                              les astérisques des mots en gras et les listes
                              sont rendues, pas laissées brutes. */
-                          message.fromAI ? (
+                          (message.fromAI ? (
                             message.text ? (
                               <AiMarkdown text={message.text} />
                             ) : (
@@ -1457,8 +1458,7 @@ export function Conversation({
                               mine={mine}
                               text={message.text ?? ''}
                             />
-                          )
-                        )}
+                          ))}
                         {message.poll && !isPending && (
                           <MessagePoll
                             currentUserId={user.id}

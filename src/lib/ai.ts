@@ -188,13 +188,16 @@ export async function streamChatWithAi(
     const data = (await response.json().catch(() => ({}))) as AiResponse;
 
     throw new AiError(
-      data.error ?? 'Le service d’intelligence artificielle a renvoyé une erreur.',
+      data.error ??
+        'Le service d’intelligence artificielle a renvoyé une erreur.',
       response.status
     );
   }
 
   if (!response.body)
-    throw new AiError('Le service d’intelligence artificielle n’a rien renvoyé.');
+    throw new AiError(
+      'Le service d’intelligence artificielle n’a rien renvoyé.'
+    );
 
   const reader = response.body.getReader();
   const decoder = new TextDecoder();

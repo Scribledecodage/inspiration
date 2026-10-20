@@ -54,13 +54,17 @@ export function AiMarkdown({ text, className }: AiMarkdownProps): JSX.Element {
           ),
           blockquote: ({ children, ...props }) => (
             <blockquote
-              className='my-2 border-l-2 border-current/25 pl-3 italic opacity-80'
+              className='border-current/25 my-2 border-l-2 pl-3 italic opacity-80'
               {...props}
             >
               {children}
             </blockquote>
           ),
-          code: ({ children, className: codeClass, ...props }: MarkdownCodeProps) => {
+          code: ({
+            children,
+            className: codeClass,
+            ...props
+          }: MarkdownCodeProps) => {
             /* Le bloc de code est traité plus bas (dans `pre`). */
             const isBlock = codeClass?.startsWith('language-') ?? false;
 
@@ -130,12 +134,18 @@ export function AiMarkdown({ text, className }: AiMarkdownProps): JSX.Element {
             <tbody {...props}>{children}</tbody>
           ),
           td: ({ children, ...props }) => (
-            <td className='border border-current/15 px-2 py-1 align-top' {...props}>
+            <td
+              className='border-current/15 border px-2 py-1 align-top'
+              {...props}
+            >
               {children}
             </td>
           ),
           th: ({ children, ...props }) => (
-            <th className='border border-current/15 px-2 py-1 font-bold' {...props}>
+            <th
+              className='border-current/15 border px-2 py-1 font-bold'
+              {...props}
+            >
               {children}
             </th>
           ),
@@ -144,9 +154,7 @@ export function AiMarkdown({ text, className }: AiMarkdownProps): JSX.Element {
               {children}
             </thead>
           ),
-          tr: ({ children, ...props }) => (
-            <tr {...props}>{children}</tr>
-          ),
+          tr: ({ children, ...props }) => <tr {...props}>{children}</tr>,
           ul: ({ children, ...props }) => (
             <ul className='mb-2 list-disc space-y-1 pl-5' {...props}>
               {children}
