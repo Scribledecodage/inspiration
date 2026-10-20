@@ -13,6 +13,7 @@ import { useModal } from '@lib/hooks/useModal';
 import { Modal } from '@components/modal/modal';
 import { ChannelCreateModal } from '@components/channel/channel-create-modal';
 import { ChannelAvatar } from '@components/channel/channel-avatar';
+import { ChannelHeader } from '@components/channel/channel-header';
 import { Input } from '@components/input/input';
 import { Conversation } from '@components/messages/conversation';
 import { useAuth } from '@lib/context/auth-context';
@@ -96,25 +97,17 @@ export default function Discover(): JSX.Element {
   if (selectedChannel && user) {
     return (
       <div className='flex h-[100dvh] w-full max-w-xl flex-col'>
-        {/* L'icône et le titre de la chaîne sont en haut, comme le titre
-            « Découvrir » : la page de la chaîne est ainsi identifiée d'un
-            coup d'œil. */}
-        <MainHeader
-          useActionButton
-          iconName='arrow_back'
-          tip='Retour à Découvrir'
-          action={(): void => setSelectedChannel(null)}
-          beforeTitle={
-            <ChannelAvatar
-              name={selectedChannel.name ?? 'Chaîne'}
-              photoURL={selectedChannel.photoURL}
-              shape={selectedChannel.avatarShape}
-              size={32}
-            />
-          }
-          title={selectedChannel.name ?? 'Chaîne'}
+        {/* Barre du haut de la chaîne : flèche de retour, image dans la forme
+            choisie, nom et description. Elle est visible sur téléphone
+            comme sur ordinateur. */}
+        <ChannelHeader
+          description={selectedChannel.description}
+          name={selectedChannel.name ?? 'Chaîne'}
+          onBack={(): void => setSelectedChannel(null)}
+          photoURL={selectedChannel.photoURL}
+          shape={selectedChannel.avatarShape}
         />
-        <div className='min-h-0 flex-1'>
+        <div className='flex min-h-0 flex-1 flex-col'>
           <Conversation
             group={selectedChannel}
             members={[]}

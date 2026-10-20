@@ -876,8 +876,17 @@ export function Conversation({
     <div
       className={cn(
         'z-40 flex flex-col bg-main-background',
-        'fixed inset-0',
-        'md:sticky md:top-[57px] md:z-auto md:h-[calc(100dvh-57px)] md:min-w-0 md:flex-1 md:self-start md:border-l md:border-light-border md:dark:border-dark-border'
+        /* En page autonome (chaîne), la conversation reste dans le flux de la
+           page : elle ne recouvre plus l'en-tête, qui porte le titre, la
+           description et la flèche de retour. Sur téléphone, la conversation
+           occupait tout l'écran (`fixed inset-0`) et cet en-tête
+           disparaissait complètement. */
+        standalone
+          ? 'relative min-h-0 flex-1'
+          : cn(
+              'fixed inset-0',
+              'md:sticky md:top-[57px] md:z-auto md:h-[calc(100dvh-57px)] md:min-w-0 md:flex-1 md:self-start md:border-l md:border-light-border md:dark:border-dark-border'
+            )
       )}
       data-no-section-swipe
     >

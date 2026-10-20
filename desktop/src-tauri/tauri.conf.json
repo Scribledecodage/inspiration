@@ -15,8 +15,8 @@
       {
         "label": "main",
         "title": "Inspiration",
-        "width": 1120,
-        "height": 780,
+        "width": 1320,
+        "height": 860,
         "minWidth": 480,
         "minHeight": 520,
         "resizable": true,
@@ -28,7 +28,7 @@
       }
     ],
     "security": {
-      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.firebaseapp.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://accounts.google.com; frame-src https://*.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self' https://accounts.google.com"
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.firebaseapp.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://accounts.google.com https://u-social.vercel.app https://api.backblazeb2.com https://f005.backblazeb2.com https://*.supabase.co; frame-src https://*.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self' https://accounts.google.com"
     },
     "trayIcon": {
       "id": "main",
@@ -75,7 +75,7 @@
       "dialog": false,
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEQ4OEY0Nzk1QTYzRkQ4QjgKUldTNDJEK21sVWVQMkI1b3ZPRnRBZ2pQc3BkdXEwWFVkZm9BQkhhR0Y2SmVxaStGTThoMlQrb0wK",
       "endpoints": [
-        "https://github.com/ccrsxx/inspiration/releases/latest/download/latest.json"
+        "https://github.com/ccrsxx/twitter-clone/releases/latest/download/latest.json"
       ],
       "windows": {
         "installMode": "passive"

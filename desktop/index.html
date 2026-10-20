@@ -1,10 +1,60 @@
 <!doctype html>
-<html lang="fr">
+<html lang="fr" data-theme="light">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" type="image/png" href="/LogoSite.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
     <title>Inspiration</title>
+
+    <script>
+      /* Thème, accent, police et forme d'avatar appliqués avant le premier
+         rendu : la fenêtre ne « clignote » pas au démarrage. (Même script
+         que celui du site.) */
+      try {
+        var theme = localStorage.getItem('theme') || 'auto';
+        if (theme !== 'auto' && theme !== 'light' && theme !== 'dim' && theme !== 'dark')
+          theme = 'auto';
+        var palette =
+          theme === 'auto'
+            ? window.matchMedia('(prefers-color-scheme: dark)').matches
+              ? 'dim'
+              : 'light'
+            : theme;
+        var root = document.documentElement;
+        var isDark = palette === 'dim' || palette === 'dark';
+        root.setAttribute('data-theme', palette);
+        root.style.colorScheme = isDark ? 'dark' : 'light';
+        root.classList.toggle('dark', isDark);
+        root.style.setProperty('--main-background', 'var(--' + palette + '-background)');
+        root.style.setProperty('--main-search-background', 'var(--' + palette + '-search-background)');
+        root.style.setProperty('--main-sidebar-background', 'var(--' + palette + '-sidebar-background)');
+        var accent = localStorage.getItem('accent') || 'blue';
+        if (accent === 'yellow' || accent === 'cyan') accent = 'indigo';
+        if (accent === 'orange') accent = 'red';
+        root.style.setProperty('--main-accent', 'var(--accent-' + accent + ')');
+        var fontStacks = {
+          inter: "'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif",
+          manrope: "'Manrope', 'Inter', system-ui, sans-serif",
+          jakarta: "'Plus Jakarta Sans', 'Inter', system-ui, sans-serif",
+          plex: "'IBM Plex Sans', 'Inter', system-ui, sans-serif"
+        };
+        var font = localStorage.getItem('font') || 'inter';
+        if (font === 'outfit') font = 'manrope';
+        if (font === 'chirp' || !fontStacks[font]) font = 'inter';
+        root.style.setProperty('--font-main', fontStacks[font]);
+        root.style.setProperty('--font-title', fontStacks[font]);
+        var shape = localStorage.getItem('avatarShape') || 'circle';
+        root.setAttribute('data-avatar-shape', shape);
+        var frame = localStorage.getItem('avatarFrame') || 'none';
+        root.setAttribute('data-avatar-frame', frame);
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

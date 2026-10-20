@@ -110,7 +110,7 @@ for (const artifact of artifacts) {
 
   platforms[artifact.key] = {
     signature: readFileSync(signatureFile, 'utf8').trim(),
-    url: `https://github.com/ccrsxx/inspiration/releases/download/v${version}/${file}`
+    url: `https://github.com/ccrsxx/twitter-clone/releases/download/v${version}/${file}`
   };
 }
 
@@ -140,7 +140,7 @@ console.log(`[release] Manifeste : ${manifestPath}`);
 console.log(
   '[release] À TELEVERSER sur la release GitHub « v' +
     version +
-    ' » :\n' +
+    ' » du dépôt ccrsxx/twitter-clone :\n' +
     '  - l’installateur (…-setup.exe) et sa signature (…-setup.exe.sig)\n' +
     '  - latest.json (à la racine de la release)\n'
 );
