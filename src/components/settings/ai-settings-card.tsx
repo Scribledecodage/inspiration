@@ -1,12 +1,13 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import cn from 'clsx';
 import { toast } from 'react-hot-toast';
 import { chatWithAi } from '@lib/ai';
-import { AI_LANGUAGES, AI_MODELS } from '@lib/types/ai';
+import { AI_LANGUAGES } from '@lib/types/ai';
 import { MaterialIcon } from '@components/ui/material-icon';
 import { CustomIcon } from '@components/ui/custom-icon';
 import { Toggle } from '@components/ui/toggle';
-import type { AiSettings } from '@lib/types/ai';
+import { SearchSelect } from '@components/ui/search-select';
+import type { AiModel, AiSettings } from '@lib/types/ai';
 import type { ReactNode } from 'react';
 
 type AiSettingsCardProps = {
@@ -15,6 +16,9 @@ type AiSettingsCardProps = {
   onSave: () => Promise<void>;
   saving: boolean;
 };
+
+/* Un modèle est « nouveau » pendant un mois après sa sortie. */
+const NEW_MODEL_DAYS = 30;
 
 function Row({
   title,
@@ -26,7 +30,7 @@ function Row({
   children: ReactNode;
 }): JSX.Element {
   return (
-    <div className='flex items-center justify-between gap-4 px-4 py-3.5'>
+    <div className='flex flex-col gap-3 px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between'>
       <div className='min-w-0'>
         <p className='text-sm font-semibold text-light-primary dark:text-dark-primary'>
           {title}
@@ -37,36 +41,22 @@ function Row({
           </p>
         )}
       </div>
-      <div className='shrink-0'>{children}</div>
+      <div className='shrink-0 sm:w-64'>{children}</div>
     </div>
   );
 }
 
-function Select({
-  value,
-  onChange,
-  options,
-  label
-}: {
-  value: string;
-  onChange: (value: string) => void;
-  options: readonly string[];
-  label: string;
-}): JSX.Element {
-  return (
-    <select
-      aria-label={label}
-      className='rounded-lg border border-light-border bg-main-background px-3 py-1.5 text-sm font-semibold text-light-primary outline-none transition focus-visible:ring-2 focus-visible:ring-main-accent/80 dark:border-dark-border dark:bg-dark-primary'
-      onChange={(event): void => onChange(event.target.value)}
-      value={value}
-    >
-      {options.map((option) => (
-        <option key={option || 'default'} value={option}>
-          {option || 'Par défaut'}
-        </option>
-      ))}
-    </select>
-  );
+/* Prix affiché : par million de jetons. */
+function formatPrice(price: number): string {
+  if (!price) return 'Gratuit';
+
+  const perMillion = price * 1_000_000;
+
+  if (perMillion < 0.01) return '< 0,01 $/M';
+
+  return `${perMillion.toLocaleString('fr-FR', {
+    maximumFractionDigits: 2
+  })} $/M`;
 }
 
 /**
@@ -82,10 +72,81 @@ export function AiSettingsCard({
   saving
 }: AiSettingsCardProps): JSX.Element {
   const [testing, setTesting] = useState(false);
+  const [models, setModels] = useState<AiModel[]>([]);
+  const [modelsLoading, setModelsLoading] = useState(true);
+  const [modelsError, setModelsError] = useState<string | null>(null);
 
   const update = (patch: Partial<AiSettings>): void => {
     onChange({ ...settings, ...patch });
   };
+
+  /* Les modèles viennent d'OpenRouter : la liste est à jour, et les prix
+     aussi. */
+  useEffect(() => {
+    let cancelled = false;
+
+    const load = async (): Promise<void> => {
+      setModelsLoading(true);
+
+      try {
+        const response = await fetch('/api/ai/models');
+        const payload = (await response.json()) as {
+          models?: AiModel[];
+          error?: string;
+        };
+
+        if (cancelled) return;
+
+        if (!response.ok)
+          throw new Error(payload.error ?? 'Liste des modèles indisponible.');
+
+        setModels(payload.models ?? []);
+        setModelsError(null);
+      } catch (error) {
+        if (cancelled) return;
+
+        setModelsError(
+          (error as Error)?.message ??
+            'Impossible de joindre OpenRouter pour la liste des modèles.'
+        );
+      } finally {
+        if (!cancelled) setModelsLoading(false);
+      }
+    };
+
+    void load();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  /* Les gratuits d'abord, puis les plus récents. */
+  const modelOptions = useMemo(() => {
+    const now = Math.floor(Date.now() / 1000);
+
+    return [...models]
+      .sort((a, b) => {
+        if (a.free !== b.free) return a.free ? -1 : 1;
+        return b.created - a.created;
+      })
+      .map((model) => {
+        const isNew = now - model.created < NEW_MODEL_DAYS * 24 * 3600;
+
+        return {
+          value: model.id,
+          label: model.name,
+          free: model.free,
+          badge: isNew ? 'Nouveau' : undefined,
+          hint: model.free ? 'Gratuit' : formatPrice(model.promptPrice)
+        };
+      });
+  }, [models]);
+
+  const languageOptions = useMemo(
+    () => AI_LANGUAGES.map((language) => ({ value: language, label: language })),
+    []
+  );
 
   const handleTest = async (): Promise<void> => {
     setTesting(true);
@@ -154,10 +215,11 @@ export function AiSettingsCard({
             description='Langue dans laquelle l’assistant répond.'
             title='Langue de l’assistant'
           >
-            <Select
-              label='Langue de l’assistant'
+            <SearchSelect
               onChange={(language): void => update({ language })}
-              options={AI_LANGUAGES}
+              options={languageOptions}
+              placeholder='Choisir une langue'
+              searchPlaceholder='Rechercher une langue…'
               value={settings.language}
             />
           </Row>
@@ -166,27 +228,45 @@ export function AiSettingsCard({
             description='Langue dans laquelle les messages sont traduits.'
             title='Langue de traduction'
           >
-            <Select
-              label='Langue de traduction'
+            <SearchSelect
               onChange={(translateLanguage): void => update({ translateLanguage })}
-              options={AI_LANGUAGES}
+              options={languageOptions}
+              placeholder='Choisir une langue'
+              searchPlaceholder='Rechercher une langue…'
               value={settings.translateLanguage}
             />
           </Row>
 
           <Row
-            description='Laissez vide pour utiliser le modèle par défaut du serveur.'
+            description='Modèles proposés par OpenRouter : les gratuits d’abord, puis les plus récents.'
             title='Modèle'
           >
-            <Select
-              label='Modèle'
+            <SearchSelect
+              allowCustom
+              emptyLabel={
+                modelsError ?? 'Aucun modèle trouvé. Tapez un identifiant.'
+              }
+              loading={modelsLoading}
               onChange={(model): void => update({ model })}
-              options={AI_MODELS}
+              options={modelOptions}
+              placeholder='Choisir un modèle'
+              searchPlaceholder='Rechercher un modèle…'
               value={settings.model}
             />
           </Row>
         </div>
       </div>
+
+      {modelsError && (
+        <p className='flex items-start gap-2 rounded-lg border border-light-border bg-main-search-background/30 px-3 py-2 text-xs leading-5 text-light-secondary dark:border-dark-border dark:text-dark-secondary'>
+          <MaterialIcon
+            className='mt-0.5 h-4 w-4 shrink-0'
+            iconName='info'
+          />
+          {modelsError} Vous pouvez tout de même saisir un identifiant de
+          modèle à la main.
+        </p>
+      )}
 
       <div className='flex flex-col gap-2 rounded-xl border border-light-border bg-main-background p-4 dark:border-dark-border'>
         <label
@@ -200,7 +280,7 @@ export function AiSettingsCard({
           est envoyée au modèle à chaque échange.
         </p>
         <textarea
-          className='min-h-[5rem] w-full resize-y rounded-lg border border-light-border bg-main-search-background/40 px-3 py-2 text-sm leading-6 text-light-primary outline-none transition focus-visible:ring-2 focus-visible:ring-main-accent/80 dark:border-dark-border dark:bg-dark-primary'
+          className='min-h-[5rem] w-full resize-y rounded-lg border border-light-line-reply bg-transparent px-3 py-2 text-sm leading-6 text-light-primary outline-none transition focus:border-main-accent focus:ring-2 focus:ring-main-accent/20 dark:border-dark-line-reply dark:text-dark-primary'
           id='ai-system-prompt'
           onChange={(event): void => update({ systemPrompt: event.target.value })}
           placeholder='Ex. : réponds brièvement, en français, sans jargon.'
@@ -221,10 +301,10 @@ export function AiSettingsCard({
         </p>
         <input
           autoComplete='off'
-          className='w-full rounded-lg border border-light-border bg-main-search-background/40 px-3 py-2 text-sm text-light-primary outline-none transition focus-visible:ring-2 focus-visible:ring-main-accent/80 dark:border-dark-border dark:bg-dark-primary'
+          className='w-full rounded-lg border border-light-line-reply bg-transparent px-3 py-2 text-sm text-light-primary outline-none transition focus:border-main-accent focus:ring-2 focus:ring-main-accent/20 dark:border-dark-line-reply dark:text-dark-primary'
           id='ai-api-key'
           onChange={(event): void => update({ apiKey: event.target.value })}
-          placeholder='sk-…'
+          placeholder='sk-or-v1-…'
           type='password'
           value={settings.apiKey}
         />

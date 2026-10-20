@@ -103,6 +103,7 @@ const ICONS = [
   'settings',
   'smart_toy',
   'sms',
+  'space_dashboard',
   'star',
   'subscriptions',
   'support_agent',

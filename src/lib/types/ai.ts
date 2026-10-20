@@ -26,12 +26,19 @@ export type AiSettings = {
   apiKey: string;
 };
 
+/**
+ * Valeurs par défaut.
+ *
+ * Tout est éteint : rien n'est envoyé à un modèle tant que la personne
+ * n'a pas expresslyément activé les fonctions qu'elle souhaite. Aucun
+ * modèle ni aucune langue n'est présélectionné : c'est à elle de choisir.
+ */
 export const DEFAULT_AI_SETTINGS: AiSettings = {
-  enabled: true,
-  assistantEnabled: true,
-  translateEnabled: true,
-  language: 'français',
-  translateLanguage: 'français',
+  enabled: false,
+  assistantEnabled: false,
+  translateEnabled: false,
+  language: '',
+  translateLanguage: '',
   model: '',
   systemPrompt: '',
   apiKey: ''
@@ -59,15 +66,37 @@ export const AI_LANGUAGES: readonly string[] = [
   'thaï'
 ];
 
+/** Langue utilisée quand aucune n'a été choisie. */
+export const AI_FALLBACK_LANGUAGE = 'français';
+
+/** Modèle disponible chez un fournisseur (liste OpenRouter). */
+export type AiModel = {
+  /** Identifiant complet, par exemple « anthropic/claude-sonnet-4 ». */
+  id: string;
+  /** Nom lisible. */
+  name: string;
+  /** Fournisseur (« anthropic », « openai », « google »…). */
+  provider: string;
+  /** Nombre de jetons acceptés en contexte. */
+  contextLength: number;
+  /** Date de sortie (horodatage en secondes). */
+  created: number;
+  /** Prix par jeton, en dollars. */
+  promptPrice: number;
+  completionPrice: number;
+  /** Le modèle est-il gratuit ? */
+  free: boolean;
+};
+
 /** Modèles proposés, quand le serveur n'en impose aucun. */
 export const AI_MODELS: readonly string[] = [
   '',
-  'gpt-4o-mini',
-  'gpt-4o',
-  'gpt-4.1-mini',
-  'claude-3-5-haiku-latest',
-  'claude-3-5-sonnet-latest',
-  'llama-3.3-70b-versatile',
-  'mistral-small-latest',
-  'gemini-2.0-flash'
+  'openai/gpt-4o-mini',
+  'openai/gpt-4o',
+  'anthropic/claude-3.5-haiku',
+  'anthropic/claude-3.5-sonnet',
+  'google/gemini-2.0-flash-001',
+  'meta-llama/llama-3.3-70b-instruct',
+  'mistralai/mistral-small',
+  'deepseek/deepseek-chat'
 ];

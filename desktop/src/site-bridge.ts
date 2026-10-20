@@ -1,21 +1,28 @@
+import { fetch as nativeFetch } from '@tauri-apps/plugin-http';
+import { SITE_URL } from './site-url';
+
 /**
  * Pont vers le site.
  *
  * L'application de bureau n'a pas de serveur : les quelques requêtes que
- * le site adresse à son propre serveur (téléversement d'images, GIF,
- * tendances, jetons de téléchargement) sont donc dirigées vers le site
- * déployé. Les images des publications sont stockées avec une URL
- * relative (« /api/image/… ») : on la rend absolue au passage.
+ * le site adresse à son propre serveur (téléversement d'images, d'avatars
+ * et de bannières, GIF, tendances, assistant) sont donc dirigées vers le
+ * site déployé.
+ *
+ * Ces requêtes passent par la couche native (Rust) : elles ne sont donc pas
+ * soumises aux règles CORS du navigateur, qui refuseraient les requêtes
+ * faites depuis l'application vers un autre domaine.
+ *
+ * Les images des publications sont stockées avec une URL relative
+ * (« /api/image/… ») : on la rend absolue au passage.
  */
-
-const SITE = 'https://u-social.vercel.app';
 
 function isApiPath(url: string): boolean {
   return url.startsWith('/api/') || url.startsWith('api/');
 }
 
 function absolute(url: string): string {
-  return `${SITE}${url.startsWith('/') ? '' : '/'}${url}`;
+  return `${SITE_URL}${url.startsWith('/') ? '' : '/'}${url}`;
 }
 
 /**
@@ -34,15 +41,18 @@ function rewriteImages(root: ParentNode): void {
 }
 
 export function installSiteBridge(): void {
-  /* Les appels à l'API du site. */
+  /* Les appels à l'API du site, passés par la couche native. */
   const originalFetch = window.fetch.bind(window);
 
-  window.fetch = ((input: RequestInfo | URL, init?: RequestInit) => {
+  window.fetch = (async (
+    input: RequestInfo | URL,
+    init?: RequestInit
+  ): Promise<Response> => {
     if (typeof input === 'string' && isApiPath(input))
-      return originalFetch(absolute(input), init);
+      return nativeFetch(absolute(input), init);
 
     if (input instanceof Request && isApiPath(input.url))
-      return originalFetch(absolute(input.url), init);
+      return nativeFetch(absolute(input.url), init);
 
     return originalFetch(input, init);
   }) as typeof window.fetch;

@@ -19,6 +19,14 @@
     "opener:allow-open-url",
     "opener:allow-open-path",
     "opener:allow-reveal-item-in-dir",
+    {
+      "identifier": "http:default",
+      "allow": [
+        {
+          "url": "https://inspiration-reseau-social-1ymdc0foy-clipdescripts-projects.vercel.app/*"
+        }
+      ]
+    },
     "process:default",
     "process:allow-restart",
     "process:allow-exit",

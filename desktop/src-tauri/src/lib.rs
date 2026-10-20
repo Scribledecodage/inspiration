@@ -35,6 +35,10 @@ pub fn run() {
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_opener::init())
+        // Les requêtes adressées au site (téléversement d'images, GIF,
+        // tendances) sont faites depuis la couche native : le navigateur ne
+        // peut donc pas les bloquer pour une question d'origine.
+        .plugin(tauri_plugin_http::init())
         // Redémarrage de l'application après l'installation d'une mise à
         // jour.
         .plugin(tauri_plugin_process::init())

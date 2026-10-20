@@ -3,14 +3,15 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 /**
  * Passerelle vers le fournisseur d'intelligence artificielle.
  *
- * Le fournisseur parle l'API « chat completions » (OpenAI et ses
- * compatibles). L'adresse et le modèle se configurent par variables
- * d'environnement ; la clé peut aussi être fournie par la personne, depuis
- * ses réglages, quand le serveur n'en a pas.
+ * Par défaut, c'est OpenRouter : il parle l'API « chat completions »
+ * d'OpenAI et donne accès à tous les grands modèles avec une seule clé.
+ * L'adresse et le modèle se configurent par variables d'environnement ; la
+ * clé peut aussi être fournie par la personne, depuis ses réglages, quand
+ * le serveur n'en a pas.
  */
 
-const DEFAULT_ENDPOINT = 'https://api.openai.com/v1/chat/completions';
-const DEFAULT_MODEL = 'gpt-4o-mini';
+const DEFAULT_ENDPOINT = 'https://openrouter.ai/api/v1/chat/completions';
+const DEFAULT_MODEL = 'openai/gpt-4o-mini';
 
 /* Au-delà, la demande devient inutilement coûteuse : on la coupe. */
 const MAX_INPUT_LENGTH = 12_000;
@@ -65,7 +66,7 @@ function extractReply(payload: ProviderAnswer): string {
 
 /** Consigne système selon la nature de la demande. */
 function buildInstruction(body: Body): string {
-  const language = (body.language ?? 'français').trim() || 'français';
+  const language = firstNonEmpty(body.language, 'français');
   const text = (body.text ?? '').slice(0, MAX_INPUT_LENGTH).trim();
 
   if (body.task === 'translate')
@@ -156,9 +157,10 @@ export default async function handler(
   else if (task === 'chat')
     messages.push({
       role: 'system',
-      content: `Tu es l'assistant d'Inspiration, un réseau social. Tu réponds en ${
-        (body.language ?? 'français').trim() || 'français'
-      }, de façon concise et utile.`
+      content: `Tu es l'assistant d'Inspiration, un réseau social. Tu réponds en ${firstNonEmpty(
+        body.language,
+        'français'
+      )}, de façon concise et utile.`
     });
 
   messages.push(...history);
@@ -171,13 +173,22 @@ export default async function handler(
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
+  /* OpenRouter attend deux en-têtes de plus pour retrouver le site qui
+     appelle son service (ils sont facultatifs). */
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${apiKey}`
+  };
+
+  if (endpoint.includes('openrouter.ai')) {
+    headers['HTTP-Referer'] = process.env.NEXT_PUBLIC_URL ?? '';
+    headers['X-Title'] = 'Inspiration';
+  }
+
   try {
     const response = await fetch(endpoint, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`
-      },
+      headers,
       body: JSON.stringify({
         model,
         messages,

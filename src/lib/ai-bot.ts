@@ -1,4 +1,4 @@
-import { addDoc, doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc } from 'firebase/firestore';
 import {
   conversationMessagesCollection,
   userConversationsCollection
@@ -79,9 +79,20 @@ export async function ensureAiConversation(userId: string): Promise<Conversation
     createdBy: userId
   };
 
+  /* Fusion et non remplacement : l'aperçu du dernier message ne doit pas
+     disparaître à chaque ouverture. */
   await setDoc(
     doc(userConversationsCollection(userId), AI_CONVERSATION_ID),
-    conversation
+    {
+      id: AI_CONVERSATION_ID,
+      participants: [userId],
+      type: 'ai',
+      name: AI_BOT_NAME,
+      photoURL: null,
+      description: AI_BOT_DESCRIPTION,
+      createdBy: userId
+    },
+    { merge: true }
   );
 
   return conversation;
@@ -94,8 +105,14 @@ export async function appendAiMessage(
 ): Promise<void> {
   const now = Date.now();
 
+  /* L'identifiant est celui du document : sans lui, le message arriverait
+     sans clé et ne serait jamais reconnu dans la liste. */
+  const messageRef = doc(
+    conversationMessagesCollection(userId, AI_CONVERSATION_ID)
+  );
+
   const message: ChatMessage = {
-    id: '',
+    id: messageRef.id,
     text,
     audioURL: null,
     audioDuration: null,
@@ -109,10 +126,7 @@ export async function appendAiMessage(
     fromAI: true
   };
 
-  await addDoc(
-    conversationMessagesCollection(userId, AI_CONVERSATION_ID),
-    message
-  );
+  await setDoc(messageRef, message);
 
   await setDoc(
     doc(userConversationsCollection(userId), AI_CONVERSATION_ID),

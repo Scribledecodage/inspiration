@@ -4,6 +4,7 @@ import tailwindcss from 'tailwindcss';
 import autoprefixer from 'autoprefixer';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
+import { SITE_URL } from './src/site-url';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const site = resolve(here, '..');
@@ -69,7 +70,7 @@ export default defineConfig({
     'process.env.NODE_ENV': JSON.stringify(
       process.env.NODE_ENV ?? 'production'
     ),
-    'process.env.NEXT_PUBLIC_URL': JSON.stringify('https://u-social.vercel.app'),
+    'process.env.NEXT_PUBLIC_URL': JSON.stringify(SITE_URL),
     'process.env.NEXT_PUBLIC_USE_EMULATOR': JSON.stringify('false'),
     // Configuration publique du projet Firebase (identique à celle du
     // site) : l'application de bureau parle au même projet.

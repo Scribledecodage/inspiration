@@ -22,7 +22,7 @@ export function AiAvatar({ size = 36, className }: AiAvatarProps): JSX.Element {
       )}
       style={{ width: size, height: size }}
     >
-      <MaterialIcon className='h-1/2 w-1/2' iconName='smart_toy' />
+      <MaterialIcon className='h-1/2 w-1/2' iconName='space_dashboard' />
     </span>
   );
 }

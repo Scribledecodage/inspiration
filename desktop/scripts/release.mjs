@@ -23,6 +23,7 @@ import {
 } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { REPO } from '../src/site-url';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, '..');
@@ -110,7 +111,7 @@ for (const artifact of artifacts) {
 
   platforms[artifact.key] = {
     signature: readFileSync(signatureFile, 'utf8').trim(),
-    url: `https://github.com/ccrsxx/twitter-clone/releases/download/v${version}/${file}`
+    url: `https://github.com/${REPO}/releases/download/v${version}/${file}`
   };
 }
 

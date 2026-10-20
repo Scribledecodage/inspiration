@@ -1,4 +1,4 @@
-import { AI_LANGUAGES, DEFAULT_AI_SETTINGS } from '@lib/types/ai';
+import { AI_FALLBACK_LANGUAGE, AI_LANGUAGES, DEFAULT_AI_SETTINGS } from '@lib/types/ai';
 import type { AiSettings } from '@lib/types/ai';
 
 export type AiRole = 'system' | 'user' | 'assistant';
@@ -84,7 +84,7 @@ export async function aiRequest(payload: AiRequest): Promise<string> {
 function baseInstruction(settings: AiSettings): string {
   const language = isKnownAiLanguage(settings.language)
     ? settings.language
-    : DEFAULT_AI_SETTINGS.language;
+    : AI_FALLBACK_LANGUAGE;
 
   const custom = settings.systemPrompt.trim();
 

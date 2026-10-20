@@ -1279,15 +1279,19 @@ export function Conversation({
                           !isLastOfGroup && 'invisible'
                         )}
                       >
-                        {sender && (
-                          <UserAvatar
-                            alt={sender.name}
-                            frame={sender.avatarFrame}
-                            gender={sender.gender}
-                            shape={sender.avatarShape}
-                            size={36}
-                            src={sender.photoURL}
-                          />
+                        {message.fromAI ? (
+                          <AiAvatar size={36} />
+                        ) : (
+                          sender && (
+                            <UserAvatar
+                              alt={sender.name}
+                              frame={sender.avatarFrame}
+                              gender={sender.gender}
+                              shape={sender.avatarShape}
+                              size={36}
+                              src={sender.photoURL}
+                            />
+                          )
                         )}
                       </span>
                     )}

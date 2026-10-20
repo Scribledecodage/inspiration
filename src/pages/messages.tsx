@@ -633,7 +633,7 @@ export default function MessagesPage(): JSX.Element {
   /* Ouvre la conversation avec l'assistant : la ligne existe déjà dans la
      boîte, mais le document de conversation doit être créé au premier
      message. */
-  const openAiConversation = async (): Promise<void> => {
+  const openAssistantConversation = async (): Promise<void> => {
     if (!user) return;
 
     setSelectedUser(null);
@@ -687,7 +687,7 @@ export default function MessagesPage(): JSX.Element {
                   ? 'bg-main-search-background'
                   : 'hover:bg-light-primary/5 dark:hover:bg-dark-primary/5'
               )}
-              onClick={() => void openAiConversation()}
+              onClick={(): void => void openAssistantConversation()}
               type='button'
             >
               <AiAvatar className='!self-center' size={44} />

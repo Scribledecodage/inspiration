@@ -75,7 +75,7 @@
       "dialog": false,
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEQ4OEY0Nzk1QTYzRkQ4QjgKUldTNDJEK21sVWVQMkI1b3ZPRnRBZ2pQc3BkdXEwWFVkZm9BQkhhR0Y2SmVxaStGTThoMlQrb0wK",
       "endpoints": [
-        "https://github.com/ccrsxx/twitter-clone/releases/latest/download/latest.json"
+        "https://github.com/Scribledecodage/inspiration/releases/latest/download/latest.json"
       ],
       "windows": {
         "installMode": "passive"
