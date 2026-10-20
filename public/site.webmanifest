@@ -1,0 +1,75 @@
+{
+  "name": "Inspiration 2.8",
+  "short_name": "Inspiration 2.8",
+  "description": "Un réseau social pensé pour rapprocher les gens.",
+  "display": "standalone",
+  "start_url": "/",
+  "theme_color": "#ffffff",
+  "background_color": "#ffffff",
+  "orientation": "portrait",
+  "categories": ["social", "news", "entertainment"],
+  "icons": [
+    {
+      "src": "/LogoSite.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/LogoSite.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Nouveau tweet",
+      "short_name": "Publier",
+      "description": "Créer une nouvelle publication",
+      "url": "/home",
+      "icons": [
+        {
+          "src": "/LogoSite.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Messagerie",
+      "short_name": "Messagerie",
+      "description": "Voir vos messages",
+      "url": "/messages",
+      "icons": [
+        {
+          "src": "/LogoSite.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Profil",
+      "short_name": "Profil",
+      "description": "Voir votre profil",
+      "url": "/settings",
+      "icons": [
+        {
+          "src": "/LogoSite.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Réglages",
+      "short_name": "Réglages",
+      "description": "Gérer vos réglages",
+      "url": "/settings",
+      "icons": [
+        {
+          "src": "/LogoSite.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ]
+}

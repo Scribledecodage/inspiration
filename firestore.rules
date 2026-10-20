@@ -1,0 +1,54 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAdmin() {
+      return request.auth.uid == 'Twt0A27bx9YcG4vu3RTsR7ifJzf2';
+    }
+
+    function isAuthorized(userId) {
+      return request.auth != null && (userId == request.auth.uid || isAdmin());
+    }
+
+    function isValidText(text) {
+      return text is string || text == null;
+    }
+
+    function isValidImages(images) {
+      return (images is list && images.size() <= 4) || images == null;
+    }
+
+    match /channels/{channelId} {
+      allow read: if request.auth != null;
+      allow create: if isAuthorized(request.resource.data.ownerId);
+      allow update, delete: if isAuthorized(resource.data.ownerId);
+    }
+
+    match /tweets/{tweetId} {
+      allow read, update: if request.auth != null;
+      allow create: if isAuthorized(request.resource.data.createdBy)
+                       && isValidText(request.resource.data.text)
+                       && isValidImages(request.resource.data.images);
+      allow delete: if isAuthorized(resource.data.createdBy);
+    }
+
+    match /statuses/{statusId} {
+      // Tout utilisateur connecté peut voir les statuts (24 h) et enregistrer
+      // qu'il les a vus ; seul l'auteur peut publier ou supprimer les siens.
+      allow read, update: if request.auth != null;
+      allow create: if isAuthorized(request.resource.data.createdBy);
+      allow delete: if isAuthorized(resource.data.createdBy);
+    }
+
+    match /aiConversations/{userId}/conversations/{conversationId} {
+      allow read, write: if isAuthorized(userId);
+    }
+
+    match /users/{userId}/contacts/{contactId} {
+      allow read, write: if isAuthorized(userId);
+    }
+
+    match /users/{document=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}

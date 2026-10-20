@@ -1,0 +1,469 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --main-background: var(--light-background);
+    --main-search-background: var(--light-search-background);
+    --main-sidebar-background: var(--light-sidebar-background);
+    --main-accent: var(--accent-blue);
+
+    --dark-background: 0 0 0;
+    --dim-background: 21 32 43;
+    --light-background: 255 255 255;
+
+    --dark-search-background: 32 35 39;
+    --dim-search-background: 42 59 77;
+    --light-search-background: 239 243 244;
+
+    --dark-sidebar-background: 22 24 28;
+    --dim-sidebar-background: 30 39 50;
+    --light-sidebar-background: 247 249 249;
+
+    /* Tons de texte et de bordure, redéfinis pour chaque ambiance. */
+    --dark-primary: 231 233 234;
+    --dark-secondary: 113 118 123;
+    --dark-border: 47 51 54;
+    --dark-line-reply: 51 54 57;
+
+    --light-primary: 15 20 25;
+    --light-secondary: 83 100 113;
+    --light-border: 239 243 244;
+    --light-line-reply: 207 217 222;
+
+    --accent-yellow: 255 213 0;
+    --accent-blue: 29 155 240;
+    --accent-indigo: 79 70 229;
+    --accent-pink: 249 26 130;
+    --accent-purple: 120 87 255;
+    --accent-orange: 255 122 0;
+    --accent-red: 244 33 46;
+    --accent-green: 0 184 122;
+
+    --font-main: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --font-title: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  }
+
+  /* Clair : texte très sombre sur blanc, pour une lisibilité nette. */
+  html[data-theme='light'] {
+    color-scheme: light;
+  }
+
+  /* Sombre : bleu nuit apaisant, textes doux mais bien détachés du fond. */
+  html[data-theme='dim'] {
+    color-scheme: dark;
+    --dark-primary: 247 249 249;
+    --dark-secondary: 148 163 177;
+    --dark-border: 56 68 78;
+    --dark-line-reply: 61 74 85;
+  }
+
+  /* Noir absolu : fond pur noir et contraste maximal. */
+  html[data-theme='dark'] {
+    color-scheme: dark;
+    --dark-primary: 255 255 255;
+    --dark-secondary: 170 179 187;
+    --dark-border: 54 59 64;
+    --dark-line-reply: 59 64 69;
+  }
+
+  /* Fine transparent scrollbar */
+  ::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(140, 150, 160, 0.22);
+    border-radius: 9999px;
+    transition: background-color 0.2s ease;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(140, 150, 160, 0.45);
+  }
+  /* Aucune flèche (bouton haut / bas) aux extrémités de la barre de défilement */
+  ::-webkit-scrollbar-button,
+  ::-webkit-scrollbar-button:vertical:start:decrement,
+  ::-webkit-scrollbar-button:vertical:end:increment,
+  ::-webkit-scrollbar-button:horizontal:start:decrement,
+  ::-webkit-scrollbar-button:horizontal:end:increment {
+    display: none;
+    width: 0;
+    height: 0;
+    background: transparent;
+  }
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+  /* Les propriétés standard ci-dessous désactivent, dans Chrome / Edge, toute la
+     personnalisation ::-webkit-scrollbar ci-dessus : la barre redevient celle du
+     navigateur, avec ses flèches. On les réserve donc aux navigateurs qui ne
+     connaissent pas les pseudo-éléments (Firefox, où il n'y a aucune flèche). */
+  @supports not selector(::-webkit-scrollbar) {
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: rgba(140, 150, 160, 0.25) transparent;
+    }
+  }
+
+  a,
+  input,
+  button,
+  textarea {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply bg-main-background text-light-primary antialiased dark:text-dark-primary;
+    font-family: var(--font-main, 'Inter', system-ui, sans-serif);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  .font-title {
+    font-family: var(--font-title, 'Inter', system-ui, sans-serif);
+    letter-spacing: -0.015em;
+  }
+
+  html {
+    background-color: rgb(var(--main-background));
+    scrollbar-gutter: stable;
+    /* Pas de `scroll-behavior: smooth` global : tout saut de page (retour en
+       haut,.focus d'un champ, changement de hauteur) devenait une
+       animation, et la page semblait descendre toute seule. Les défilés
+       lents sont demandés explicitement, là où ils sont voulus. */
+  }
+}
+
+@layer components {
+  .hover-animation {
+    @apply transition-colors duration-200;
+  }
+
+  .custom-button {
+    @apply hover-animation rounded-full p-3 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .custom-underline {
+    @apply hover-animation underline decoration-transparent outline-none transition [text-decoration-thickness:1px] 
+           hover:decoration-inherit focus-visible:decoration-inherit;
+  }
+
+  .main-tab {
+    @apply outline-none focus-visible:ring-2 focus-visible:ring-[#878a8c] focus-visible:transition-shadow 
+           focus-visible:duration-200 dark:focus-visible:ring-white;
+  }
+
+  .accent-tab {
+    @apply main-tab #{'focus-visible:!ring-main-accent/80'};
+  }
+
+  .accent-bg-tab {
+    @apply focus-visible:bg-main-accent/10;
+  }
+
+  .dark-bg-tab {
+    @apply focus-visible:bg-light-primary/10 dark:focus-visible:bg-dark-primary/10;
+  }
+
+  .blur-picture {
+    @apply hover-animation accent-tab transition hover:brightness-90 active:brightness-100;
+  }
+
+  /* L'en-tête collé en haut est posé sur le contenu qui défile : le flou
+     d'arrière-plan serait recalculé à chaque image du défilement, ce qui
+     saccade sur téléphone. On le supprime sous 500 px (fond opaque) — et on
+     garde le flou à partir de là, où l'en-tête est à gauche et ne recouvre
+     rien. */
+  /* Barre du bas du téléphone : elle s'efface quand on descend dans la page
+     et revient quand on remonte. Limitée au téléphone (sous 500 px) : à
+     partir de là, la barre est sur le côté et ne recouvre rien. */
+  .mobile-bar-hidden {
+    @media (max-width: 499px) {
+      transform: translateY(calc(100% + 0.75rem));
+    }
+  }
+
+  .glass-header {
+    @apply bg-main-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-main-background/70;
+
+    @media (max-width: 499px) {
+      @apply bg-main-background backdrop-blur-0;
+    }
+  }
+
+  .glass-bar {
+    @apply bg-main-background/85 backdrop-blur-lg supports-[backdrop-filter]:bg-main-background/75;
+
+    @media (max-width: 499px) {
+      @apply bg-main-background backdrop-blur-0;
+    }
+  }
+
+  /* Rond par défaut ; les autres formes sont découpées par les masques de la
+     bibliothèque daisyUI (carré net, cœur, étoile, losange…). */
+  .avatar-circle {
+    border-radius: 9999px !important;
+  }
+
+  /* Squircle : celui de la bibliothèque est en réalité presque un rond (à la
+     taille d'un avatar, la différence est invisible). On dessine donc un vrai
+     « squircle » : une superellipse (côtés presque droits, coins très
+     arrondis), qui se voit bien à côté du rond. */
+  .avatar-squircle {
+    -webkit-mask-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3e%3cpath d='M100 50L99.9 64.8L99.6 70.8L99.1 75.4L98.5 79.2L97.6 82.5L96.5 85.4L95.3 87.9L93.8 90.1L92 92L90.1 93.8L87.9 95.3L85.4 96.5L82.5 97.6L79.2 98.5L75.4 99.1L70.8 99.6L64.8 99.9L50 100L35.2 99.9L29.2 99.6L24.6 99.1L20.8 98.5L17.5 97.6L14.6 96.5L12.1 95.3L9.9 93.8L8 92L6.2 90.1L4.7 87.9L3.5 85.4L2.4 82.5L1.5 79.2L0.9 75.4L0.4 70.8L0.1 64.8L0 50L0.1 35.2L0.4 29.2L0.9 24.6L1.5 20.8L2.4 17.5L3.5 14.6L4.7 12.1L6.2 9.9L8 8L9.9 6.2L12.1 4.7L14.6 3.5L17.5 2.4L20.8 1.5L24.6 0.9L29.2 0.4L35.2 0.1L50 0L64.8 0.1L70.8 0.4L75.4 0.9L79.2 1.5L82.5 2.4L85.4 3.5L87.9 4.7L90.1 6.2L92 8L93.8 9.9L95.3 12.1L96.5 14.6L97.6 17.5L98.5 20.8L99.1 24.6L99.6 29.2L99.9 35.2Z' fill='black'/%3e%3c/svg%3e");
+    mask-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3e%3cpath d='M100 50L99.9 64.8L99.6 70.8L99.1 75.4L98.5 79.2L97.6 82.5L96.5 85.4L95.3 87.9L93.8 90.1L92 92L90.1 93.8L87.9 95.3L85.4 96.5L82.5 97.6L79.2 98.5L75.4 99.1L70.8 99.6L64.8 99.9L50 100L35.2 99.9L29.2 99.6L24.6 99.1L20.8 98.5L17.5 97.6L14.6 96.5L12.1 95.3L9.9 93.8L8 92L6.2 90.1L4.7 87.9L3.5 85.4L2.4 82.5L1.5 79.2L0.9 75.4L0.4 70.8L0.1 64.8L0 50L0.1 35.2L0.4 29.2L0.9 24.6L1.5 20.8L2.4 17.5L3.5 14.6L4.7 12.1L6.2 9.9L8 8L9.9 6.2L12.1 4.7L14.6 3.5L17.5 2.4L20.8 1.5L24.6 0.9L29.2 0.4L35.2 0.1L50 0L64.8 0.1L70.8 0.4L75.4 0.9L79.2 1.5L82.5 2.4L85.4 3.5L87.9 4.7L90.1 6.2L92 8L93.8 9.9L95.3 12.1L96.5 14.6L97.6 17.5L98.5 20.8L99.1 24.6L99.6 29.2L99.9 35.2Z' fill='black'/%3e%3c/svg%3e");
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    -webkit-mask-position: center;
+    mask-position: center;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+  }
+
+  /* Les boutons du site sont arrondis en cercle (`.custom-button` du thème).
+     Sur une forme découpée par un masque, cet arrondi rogne la forme choisie :
+     le squircle, le cœur ou le losange paraissaient ronds. On annule donc
+     l'arrondi : seul le masque dessine la forme. */
+  .avatar-squircle,
+  .dy-mask {
+    border-radius: 0 !important;
+  }
+
+  .trim-alt {
+    @apply overflow-hidden text-ellipsis break-all [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:1];
+  }
+
+  .hover-card {
+    @apply hover:bg-black/[0.03] focus-visible:bg-black/[0.03] dark:hover:bg-white/[0.03]
+           dark:focus-visible:bg-white/[0.03];
+  }
+
+  .menu-container {
+    @apply z-10 rounded-md bg-main-background outline-none
+           [box-shadow:#65778633_0px_0px_15px,_#65778626_0px_0px_3px_1px]
+           dark:[box-shadow:#ffffff33_0px_0px_15px,_#ffffff26_0px_0px_3px_1px];
+  }
+
+  .markdown-message {
+    @apply min-w-0 break-words;
+    overflow-wrap: anywhere;
+  }
+
+  /* Sélecteur d'emoji : fenêtre native du navigateur (API Popover).
+     L'ouverture et la fermeture sont animées par le navigateur lui-même
+     (transitions CSS + `@starting-style`), donc sans JavaScript et sans
+     à-coup. Pas de verrou de défilement : la page garde sa barre de
+     défilement et sa position. */
+  .emoji-picker {
+    position: fixed;
+    inset: 0;
+    margin: auto;
+    padding: 0;
+    opacity: 0;
+    transform: translateY(8px) scale(0.96);
+    transform-origin: bottom center;
+    transition: opacity 140ms ease-out, transform 140ms ease-out,
+      overlay 140ms allow-discrete, display 140ms allow-discrete;
+  }
+
+  .emoji-picker:popover-open {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Une fenêtre native fermée doit être retirée de l'écran : les styles du
+     site (et la classe `flex`) écraseraient sinon le `display: none` du
+     navigateur, et la fenêtre invisible continuerait de capter les clics.
+     D'où le `!important`, qui l'emporte sur les utilitaires. */
+  .emoji-picker[popover]:not(:popover-open) {
+    display: none !important;
+  }
+
+  .emoji-picker[popover]:popover-open {
+    display: flex;
+  }
+
+  /* Le fond assombri, comme celui des autres fenêtres du site. */
+  .emoji-picker::backdrop {
+    background: rgb(0 0 0 / 0.4);
+  }
+
+  .dark .emoji-picker::backdrop {
+    background: rgb(91 112 131 / 0.4);
+  }
+
+  @starting-style {
+    .emoji-picker:popover-open {
+      opacity: 0;
+      transform: translateY(8px) scale(0.96);
+    }
+  }
+
+  /* Sur téléphone : la fenêtre remonte du bas de l'écran, et l'on peut la
+     faire glisser vers le bas pour la refermer. */
+  @media (max-width: 639px) {
+    .emoji-picker {
+      inset: auto 0 0 0;
+      margin: 0;
+      max-height: 85dvh;
+      transform: translateY(100%);
+    }
+
+    .emoji-picker:popover-open {
+      transform: translateY(0);
+    }
+
+    @starting-style {
+      .emoji-picker:popover-open {
+        transform: translateY(100%);
+      }
+    }
+  }
+
+  .profile-phone-input {
+    @apply flex h-14 items-center gap-3 rounded px-3 ring-1 ring-light-line-reply transition-shadow
+           focus-within:ring-2 focus-within:ring-main-accent dark:ring-dark-border;
+  }
+
+  .profile-phone-input .PhoneInputCountry {
+    @apply m-0 flex items-center gap-2;
+  }
+
+  .profile-phone-input .PhoneInputCountrySelect {
+    @apply cursor-pointer rounded bg-transparent py-2 text-light-primary outline-none dark:text-dark-primary;
+  }
+
+  .profile-phone-input .PhoneInputCountrySelectArrow {
+    @apply border-light-secondary dark:border-dark-secondary;
+  }
+
+  .profile-phone-input .PhoneInputInput {
+    @apply h-full min-w-0 flex-1 bg-transparent text-light-primary outline-none dark:text-dark-primary;
+  }
+
+  .markdown-message > :first-child {
+    margin-top: 0;
+  }
+
+  .markdown-message > :last-child {
+    margin-bottom: 0;
+  }
+
+  .markdown-message p,
+  .markdown-message ul,
+  .markdown-message ol,
+  .markdown-message blockquote {
+    @apply my-3;
+  }
+
+  .markdown-message h1,
+  .markdown-message h2,
+  .markdown-message h3,
+  .markdown-message h4 {
+    @apply mb-2 mt-5 font-semibold tracking-tight text-light-primary dark:text-dark-primary;
+  }
+
+  .markdown-message h1 {
+    @apply text-2xl;
+  }
+
+  .markdown-message h2 {
+    @apply text-xl;
+  }
+
+  .markdown-message h3,
+  .markdown-message h4 {
+    @apply text-lg;
+  }
+
+  .markdown-message strong {
+    @apply font-semibold text-light-primary dark:text-dark-primary;
+  }
+
+  .markdown-message ul {
+    @apply list-disc pl-6;
+  }
+
+  .markdown-message ol {
+    @apply list-decimal pl-6;
+  }
+
+  .markdown-message li {
+    @apply my-1 pl-1;
+  }
+
+  .markdown-message blockquote {
+    @apply border-l-2 border-main-accent/50 pl-4 text-light-secondary dark:text-dark-secondary;
+  }
+
+  .markdown-message a {
+    @apply break-all text-main-accent underline decoration-main-accent/40 underline-offset-2 hover:decoration-main-accent;
+  }
+
+  .markdown-message :not(pre) > code {
+    @apply rounded-md border border-light-border bg-main-search-background px-1.5 py-0.5 font-mono text-[0.88em] text-light-primary dark:border-dark-border dark:text-dark-primary;
+  }
+
+  .markdown-message pre {
+    @apply my-4 max-w-full overflow-x-auto rounded-xl border border-light-border bg-main-search-background p-4 font-mono text-[13px] leading-6 dark:border-dark-border dark:bg-[#111820];
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .markdown-message pre code {
+    @apply block min-w-max bg-transparent p-0 font-mono text-inherit;
+  }
+
+  .markdown-message table {
+    @apply my-4 block max-w-full border-collapse overflow-x-auto text-left text-sm;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .markdown-message th,
+  .markdown-message td {
+    @apply whitespace-nowrap border border-light-border px-3 py-2 dark:border-dark-border;
+  }
+
+  .markdown-message th {
+    @apply bg-main-search-background font-semibold text-light-primary dark:text-dark-primary;
+  }
+
+  .markdown-message hr {
+    @apply my-5 border-0 border-t border-light-border dark:border-dark-border;
+  }
+
+  .markdown-message .katex-display {
+    @apply my-4 max-w-full overflow-x-auto overflow-y-hidden py-1;
+  }
+
+  .markdown-message .hljs-comment,
+  .markdown-message .hljs-quote {
+    @apply text-light-secondary dark:text-dark-secondary;
+  }
+
+  .markdown-message .hljs-keyword,
+  .markdown-message .hljs-selector-tag,
+  .markdown-message .hljs-title,
+  .markdown-message .hljs-section {
+    @apply font-semibold text-[#7c3aed] dark:text-[#c4a7ff];
+  }
+
+  .markdown-message .hljs-string,
+  .markdown-message .hljs-attr,
+  .markdown-message .hljs-template-variable {
+    @apply text-[#16803c] dark:text-[#8fda9f];
+  }
+
+  .markdown-message .hljs-number,
+  .markdown-message .hljs-literal,
+  .markdown-message .hljs-symbol,
+  .markdown-message .hljs-bullet {
+    @apply text-[#c2410c] dark:text-[#ffad72];
+  }
+}

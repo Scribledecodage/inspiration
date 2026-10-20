@@ -1,0 +1,37 @@
+# Variables d'environnement : fournies par les réglages du projet Vercel.
+.env*
+
+# Outils, scripts et données locales non déployés.
+notifications/
+scripts/
+.emulator-data/
+.freebuff/
+coverage/
+
+# Dépendances et artefacts de build.
+node_modules/
+**/node_modules/
+.next/
+.next-build/
+out/
+build/
+
+# Firebase Cloud Functions : déployées séparément avec `firebase deploy`.
+functions/node_modules/
+functions/lib/
+
+# Caches et logs locaux.
+*.log
+*.tsbuildinfo
+firebase-debug.log*
+firestore-debug.log*
+ui-debug.log*
+storage-debug.log*
+
+# Fichiers de design sources à la racine (les copies servies sont dans public/).
+/Actu.jpg
+/Actu.png
+/Avatar femme.png
+/Avatar homme.png
+/Banniere.png
+/User.jpg
