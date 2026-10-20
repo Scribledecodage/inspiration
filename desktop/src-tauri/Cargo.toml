@@ -1,0 +1,50 @@
+[package]
+name = "inspiration-desktop"
+version = "1.0.0"
+description = "Inspiration — le réseau social, en application de bureau"
+authors = ["Inspiration"]
+edition = "2021"
+rust-version = "1.77"
+license = "MIT"
+
+# La bibliothèque est séparée de l'exécutable pour que le code soit
+# réutilisable sur mobile (Tauri 2) sans duplication.
+[lib]
+name = "inspiration_desktop_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+# Le moteur : Rust, sans moteur JavaScript embarqué. L'interface est
+# dessinée par le WebView2 déjà présent sur Windows (aucun Chromium
+# embarqué, contrairement à Electron).
+tauri = { version = "2", features = ["tray-icon", "image-png", "devtools"] }
+
+# Modules natifs : mise à jour signée, notifications, liens, démarrage
+# avec Windows, mémorisation de la fenêtre.
+tauri-plugin-updater = "2"
+tauri-plugin-notification = "2"
+tauri-plugin-opener = "2"
+tauri-plugin-autostart = "2"
+tauri-plugin-window-state = "2"
+tauri-plugin-process = "2"
+
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
+# Une seule instance : relancer l'application réveille la fenêtre existante
+# au lieu d'en ouvrir une deuxième.
+tauri-plugin-single-instance = "2"
+
+# Optimisation : le binaire estStripped pour réduire la taille, et la
+# compilation est "lto" pour le démarrage.
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
+incremental = false
