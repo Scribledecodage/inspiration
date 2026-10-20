@@ -109,7 +109,8 @@ switch ($Action) {
   "key" {
     $codes = @{
       "enter" = 13; "escape" = 27; "tab" = 9; "down" = 40; "up" = 38;
-      "left" = 37; "right" = 39; "backspace" = 8; "delete" = 46
+      "left" = 37; "right" = 39; "backspace" = 8; "delete" = 46;
+      "pagedown" = 34; "pageup" = 33; "home" = 36; "end" = 35; "space" = 32
     }
     $code = $codes[$Key.ToLower()]
     if (-not $code) { Write-Error "Touche inconnue : $Key"; exit 1 }
