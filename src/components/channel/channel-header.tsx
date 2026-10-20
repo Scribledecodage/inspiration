@@ -26,7 +26,7 @@ export function ChannelHeader({
   onBack
 }: ChannelHeaderProps): JSX.Element {
   return (
-    <header className='glass-header sticky top-0 z-20 flex items-center gap-3 border-b border-light-border/60 px-3 pb-2.5 pt-[max(0.625rem,env(safe-area-inset-top))] dark:border-dark-border/60 md:px-4 md:pt-2.5'>
+    <header className='glass-header sticky top-0 z-20 flex items-center gap-3 border-b border-light-border/60 px-3 pb-3 pt-[max(0.625rem,env(safe-area-inset-top))] dark:border-dark-border/60 md:px-4 md:pt-2.5'>
       <button
         aria-label='Retour à Découvrir'
         className='flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-light-primary transition hover:bg-light-primary/10 active:bg-light-primary/20 dark:text-dark-primary dark:hover:bg-dark-primary/10'
@@ -37,7 +37,7 @@ export function ChannelHeader({
       </button>
       <ChannelAvatar name={name} photoURL={photoURL} shape={shape} size={40} />
       <div className='min-w-0'>
-        <p className='truncate text-[15px] font-bold text-light-primary dark:text-dark-primary'>
+        <p className='truncate text-base font-bold text-light-primary dark:text-dark-primary'>
           {name}
         </p>
         {description && (

@@ -18,6 +18,7 @@ public class Inp {
   [DllImport("user32.dll")] public static extern void mouse_event(uint flags, uint dx, uint dy, int data, UIntPtr extra);
   [DllImport("user32.dll")] public static extern void keybd_event(byte key, byte scan, uint flags, UIntPtr extra);
   [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr hWnd);
+  [DllImport("user32.dll")] public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
   [DllImport("user32.dll")] public static extern bool SetWindowPos(IntPtr hWnd, IntPtr after, int x, int y, int cx, int cy, uint flags);
   [StructLayout(LayoutKind.Sequential)] public struct RECT { public int Left, Top, Right, Bottom; }
 }
@@ -29,26 +30,27 @@ $process = Get-Process -Name $ProcessName -ErrorAction SilentlyContinue |
 if (-not $process) { Write-Error "Aucune fenetre pour $ProcessName"; exit 1 }
 
 $handle = $process.MainWindowHandle
+[void][Inp]::ShowWindow($handle, 9)   # restaurer si masquée
 [void][Inp]::SetWindowPos($handle, [IntPtr](-1), 0, 0, 0, 0, 0x0043)
 [void][Inp]::SetForegroundWindow($handle)
-Start-Sleep -Milliseconds 300
+Start-Sleep -Milliseconds 500
 
 $rect = New-Object Inp+RECT
 [void][Inp]::GetWindowRect($handle, [ref]$rect)
 
 switch ($Action) {
   "click" {
-    [void][Inp]::SetCursorPos($rect.Left + $X, $rect.Top + $Y)
+    [void][Inp]::SetCursorPos($X, $Y)
     Start-Sleep -Milliseconds 150
     [Inp]::mouse_event(0x0002, 0, 0, 0, [UIntPtr]::Zero)   # clic gauche
     Start-Sleep -Milliseconds 60
     [Inp]::mouse_event(0x0004, 0, 0, 0, [UIntPtr]::Zero)   # relâchement
   }
   "move" {
-    [void][Inp]::SetCursorPos($rect.Left + $X, $rect.Top + $Y)
+    [void][Inp]::SetCursorPos($X, $Y)
   }
   "scroll" {
-    [void][Inp]::SetCursorPos($rect.Left + $X, $rect.Top + $Y)
+    [void][Inp]::SetCursorPos($X, $Y)
     Start-Sleep -Milliseconds 100
     $direction = if ($Amount -lt 0) { 0x0800 } else { 0x0008 }  # haut / bas
     $delta = if ($Amount -lt 0) { [Math]::Abs($Amount) * 120 } else { -$Amount * 120 }
@@ -73,4 +75,4 @@ switch ($Action) {
   }
 }
 
-Write-Output ("$Action -> fenetre en " + $rect.Left + "," + $rect.Top + " (" + ($rect.Right - $rect.Left) + "x" + ($rect.Bottom - $rect.Top) + ")")
+Write-Output ("$Action -> fenetre en " + $rect.Left + "," + $rect.Top + " (" + ($rect.Right - $rect.Left) + "x" + ($rect.Bottom - $rect.Top) + "), clic en " + $X + "," + $Y)

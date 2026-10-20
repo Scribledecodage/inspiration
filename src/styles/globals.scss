@@ -134,6 +134,11 @@
   html {
     background-color: rgb(var(--main-background));
     scrollbar-gutter: stable;
+    /* Hauteur de la barre du haut, sur ordinateur. Les éléments qui se
+       calent dessous (la messagerie, les notifications) lisent cette
+       variable : la hauteur de la barre peut changer sans qu'un seul pixel
+       de code soit à recalculer ailleurs. */
+    --header-height: 65px;
     /* Pas de `scroll-behavior: smooth` global : tout saut de page (retour en
        haut,.focus d'un champ, changement de hauteur) devenait une
        animation, et la page semblait descendre toute seule. Les défilés
@@ -193,8 +198,12 @@
   .glass-header {
     @apply bg-main-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-main-background/70;
 
+    /* Sur téléphone, la barre devient translucide elle aussi : le contenu
+       qui défile dessous reste visible, flouté. C'est l'effet « verre » des
+       applications modernes ; la lisibilité est conservée grâce au voile
+       flouté (80 %), pas grâce à un fond opaque. */
     @media (max-width: 499px) {
-      @apply bg-main-background backdrop-blur-0;
+      @apply bg-main-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-main-background/70;
     }
   }
 

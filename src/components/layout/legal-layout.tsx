@@ -27,7 +27,7 @@ export function LegalLayout({ children }: LegalLayoutProps): JSX.Element {
 
   return (
     <div className='flex min-h-[100dvh] flex-col justify-between bg-main-background text-light-primary dark:text-dark-primary'>
-      <header className='glass-header sticky top-0 z-30 flex items-center justify-between border-b border-light-border/60 px-4 py-3 dark:border-dark-border/60 sm:px-8'>
+      <header className='glass-header sticky top-0 z-30 flex items-center justify-between border-b border-light-border/60 px-4 py-3.5 dark:border-dark-border/60 sm:px-8'>
         <div className='flex items-center gap-4'>
           <Button
             className='dark-bg-tab p-2 hover:bg-light-primary/10 active:bg-light-primary/20 dark:hover:bg-dark-primary/10 dark:active:bg-dark-primary/20'

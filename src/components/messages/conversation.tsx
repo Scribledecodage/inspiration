@@ -1050,7 +1050,7 @@ export function Conversation({
           ? 'relative min-h-0 flex-1'
           : cn(
               'fixed inset-0',
-              'md:sticky md:top-[57px] md:z-auto md:h-[calc(100dvh-57px)] md:min-w-0 md:flex-1 md:self-start md:border-l md:border-light-border md:dark:border-dark-border'
+              'md:sticky md:top-[var(--header-height)] md:z-auto md:h-[calc(100dvh-var(--header-height))] md:min-w-0 md:flex-1 md:self-start md:border-l md:border-light-border md:dark:border-dark-border'
             )
       )}
       data-no-section-swipe
@@ -1099,7 +1099,7 @@ export function Conversation({
       {/* En page autonome (chaîne), l'en-tête de la page porte déjà l'icône,
           le titre et la flèche de retour : on ne le répète pas ici. */}
       {!standalone && (
-        <div className='glass-header flex items-center gap-3 border-b border-light-border px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))] dark:border-dark-border md:pt-3'>
+        <div className='glass-header flex items-center gap-3 border-b border-light-border px-4 pb-3.5 pt-[max(0.75rem,env(safe-area-inset-top))] dark:border-dark-border md:pt-3'>
           <button
             aria-label='Retour à la boîte de réception'
             className='flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-light-primary transition hover:bg-light-primary/10 active:bg-light-primary/20 dark:text-dark-primary dark:hover:bg-dark-primary/10'
@@ -1112,7 +1112,7 @@ export function Conversation({
             <>
               <AiAvatar className='!self-center' size={40} />
               <div className='min-w-0'>
-                <p className='truncate text-[15px] font-bold text-light-primary dark:text-dark-primary'>
+                <p className='truncate text-base font-bold text-light-primary dark:text-dark-primary'>
                   {AI_BOT_NAME}
                 </p>
                 <p className='truncate text-sm text-light-secondary dark:text-dark-secondary'>
@@ -1192,7 +1192,7 @@ export function Conversation({
               <div className='min-w-0'>
                 {isGroup ? (
                   <>
-                    <p className='truncate text-[15px] font-bold text-light-primary dark:text-dark-primary'>
+                    <p className='truncate text-base font-bold text-light-primary dark:text-dark-primary'>
                       {group?.name || 'Groupe'}
                     </p>
                     <p className='truncate text-sm text-light-secondary dark:text-dark-secondary'>

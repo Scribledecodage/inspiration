@@ -26,12 +26,6 @@ if (-not $process) { Write-Error "Aucune fenetre trouvee pour $ProcessName"; exi
 $handle = $process.MainWindowHandle
 [void][Win]::ShowWindow($handle, 9)   # restaurer
 
-# Déplace la fenêtre en (0, 0) : les captures et les clics utilisent alors
-# des coordonnées relatives à la fenêtre, sans dépendre de sa position.
-$size = New-Object Win+RECT
-[void][Win]::GetWindowRect($handle, [ref]$size)
-[void][Win]::MoveWindow($handle, 0, 0, $size.Right - $size.Left, $size.Bottom - $size.Top, $true)
-
 # Passe au-dessus des autres fenêtres (SWP_NOMOVE|SWP_NOSIZE|SWP_SHOWWINDOW).
 [void][Win]::SetWindowPos($handle, [IntPtr](-1), 0, 0, 0, 0, 0x0043)
 Start-Sleep -Milliseconds 400

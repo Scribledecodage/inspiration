@@ -34,14 +34,14 @@ export function MainHeader({
   return (
     <header
       className={cn(
-        'hover-animation glass-header z-20 border-b border-light-border/60 px-4 py-2.5 transition-colors dark:border-dark-border/60',
+        'hover-animation glass-header z-20 flex min-h-[var(--header-height)] items-center gap-6 border-b border-light-border/60 px-4 py-3 transition-colors dark:border-dark-border/60',
         !disableSticky && 'sticky top-0',
         className ?? 'flex items-center gap-6'
       )}
     >
       {useActionButton && (
         <Button
-          className='dark-bg-tab group relative p-2 hover:bg-light-primary/10 active:bg-light-primary/20 
+          className='dark-bg-tab group relative p-2.5 hover:bg-light-primary/10 active:bg-light-primary/20
                      dark:hover:bg-dark-primary/10 dark:active:bg-dark-primary/20'
           onClick={action}
         >
@@ -54,7 +54,7 @@ export function MainHeader({
       )}
       {beforeTitle}
       {title && (
-        <h2 className='text-xl font-bold' key={title}>
+        <h2 className='text-[1.375rem] font-bold leading-tight' key={title}>
           {title}
         </h2>
       )}

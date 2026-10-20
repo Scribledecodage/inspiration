@@ -9,6 +9,32 @@ use tauri::menu::{Menu, MenuItem};
 use tauri::tray::TrayIconBuilder;
 use tauri::{Emitter, Manager, WindowEvent};
 
+/// Taille minimale de la fenêtre (celle déclarée dans `tauri.conf.json`).
+///
+/// La taille mémorisée peut devenir aberrante (fenêtre réduite par un
+/// logiciel tiers, affichage débranché, mise à l'échelle bizarre) : dans ce
+/// cas, l'application s'ouvrirait dans un rectangle de quelques pixels.
+const MIN_WIDTH: u32 = 480;
+const MIN_HEIGHT: u32 = 520;
+
+/// Taille habituelle de la fenêtre.
+const DEFAULT_WIDTH: f64 = 1320.0;
+const DEFAULT_HEIGHT: f64 = 860.0;
+
+/// Remet une taille valable si celle restaurée est aberrante.
+fn ensure_sane_size(window: &tauri::WebviewWindow) {
+    let Ok(size) = window.outer_size() else {
+        return;
+    };
+
+    if size.width >= MIN_WIDTH && size.height >= MIN_HEIGHT {
+        return;
+    }
+
+    let _ = window.set_size(tauri::LogicalSize::new(DEFAULT_WIDTH, DEFAULT_HEIGHT));
+    let _ = window.center();
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let mut builder = tauri::Builder::default();
@@ -47,6 +73,12 @@ pub fn run() {
             None,
         ))
         .setup(|app| {
+            // La taille mémorisée est restaurée par le greffon : on vérifie
+            // qu'elle est bien utilisable avant d'afficher quoi que ce soit.
+            if let Some(window) = app.get_webview_window("main") {
+                ensure_sane_size(&window);
+            }
+
             // Icône dans la zone de notification : l'application reste
             // accessible même quand la fenêtre est fermée.
             let open = MenuItem::with_id(app, "open", "Ouvrir Inspiration", true, None::<&str>)?;
@@ -100,6 +132,12 @@ pub fn run() {
             Ok(())
         })
         .on_window_event(|window, event| {
+            // Une taille aberrante (restaurée ou imposée par le système)
+            // est remplacée par une taille utilisable.
+            if let WindowEvent::Resized(_) = event {
+                ensure_sane_size(window);
+            }
+
             // La croix ferme la fenêtre sans quitter l'application (qui
             // reste dans la zone de notification).
             if let WindowEvent::CloseRequested { api, .. } = event {

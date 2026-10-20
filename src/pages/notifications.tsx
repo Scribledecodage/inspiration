@@ -357,7 +357,7 @@ export default function Notifications(): JSX.Element {
       <section className='flex min-h-[min(760px,calc(100dvh-5rem))] flex-1'>
         <aside
           className={cn(
-            'flex w-full max-w-none shrink-0 flex-col md:sticky md:top-[57px] md:h-[calc(100dvh-57px)] md:min-h-0 md:self-start md:overflow-hidden',
+            'flex w-full max-w-none shrink-0 flex-col md:sticky md:top-[var(--header-height)] md:h-[calc(100dvh-var(--header-height))] md:min-h-0 md:self-start md:overflow-hidden',
             selected && 'hidden md:flex'
           )}
           style={{
