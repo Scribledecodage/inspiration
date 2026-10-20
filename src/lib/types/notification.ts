@@ -7,7 +7,14 @@ export type Notification = {
   /** Corps du message (peut contenir du texte simple). */
   body: string;
   /** Type pour le style/icône. */
-  type?: 'welcome' | 'info' | 'system' | 'announcement';
+  type?:
+    | 'welcome'
+    | 'info'
+    | 'system'
+    | 'announcement'
+    | 'reply'
+    | 'mention'
+    | 'message';
   /** Date de création (millisecondes). */
   createdAt: number;
   /** Lu ou non. */

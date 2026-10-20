@@ -50,6 +50,7 @@ import { AiMarkdown } from './ai-markdown';
 import { AiMessageTools, hasAiActions } from './ai-message-tools';
 import {
   aiBotUser,
+  appendAiChatMessage,
   appendAiMessage,
   ensureAiConversation,
   AI_BOT_ID,
@@ -61,6 +62,8 @@ import {
   translateWithAi,
   withAiDefaults
 } from '@lib/ai';
+import { mentionsAi } from '@lib/mentions';
+import { notifyUser, preview } from '@lib/notifications';
 import type { ChangeEvent, ClipboardEvent, KeyboardEvent } from 'react';
 import type {
   ChatMessage,
@@ -912,6 +915,72 @@ export function Conversation({
     }
   };
 
+  /**
+   * Prévient les personnes de la conversation qu'on leur a écrit.
+   *
+   * L'aperçu du message est joint à la notification : on sait de quoi il
+   * s'agit sans ouvrir l'application. L'assistant n'est jamais prévenu.
+   */
+  const notifyRecipients = async (text: string | null): Promise<void> => {
+    const body = preview(text);
+
+    if (isGroup) {
+      const recipients = (group?.participants ?? []).filter(
+        (id) => id !== user.id && id !== AI_BOT_ID
+      );
+
+      await Promise.all(
+        recipients.map((id) =>
+          notifyUser(id, 'message', `${user.name} a envoyé un message`, body)
+        )
+      );
+
+      return;
+    }
+
+    if (!directId || directId === AI_BOT_ID) return;
+
+    await notifyUser(directId, 'message', `${user.name} vous a écrit`, body);
+  };
+
+  /**
+   * L'assistant répond dans la conversation quand on le mentionne.
+   *
+   * Sa réponse est écrite dans la conversation comme un message de plus.
+   */
+  const askAiInChat = async (question: string): Promise<void> => {
+    try {
+      const response = await fetch('/api/ai/reply', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: question })
+      });
+
+      const data = (await response.json().catch(() => ({}))) as {
+        reply?: string;
+        error?: string;
+      };
+
+      if (!response.ok || !data.reply) {
+        if (data.error) toast.error(data.error);
+        return;
+      }
+
+      await appendAiChatMessage({
+        chatId,
+        ownerId: chatOwnerId,
+        text: data.reply
+      });
+
+      isAtBottomRef.current = true;
+    } catch (error) {
+      toast.error(
+        (error as Error)?.message ??
+          'L’assistant n’a pas pu répondre à ce message.'
+      );
+    }
+  };
+
   /* Traduit le brouillon : la traduction remplace le texte tapé. */
   const handleTranslateDraft = async (): Promise<void> => {
     const value = text.trim();
@@ -1011,10 +1080,16 @@ export function Conversation({
     try {
       await sendCurrent(payload);
 
-      /* L'assistant répond après chaque message : sa réponse arrive dans la
-         conversation comme un message de plus. */
+      /* La personne est prévenue : l'aperçu de son message est dans la
+         notification. L'assistant, lui, ne reçoit rien. */
+      void notifyRecipients(payload.text);
+
+      /* Dans la conversation dédiée, l'assistant répond à chaque message ;
+         dans les autres conversations, il ne répond que s'il est mentionné. */
       if (isAi && aiSettings.assistantEnabled && value)
         void askAssistant(value);
+      else if (mentionsAi(payload.text) && aiSettings.enabled)
+        void askAiInChat(payload.text as string);
     } catch {
       toast.error("Impossible d'envoyer le message.");
       /* Le message retourne dans la zone de saisie : il n'est pas perdu. */

@@ -164,3 +164,53 @@ export async function touchAiConversation(
     { merge: true }
   );
 }
+
+/**
+ * Écrit un message de l'assistant dans une conversation.
+ *
+ * La conversation est celle de la personne (`ownerId` / `chatId`) : le
+ * message est donc rangé au même endroit que les autres.
+ */
+export async function appendAiChatMessage(params: {
+  ownerId: string;
+  chatId: string;
+  text: string;
+}): Promise<void> {
+  const { ownerId, chatId, text } = params;
+  const now = Date.now();
+
+  const messageRef = doc(conversationMessagesCollection(ownerId, chatId));
+
+  await setDoc(messageRef, {
+    id: messageRef.id,
+    text,
+    audioURL: null,
+    audioDuration: null,
+    imageURL: null,
+    poll: null,
+    pollVotes: null,
+    location: null,
+    linkPreview: null,
+    createdBy: AI_BOT_ID,
+    createdAt: now,
+    fromAI: true
+  });
+
+  /* Le dernier message de la conversation change : c'est ce que montre la
+     liste des conversations. */
+  const conversationRef = doc(userConversationsCollection(ownerId), chatId);
+
+  await setDoc(
+    conversationRef,
+    {
+      updatedAt: now,
+      lastMessage: {
+        text,
+        hasAudio: false,
+        createdBy: AI_BOT_ID,
+        createdAt: now
+      }
+    },
+    { merge: true }
+  );
+}

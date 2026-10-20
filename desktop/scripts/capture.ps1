@@ -17,6 +17,7 @@ public class Win {
   [DllImport("user32.dll")] public static extern IntPtr GetForegroundWindow();
   [DllImport("user32.dll")] public static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
   [DllImport("user32.dll")] public static extern bool AttachThreadInput(uint from, uint to, bool attach);
+  [DllImport("user32.dll")] public static extern bool PrintWindow(IntPtr hWnd, IntPtr hdc, uint flags);
   [DllImport("user32.dll")] public static extern bool EnumWindows(EnumWindowsProc proc, IntPtr param);
   [DllImport("user32.dll")] public static extern int GetWindowText(IntPtr hWnd, System.Text.StringBuilder text, int max);
   public delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr param);
@@ -81,7 +82,13 @@ $height = $rect.Bottom - $rect.Top
 
 $bitmap = New-Object System.Drawing.Bitmap $width, $height
 $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
-$graphics.CopyFromScreen($rect.Left, $rect.Top, 0, 0, $bitmap.Size)
+
+# La fenetre est capturee telle qu'elle est (sans passer devant les autres
+# fenetres) : la capture ne depend donc plus de ce qui est a l'ecran.
+$hdc = $graphics.GetHdc()
+[void][Win]::PrintWindow($handle, $hdc, 2)
+$graphics.ReleaseHdc($hdc)
+
 $bitmap.Save($Output, [System.Drawing.Imaging.ImageFormat]::Png)
 $graphics.Dispose()
 $bitmap.Dispose()

@@ -16,6 +16,7 @@ import { useWindow } from '@lib/context/window-context';
 import { motion } from 'framer-motion';
 import type { Notification } from '@lib/types/notification';
 import type { QueryDocumentSnapshot, DocumentData } from 'firebase/firestore';
+import type { IconName } from '@components/ui/material-icon';
 import type { ReactElement, ReactNode } from 'react';
 
 const PAGE_SIZE = 20;
@@ -52,6 +53,17 @@ function NotificationIcon({
       </span>
     );
 
+  /* Chaque nature de notification a son icône : on distingue d'un coup
+     d'œil une réponse, une mention et un message. */
+  const iconName: IconName =
+    notif.type === 'reply'
+      ? 'chat_bubble'
+      : notif.type === 'mention'
+      ? 'alternate_email'
+      : notif.type === 'message'
+      ? 'mail'
+      : 'notifications';
+
   return (
     <span
       className={cn(
@@ -59,7 +71,7 @@ function NotificationIcon({
         box
       )}
     >
-      <MaterialIcon className='h-5 w-5' iconName='notifications' />
+      <MaterialIcon className='h-5 w-5' iconName={iconName} />
     </span>
   );
 }

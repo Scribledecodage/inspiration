@@ -1,11 +1,10 @@
-param(
-  [ValidateSet("click", "move", "scroll", "key", "text")]
+﻿param(
+  [ValidateSet("click", "post", "move", "scroll", "key")]
   [string]$Action = "click",
   [int]$X = 0,
   [int]$Y = 0,
   [int]$Amount = 0,
   [string]$Key = "",
-  [string]$Value = "",
   [string]$ProcessName = "inspiration-desktop"
 )
 
@@ -23,9 +22,13 @@ public class Inp {
   [DllImport("user32.dll")] public static extern IntPtr GetForegroundWindow();
   [DllImport("user32.dll")] public static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
   [DllImport("user32.dll")] public static extern bool AttachThreadInput(uint from, uint to, bool attach);
+  [DllImport("user32.dll")] public static extern bool PostMessage(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
+  [DllImport("user32.dll")] public static extern bool ScreenToClient(IntPtr hWnd, ref POINT point);
   [DllImport("user32.dll")] public static extern bool EnumWindows(EnumWindowsProc proc, IntPtr param);
   [DllImport("user32.dll")] public static extern int GetWindowText(IntPtr hWnd, System.Text.StringBuilder text, int max);
   public delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr param);
+  [StructLayout(LayoutKind.Sequential)] public struct RECT { public int Left, Top, Right, Bottom; }
+  [StructLayout(LayoutKind.Sequential)] public struct POINT { public int X, Y; }
 
   /* Retrouve la fenetre reelle de l'application : la plus grande (le
      plugin et le WebView creent aussi de petites fenetres auxiliaires). */
@@ -48,7 +51,6 @@ public class Inp {
     }, IntPtr.Zero);
     return found;
   }
-  [StructLayout(LayoutKind.Sequential)] public struct RECT { public int Left, Top, Right, Bottom; }
 }
 "@
 
@@ -59,11 +61,11 @@ if (-not $process) { Write-Error "Aucune fenetre pour $ProcessName"; exit 1 }
 
 $handle = [Inp]::FindWindowByTitle($process.Id, "")
 if ($handle -eq [IntPtr]::Zero) { $handle = $process.MainWindowHandle }
-$pid = 0
 
 # Ramene la fenetre au premier plan (Windows peut refuser le changement).
-$target = [Inp]::GetWindowThreadProcessId($handle, [ref]$pid)
-$current = [Inp]::GetWindowThreadProcessId([Inp]::GetForegroundWindow(), [ref]$pid)
+$procId = 0
+$target = [Inp]::GetWindowThreadProcessId($handle, [ref]$procId)
+$current = [Inp]::GetWindowThreadProcessId([Inp]::GetForegroundWindow(), [ref]$procId)
 [void][Inp]::AttachThreadInput($target, $current, $true)
 [void][Inp]::ShowWindow($handle, 9)
 [void][Inp]::SetForegroundWindow($handle)
@@ -80,7 +82,19 @@ switch ($Action) {
     Start-Sleep -Milliseconds 150
     [Inp]::mouse_event(0x0002, 0, 0, 0, [UIntPtr]::Zero)   # clic gauche
     Start-Sleep -Milliseconds 60
-    [Inp]::mouse_event(0x0004, 0, 0, 0, [UIntPtr]::Zero)   # relâchement
+    [Inp]::mouse_event(0x0004, 0, 0, 0, [UIntPtr]::Zero)   # relachement
+  }
+  "post" {
+    # Le clic est adresse directement a la fenetre : il aboutit meme si une
+    # autre fenetre est devant.
+    $point = New-Object Inp+POINT
+    $point.X = $X
+    $point.Y = $Y
+    [void][Inp]::ScreenToClient($handle, [ref]$point)
+    $lParam = [IntPtr](($point.Y -shl 16) -bor ($point.X -band 0xFFFF))
+    [void][Inp]::PostMessage($handle, 0x0201, [IntPtr]1, $lParam)   # WM_LBUTTONDOWN
+    Start-Sleep -Milliseconds 60
+    [void][Inp]::PostMessage($handle, 0x0202, [IntPtr]0, $lParam)   # WM_LBUTTONUP
   }
   "move" {
     [void][Inp]::SetCursorPos($X, $Y)
@@ -102,12 +116,6 @@ switch ($Action) {
     [Inp]::keybd_event([byte]$code, 0, 0, [UIntPtr]::Zero)
     Start-Sleep -Milliseconds 40
     [Inp]::keybd_event([byte]$code, 0, 2, [UIntPtr]::Zero)
-  }
-  "text" {
-    foreach ($char in $Value.ToCharArray()) {
-      $code = [System.Windows.Forms.SendKeys]::SendWait("")  # placeholder
-      break
-    }
   }
 }
 

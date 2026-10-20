@@ -3,7 +3,7 @@ import { useState, useEffect, useRef, useId } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import cn from 'clsx';
 import { toast } from 'react-hot-toast';
-import { addDoc, getDoc, serverTimestamp } from 'firebase/firestore';
+import { addDoc, doc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { tweetsCollection } from '@lib/firebase/collections';
 import {
   manageReply,
@@ -18,6 +18,7 @@ import { sleep } from '@lib/utils';
 import { fillImagesSizes, getImagesData } from '@lib/validation';
 import { askAiToReply } from '@lib/ai-tweet';
 import { mentionsAi } from '@lib/mentions';
+import { notifyUser, preview } from '@lib/notifications';
 import { UserAvatar } from '@components/user/user-avatar';
 import { MaterialIcon } from '@components/ui/material-icon';
 import { InputForm, fromTop } from './input-form';
@@ -264,6 +265,24 @@ export function Input({
         if (!result.ok)
           toast.error(result.error ?? 'L’assistant n’a pas répondu.');
       });
+    }
+
+    /* La personne dont on a repris la publication est prévenue, avec
+       l'aperçu de la réponse. L'assistant, lui, ne reçoit rien. */
+    if (parent) {
+      const parentTweet = await getDoc(doc(tweetsCollection, parent.id)).catch(
+        () => null
+      );
+
+      const authorId = parentTweet?.data()?.createdBy;
+
+      if (authorId && authorId !== userId)
+        void notifyUser(
+          authorId,
+          'reply',
+          `${name} a répondu à votre publication`,
+          preview(inputValue)
+        );
     }
 
     if (!modal && !replyModal) {
