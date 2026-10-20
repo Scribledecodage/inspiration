@@ -27,6 +27,9 @@
         },
         {
           "url": "https://inspiration-reseau-social-*.vercel.app/*"
+        },
+        {
+          "url": "https://*.backblazeb2.com/*"
         }
       ]
     },
