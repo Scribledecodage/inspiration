@@ -23,14 +23,13 @@ import {
 } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { REPO } from '../src/site-url';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, '..');
 const bundleDir = join(root, 'src-tauri', 'target', 'release', 'bundle');
 
-/* La clé privée ne quitte jamais la machine : elle est lue ici, et
-   n'est jamais écrite dans le dépôt. */
+/* La clé de signature vient soit d'un secret (publication automatique sur
+   GitHub), soit du fichier local — qui n'est jamais versionné. */
 const keyPath = join(root, '.keys', 'inspiration.key');
 const passwordPath = join(root, '.keys', 'password.txt');
 
@@ -40,19 +39,46 @@ const notes =
     ? process.argv[notesIndex + 1]
     : 'Nouvelles corrections et améliorations.';
 
-if (!existsSync(keyPath)) {
-  console.error(
-    '\n[release] Clé de signature introuvable : .keys/inspiration.key\n' +
-      'Générez-la avec : npx tauri signer generate -w .keys/inspiration.key\n'
-  );
-  process.exit(1);
-}
-
 const config = JSON.parse(
   readFileSync(join(root, 'src-tauri', 'tauri.conf.json'), 'utf8')
 );
 
 const version = config.version;
+
+/* Le dépôt est déduit de l'adresse du manifeste : c'est la source de vérité
+   (une seule place à changer). */
+const endpoint = config.plugins?.updater?.endpoints?.[0] ?? '';
+const repo = endpoint.match(/github\.com\/([^/]+\/[^/]+)/)?.[1] ?? '';
+
+if (!repo) {
+  console.error(
+    '\n[release] Adresse de mise à jour introuvable dans tauri.conf.json\n'
+  );
+  process.exit(1);
+}
+
+/* La clé : le secret d'abord (CI), le fichier local ensuite. */
+const privateKey = process.env.TAURI_SIGNING_PRIVATE_KEY
+  ? process.env.TAURI_SIGNING_PRIVATE_KEY.trim()
+  : existsSync(keyPath)
+  ? keyPath
+  : '';
+
+const privateKeyPassword = process.env.TAURI_SIGNING_PRIVATE_KEY_PASSWORD
+  ? process.env.TAURI_SIGNING_PRIVATE_KEY_PASSWORD.trim()
+  : existsSync(passwordPath)
+  ? readFileSync(passwordPath, 'utf8').trim()
+  : '';
+
+if (!privateKey) {
+  console.error(
+    '\n[release] Clé de signature introuvable.\n' +
+      '  - en local : .keys/inspiration.key (npm run release)\n' +
+      '  - en CI : le secret TAURI_SIGNING_PRIVATE_KEY\n' +
+      'Générez-la avec : npx tauri signer generate -w .keys/inspiration.key\n'
+  );
+  process.exit(1);
+}
 
 /* On appelle le CLI Tauri par son chemin : sur Windows, `npx` est un
    script .cmd que l'exécution directe ne trouve pas. */
@@ -72,10 +98,8 @@ execFileSync(process.execPath, [tauriCli, 'build'], {
   stdio: 'inherit',
   env: {
     ...process.env,
-    TAURI_SIGNING_PRIVATE_KEY: keyPath,
-    TAURI_SIGNING_PRIVATE_KEY_PASSWORD: existsSync(passwordPath)
-      ? readFileSync(passwordPath, 'utf8').trim()
-      : ''
+    TAURI_SIGNING_PRIVATE_KEY: privateKey,
+    TAURI_SIGNING_PRIVATE_KEY_PASSWORD: privateKeyPassword
   }
 });
 
@@ -111,7 +135,7 @@ for (const artifact of artifacts) {
 
   platforms[artifact.key] = {
     signature: readFileSync(signatureFile, 'utf8').trim(),
-    url: `https://github.com/${REPO}/releases/download/v${version}/${file}`
+    url: `https://github.com/${repo}/releases/download/v${version}/${file}`
   };
 }
 
