@@ -1,4 +1,5 @@
 import { useRouter } from './router';
+import { Children, cloneElement, isValidElement } from 'react';
 import type { AnchorHTMLAttributes, MouseEvent, ReactNode } from 'react';
 
 /**
@@ -49,26 +50,45 @@ export default function Link({
   const url = toUrl(href);
   const isExternal = /^(https?:)?\/\//.test(url) || url.startsWith('mailto:');
 
+  const handleClick = (event: MouseEvent<HTMLAnchorElement>): void => {
+    onClick?.(event);
+    onNavigate?.(event);
+
+    if (event.defaultPrevented) return;
+    if (isExternal) return;
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
+      return;
+    if (event.button !== 0) return;
+
+    event.preventDefault();
+
+    if (replace) router.replace(url);
+    else router.push(url, undefined, { scroll });
+  };
+
+  /* Le site utilise la forme historique de Next.js : l'ancre est écrite
+     dans le composant passé à `children`. On ne peut pas l'envelopper dans
+     une autre ancre : le HTML l'interdit, le navigateur réécrit alors le
+     document et la mise en page se casse (le texte se chevauche). */
+  const child =
+    Children.count(children) === 1 ? Children.toArray(children)[0] : null;
+
+  if (isValidElement(child) && child.type === 'a') {
+    const props = child.props as AnchorHTMLAttributes<HTMLAnchorElement>;
+
+    return cloneElement(child, {
+      ...rest,
+      ...props,
+      href: props.href ?? url,
+      onClick: (event: MouseEvent<HTMLAnchorElement>): void => {
+        props.onClick?.(event);
+        handleClick(event);
+      }
+    } as never);
+  }
+
   return (
-    <a
-      href={url}
-      onClick={(event: MouseEvent<HTMLAnchorElement>): void => {
-        onClick?.(event);
-        onNavigate?.(event);
-
-        if (event.defaultPrevented) return;
-        if (isExternal) return;
-        if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
-          return;
-        if (event.button !== 0) return;
-
-        event.preventDefault();
-
-        if (replace) router.replace(url);
-        else router.push(url, undefined, { scroll });
-      }}
-      {...rest}
-    >
+    <a href={url} onClick={handleClick} {...rest}>
       {children}
     </a>
   );

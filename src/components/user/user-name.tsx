@@ -25,13 +25,15 @@ export function UserName({
     <Link href={username ? `/user/${username}` : '#'}>
       <a
         className={cn(
-          'flex items-center gap-1 truncate font-bold',
+          'flex min-w-0 items-center gap-1 truncate font-bold',
           username ? 'custom-underline' : 'pointer-events-none',
           className
         )}
         tabIndex={username ? 0 : -1}
       >
-        <CustomTag className='truncate'>{name}</CustomTag>
+        {/* `min-w-0` : sans lui, le nom refuse de rétrécir dans une
+            colonne étroite, déborde, et chevauche le pseudo. */}
+        <CustomTag className='min-w-0 truncate'>{name}</CustomTag>
         {verified && (
           <i>
             <MaterialIcon
