@@ -3,7 +3,8 @@
  *
  * L'option « Verre dépoli » de la fenêtre Apparence n'existe que dans
  * l'application de bureau. Quand elle est active, la fenêtre laisse voir
- * le bureau derrière, flouté par Windows (comme la barre des tâches).
+ * le bureau derrière, flouté et teinté par Windows (comme la barre des
+ * tâches).
  *
  * Le fond garde les couleurs de l'application : il n'est pas entièrement
  * transparent, seulement un peu voilé.
@@ -11,5 +12,14 @@
 
 html.fond-transparent,
 html.fond-transparent body {
-  background: rgb(var(--main-background) / 0.88) !important;
+  background: rgb(var(--main-background) / 0.9) !important;
+}
+
+/* Sur un fond translucide, le curseur de défilement doit rester visible. */
+html.fond-transparent ::-webkit-scrollbar-thumb {
+  background: rgba(140, 150, 160, 0.45) !important;
+}
+
+html.fond-transparent ::-webkit-scrollbar-thumb:hover {
+  background: rgba(140, 150, 160, 0.7) !important;
 }

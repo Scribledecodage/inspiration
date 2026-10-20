@@ -169,7 +169,17 @@ mod backdrop {
         unsafe extern "system" fn(*mut std::ffi::c_void, i32, *mut std::ffi::c_void) -> i32;
 
     /// Applique (ou retire) le flou du fond.
-    pub fn apply(hwnd: *mut std::ffi::c_void, enabled: bool) {
+    ///
+    /// `color` est la couleur de fond de l'application, au format « R G B » :
+    /// elle teinte le flou, comme la barre des tâches de Windows. Sans
+    /// teinte, la fenêtre vire au gris.
+    pub fn apply(hwnd: *mut std::ffi::c_void, enabled: bool, color: (u8, u8, u8)) {
+        /* La teinte est donnée dans l'ordre « B G R », avec l'opacité. */
+        let gradient_color = (0xFFu32 << 24)
+            | ((color.2 as u32) << 16)
+            | ((color.1 as u32) << 8)
+            | (color.0 as u32);
+
         let mut policy = AccentPolicy {
             accent_state: if enabled {
                 ACCENT_ENABLE_ACRYLIC_BLURBEHIND
@@ -177,7 +187,7 @@ mod backdrop {
                 ACCENT_ENABLE_DISABLE
             },
             accent_flags: 0,
-            gradient_color: 0,
+            gradient_color,
             animation_id: 0,
         };
 
@@ -214,17 +224,34 @@ mod backdrop {
 /// L'option n'existe que dans l'application de bureau, sous Windows : la
 /// transparence elle-même vient de la feuille de style, le flou de Windows.
 #[tauri::command]
-fn set_window_transparency(window: tauri::WebviewWindow, enabled: bool) {
+fn set_window_transparency(
+    window: tauri::WebviewWindow,
+    enabled: bool,
+    color: Option<String>
+) {
     #[cfg(target_os = "windows")]
     {
+        /* La couleur est donnée en « R G B » ; une valeur absente ou
+           illisible ne change rien à la teinte. */
+        let tint = color
+            .as_deref()
+            .and_then(|value| {
+                let mut parts = value.split_whitespace().filter_map(|part| {
+                    part.parse::<u8>().ok()
+                });
+
+                Some((parts.next()?, parts.next()?, parts.next()?))
+            })
+            .unwrap_or((255, 255, 255));
+
         if let Ok(handle) = window.hwnd() {
-            backdrop::apply(handle.0, enabled);
+            backdrop::apply(handle.0, enabled, tint);
         }
     }
 
     #[cfg(not(target_os = "windows"))]
     {
-        let _ = (window, enabled);
+        let _ = (window, enabled, color);
     }
 }
 

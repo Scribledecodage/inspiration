@@ -322,7 +322,13 @@ export function ThemeContextProvider({
     root.classList.toggle('fond-transparent', transparentWindow);
     localStorage.setItem('fondTransparent', transparentWindow ? '1' : '0');
 
-    setDesktopTransparency(transparentWindow);
+    /* La couleur de fond de l'application : Windows s'en sert pour
+       teinter le flou, sinon la fenêtre vire au gris. */
+    const background = getComputedStyle(root)
+      .getPropertyValue('--main-background')
+      .trim();
+
+    setDesktopTransparency(transparentWindow, background);
   }, [transparentWindow]);
 
   const selectTheme = (newTheme: Theme): void => {

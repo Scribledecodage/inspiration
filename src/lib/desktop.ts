@@ -8,8 +8,13 @@
  */
 
 type DesktopApi = {
-  /** Rend le fond de la fenêtre transparent et flouté (Windows). */
-  setTransparentWindow?: (enabled: boolean) => void;
+  /**
+   * Rend le fond de la fenêtre transparent et flouté (Windows).
+   *
+   * `color` est la couleur de fond de l'application, au format « R G B » :
+   * Windows s'en sert pour teinter le flou, comme la barre des tâches.
+   */
+  setTransparentWindow?: (enabled: boolean, color?: string) => void;
 };
 
 declare global {
@@ -46,6 +51,6 @@ export function canUseTransparentWindow(): boolean {
 }
 
 /** Demande à l'application de rendre (ou non) le fond de la fenêtre flouté. */
-export function setDesktopTransparency(enabled: boolean): void {
-  window.__INSPIRATION_DESKTOP__?.setTransparentWindow?.(enabled);
+export function setDesktopTransparency(enabled: boolean, color?: string): void {
+  window.__INSPIRATION_DESKTOP__?.setTransparentWindow?.(enabled, color);
 }

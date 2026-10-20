@@ -18,8 +18,8 @@ installSiteBridge();
    qui n'existent que dans l'application (ici : le fond transparent de la
    fenêtre) sont publiées pour qu'il puisse les utiliser. */
 window.__INSPIRATION_DESKTOP__ = {
-  setTransparentWindow: (enabled: boolean): void => {
-    void invoke('set_window_transparency', { enabled });
+  setTransparentWindow: (enabled: boolean, color?: string): void => {
+    void invoke('set_window_transparency', { enabled, color: color ?? null });
   }
 };
 
