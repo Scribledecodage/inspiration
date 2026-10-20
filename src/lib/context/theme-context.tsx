@@ -4,6 +4,7 @@ import { useState, useEffect, createContext, useContext } from 'react';
 import { updateUserTheme, updateUserData } from '@lib/firebase/utils';
 import { avatarFrameOptions } from '@lib/avatar-shape';
 import { DEFAULT_FONT, fontStacks, normalizeFont } from '@lib/fonts';
+import { setDesktopTransparency } from '@lib/desktop';
 import { useAuth } from './auth-context';
 import type { ReactNode, ChangeEvent } from 'react';
 import type {
@@ -20,6 +21,8 @@ type ThemeContext = {
   font: FontType;
   avatarShape: AvatarShape;
   avatarFrame: AvatarFrame;
+  /** Fond de la fenêtre transparent et flouté (application de bureau). */
+  transparentWindow: boolean;
   changeTheme: ({ target: { value } }: ChangeEvent<HTMLInputElement>) => void;
   changeAccent: ({ target: { value } }: ChangeEvent<HTMLInputElement>) => void;
   setTheme: (theme: Theme) => void;
@@ -27,6 +30,7 @@ type ThemeContext = {
   setFont: (font: FontType) => void;
   setAvatarShape: (shape: AvatarShape) => void;
   setAvatarFrame: (frame: AvatarFrame) => void;
+  setTransparentWindow: (enabled: boolean) => void;
 };
 
 export const ThemeContext = createContext<ThemeContext | null>(null);
@@ -188,6 +192,13 @@ function setInitialAvatarFrame(): AvatarFrame {
   return normalizeAvatarFrame(savedFrame);
 }
 
+/* Le fond transparent est une réglage de la machine : il n'est pas
+   enregistré sur le profil, il est seulement retenu ici. */
+function setInitialTransparentWindow(): boolean {
+  if (typeof window === 'undefined') return false;
+  return localStorage.getItem('fondTransparent') === '1';
+}
+
 export function ThemeContextProvider({
   children
 }: ThemeContextProviderProps): JSX.Element {
@@ -199,6 +210,9 @@ export function ThemeContextProvider({
   );
   const [avatarFrame, setAvatarFrame] = useState<AvatarFrame>(
     setInitialAvatarFrame
+  );
+  const [transparentWindow, setTransparentWindowState] = useState<boolean>(
+    setInitialTransparentWindow
   );
 
   const { user } = useAuth();
@@ -299,6 +313,18 @@ export function ThemeContextProvider({
       void updateUserData(user.id, { avatarFrame }).catch(() => undefined);
   }, [userId, avatarFrame]);
 
+  /* Le fond transparent : la classe CSS ouvre la fenêtre sur le bureau,
+     et l'application de bureau demande à Windows de flouer ce qui
+     derrière (comme la barre des tâches). */
+  useEffect(() => {
+    const root = document.documentElement;
+
+    root.classList.toggle('fond-transparent', transparentWindow);
+    localStorage.setItem('fondTransparent', transparentWindow ? '1' : '0');
+
+    setDesktopTransparency(transparentWindow);
+  }, [transparentWindow]);
+
   const selectTheme = (newTheme: Theme): void => {
     applyTheme(newTheme);
     setTheme(newTheme);
@@ -333,13 +359,15 @@ export function ThemeContextProvider({
     font,
     avatarShape,
     avatarFrame,
+    transparentWindow,
     changeTheme,
     changeAccent,
     setTheme: selectTheme,
     setAccent: selectAccent,
     setFont: handleSetFont,
     setAvatarShape,
-    setAvatarFrame
+    setAvatarFrame,
+    setTransparentWindow: setTransparentWindowState
   };
 
   return (

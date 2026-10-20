@@ -1,0 +1,13 @@
+/*
+ * Fond transparent de la fenêtre.
+ *
+ * L'option « Fond transparent » de la fenêtre Apparence n'existe que dans
+ * l'application de bureau. Quand elle est active, la fenêtre ne peint plus
+ * de fond : on voit le bureau derrière, flouté par Windows (comme la barre
+ * des tâches).
+ */
+
+html.fond-transparent,
+html.fond-transparent body {
+  background: transparent !important;
+}

@@ -24,6 +24,7 @@
         "center": true,
         "decorations": true,
         "visible": true,
+        "transparent": true,
         "dragDropEnabled": false
       }
     ],
@@ -40,9 +41,7 @@
   },
   "bundle": {
     "active": true,
-    "targets": [
-      "nsis"
-    ],
+    "targets": ["nsis"],
     "createUpdaterArtifacts": true,
     "publisher": "Inspiration",
     "copyright": "© 2026 Inspiration",
@@ -63,15 +62,11 @@
         "displayLanguageSelector": false,
         "installerIcon": "icons/icon.ico",
         "startMenuFolder": "Inspiration",
-        "languages": [
-          "French"
-        ],
+        "languages": ["French"],
         "compression": "lzma"
       },
       "wix": {
-        "language": [
-          "fr-FR"
-        ]
+        "language": ["fr-FR"]
       }
     }
   },

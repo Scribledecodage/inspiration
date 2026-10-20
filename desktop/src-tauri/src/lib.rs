@@ -144,6 +144,78 @@ fn bring_to_front(window: &tauri::WebviewWindow) {
     let _ = window.set_always_on_top(false);
 }
 
+/// Le flou du fond de la fenêtre, comme celui de la barre des tâches.
+#[cfg(target_os = "windows")]
+mod backdrop {
+    /// `WCA_ACCENT_POLICY` : l'attribut qui décrit le fond de la fenêtre.
+    const WCA_ACCENT_POLICY: i32 = 19;
+
+    /// Le fond est laissé tel quel.
+    const ACCENT_ENABLE_DISABLE: u32 = 0;
+    /// Le fond est flouté (acrylique de Windows 11).
+    const ACCENT_ENABLE_ACRYLIC_BLURBEHIND: u32 = 4;
+
+    #[repr(C)]
+    struct AccentPolicy {
+        accent_state: u32,
+        accent_flags: u32,
+        gradient_color: u32,
+        animation_id: u32,
+    }
+
+    extern "system" {
+        /// Fonction de Windows (non documentée, mais stable depuis Vista).
+        fn SetWindowCompositionAttribute(
+            hwnd: *mut std::ffi::c_void,
+            attribute: i32,
+            data: *mut std::ffi::c_void
+        ) -> i32;
+    }
+
+    /// Applique (ou retire) le flou du fond.
+    pub fn apply(hwnd: *mut std::ffi::c_void, enabled: bool) {
+        let mut policy = AccentPolicy {
+            accent_state: if enabled {
+                ACCENT_ENABLE_ACRYLIC_BLURBEHIND
+            } else {
+                ACCENT_ENABLE_DISABLE
+            },
+            accent_flags: 0,
+            gradient_color: 0,
+            animation_id: 0,
+        };
+
+        // SAFETY : le pointeur transmis est celui de `policy`, qui vit
+        // pendant tout l'appel.
+        unsafe {
+            SetWindowCompositionAttribute(
+                hwnd,
+                WCA_ACCENT_POLICY,
+                &mut policy as *mut AccentPolicy as *mut std::ffi::c_void,
+            );
+        }
+    }
+}
+
+/// Rend le fond de la fenêtre transparent et flouté (comme sous Windows).
+///
+/// L'option n'existe que dans l'application de bureau, sous Windows : la
+/// transparence elle-même vient de la feuille de style, le flou de Windows.
+#[tauri::command]
+fn set_window_transparency(window: tauri::WebviewWindow, enabled: bool) {
+    #[cfg(target_os = "windows")]
+    {
+        if let Ok(handle) = window.hwnd() {
+            backdrop::apply(handle.0, enabled);
+        }
+    }
+
+    #[cfg(not(target_os = "windows"))]
+    {
+        let _ = (window, enabled);
+    }
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let mut builder = tauri::Builder::default();
@@ -160,6 +232,8 @@ pub fn run() {
     }
 
     builder
+        // La commande native qui rend le fond de la fenêtre flouté.
+        .invoke_handler(tauri::generate_handler![set_window_transparency])
         // Mémorise la taille et la position de la fenêtre entre deux
         // ouvertures (et le plein écran).
         //

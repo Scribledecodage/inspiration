@@ -1,11 +1,13 @@
 import cn from 'clsx';
 import { useTheme } from '@lib/context/theme-context';
+import { canUseTransparentWindow } from '@lib/desktop';
 import { DEFAULT_FONT, fontOptions, fontStacks } from '@lib/fonts';
 import { InputThemeRadio } from '@components/input/input-theme-radio';
 import { Button } from '@components/ui/button';
 import { InputAccentRadio } from '@components/input/input-accent-radio';
 import { MaterialIcon } from '@components/ui/material-icon';
 import { SiteLogo } from '@components/common/site-logo';
+import { Toggle } from '@components/ui/toggle';
 import type { IconName } from '@components/ui/material-icon';
 import type { Theme, Accent } from '@lib/types/theme';
 
@@ -61,7 +63,14 @@ function SectionHeader({
 }
 
 export function DisplayModal({ closeModal }: DisplayModalProps): JSX.Element {
-  const { font, setTheme, setAccent, setFont } = useTheme();
+  const {
+    font,
+    setTheme,
+    setAccent,
+    setFont,
+    transparentWindow,
+    setTransparentWindow
+  } = useTheme();
 
   const handleReset = (): void => {
     setTheme('auto');
@@ -269,6 +278,28 @@ export function DisplayModal({ closeModal }: DisplayModalProps): JSX.Element {
           })}
         </div>
       </section>
+
+      {/* Fond transparent : uniquement dans l'application de bureau, et
+          seulement sous Windows (c'est Windows qui floue le fond). */}
+      {canUseTransparentWindow() && (
+        <section className='flex flex-col gap-3'>
+          <SectionHeader
+            iconName='visibility'
+            title='Fond transparent'
+            description='La fenêtre laisse voir le bureau, flouté comme la barre des tâches de Windows.'
+          />
+          <div className='flex items-center justify-between gap-4 rounded-xl border border-light-border bg-main-background px-4 py-3 dark:border-dark-border'>
+            <span className='text-sm font-semibold text-light-primary dark:text-dark-primary'>
+              Fond flouté
+            </span>
+            <Toggle
+              checked={transparentWindow}
+              label='Fond transparent de la fenêtre'
+              onChange={setTransparentWindow}
+            />
+          </div>
+        </section>
+      )}
 
       <footer
         className='flex flex-col gap-3 border-t border-light-border pt-5
