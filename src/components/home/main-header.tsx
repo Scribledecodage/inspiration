@@ -41,12 +41,12 @@ export function MainHeader({
     >
       {useActionButton && (
         <Button
-          className='dark-bg-tab group relative p-2.5 hover:bg-light-primary/10 active:bg-light-primary/20
+          className='dark-bg-tab group relative p-3 hover:bg-light-primary/10 active:bg-light-primary/20
                      dark:hover:bg-dark-primary/10 dark:active:bg-dark-primary/20'
           onClick={action}
         >
           <MaterialIcon
-            className='h-5 w-5'
+            className='h-6 w-6'
             iconName={iconName ?? 'arrow_back'}
           />
           <ToolTip tip={tip ?? 'Retour'} />
@@ -54,7 +54,7 @@ export function MainHeader({
       )}
       {beforeTitle}
       {title && (
-        <h2 className='text-[1.375rem] font-bold leading-tight' key={title}>
+        <h2 className='text-[1.75rem] font-bold leading-tight' key={title}>
           {title}
         </h2>
       )}

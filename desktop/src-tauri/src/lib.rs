@@ -22,17 +22,22 @@ const DEFAULT_WIDTH: f64 = 1320.0;
 const DEFAULT_HEIGHT: f64 = 860.0;
 
 /// Remet une taille valable si celle restaurée est aberrante.
-fn ensure_sane_size(window: &tauri::WebviewWindow) {
-    let Ok(size) = window.outer_size() else {
-        return;
-    };
+///
+/// La macro travaille avec les deux types de fenêtre : la fenêtre de
+/// l'application (`WebviewWindow`) et celle que donne l'événement de
+/// redimensionnement (`Window`). Elles ont les mêmes méthodes, mais aucun
+/// trait commun les réunit : d'où la macro.
+macro_rules! ensure_sane_size {
+    ($window:expr) => {{
+        let window = $window;
 
-    if size.width >= MIN_WIDTH && size.height >= MIN_HEIGHT {
-        return;
-    }
-
-    let _ = window.set_size(tauri::LogicalSize::new(DEFAULT_WIDTH, DEFAULT_HEIGHT));
-    let _ = window.center();
+        if let Ok(size) = window.outer_size() {
+            if size.width < MIN_WIDTH || size.height < MIN_HEIGHT {
+                let _ = window.set_size(tauri::LogicalSize::new(DEFAULT_WIDTH, DEFAULT_HEIGHT));
+                let _ = window.center();
+            }
+        }
+    }};
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -76,7 +81,7 @@ pub fn run() {
             // La taille mémorisée est restaurée par le greffon : on vérifie
             // qu'elle est bien utilisable avant d'afficher quoi que ce soit.
             if let Some(window) = app.get_webview_window("main") {
-                ensure_sane_size(&window);
+                ensure_sane_size!(&window);
             }
 
             // Icône dans la zone de notification : l'application reste
@@ -135,7 +140,7 @@ pub fn run() {
             // Une taille aberrante (restaurée ou imposée par le système)
             // est remplacée par une taille utilisable.
             if let WindowEvent::Resized(_) = event {
-                ensure_sane_size(window);
+                ensure_sane_size!(window);
             }
 
             // La croix ferme la fenêtre sans quitter l'application (qui

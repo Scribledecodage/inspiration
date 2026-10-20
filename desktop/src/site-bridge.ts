@@ -144,9 +144,16 @@ function rewriteImages(root: ParentNode): void {
     if (source && source.startsWith('/api/'))
       element.setAttribute('src', absolute(source));
 
+    /* On n'écrit que si la valeur CHANGE. Sinon, l'écriture relançait
+       l'observateur, qui réécrivait à son tour : une boucle sans fin
+       qui gelait l'application dès l'ouverture d'une image en grand. */
     const sourceSet = element.getAttribute('srcset');
 
-    if (sourceSet) element.setAttribute('srcset', rewriteSrcset(sourceSet));
+    if (sourceSet) {
+      const rewritten = rewriteSrcset(sourceSet);
+
+      if (rewritten !== sourceSet) element.setAttribute('srcset', rewritten);
+    }
 
     if (element.getAttribute('loading') === 'lazy')
       element.setAttribute('loading', 'eager');
