@@ -37,7 +37,7 @@ export function ChannelHeader({
       </button>
       <ChannelAvatar name={name} photoURL={photoURL} shape={shape} size={40} />
       <div className='min-w-0'>
-        <p className='truncate text-lg font-bold text-light-primary dark:text-dark-primary'>
+        <p className='truncate text-lg text-light-primary dark:text-dark-primary'>
           {name}
         </p>
         {description && (

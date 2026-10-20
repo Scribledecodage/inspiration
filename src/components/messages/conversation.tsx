@@ -1112,7 +1112,7 @@ export function Conversation({
             <>
               <AiAvatar className='!self-center' size={40} />
               <div className='min-w-0'>
-                <p className='truncate text-lg font-bold text-light-primary dark:text-dark-primary'>
+                <p className='truncate text-lg text-light-primary dark:text-dark-primary'>
                   {AI_BOT_NAME}
                 </p>
                 <p className='truncate text-sm text-light-secondary dark:text-dark-secondary'>
@@ -1192,7 +1192,7 @@ export function Conversation({
               <div className='min-w-0'>
                 {isGroup ? (
                   <>
-                    <p className='truncate text-lg font-bold text-light-primary dark:text-dark-primary'>
+                    <p className='truncate text-lg text-light-primary dark:text-dark-primary'>
                       {group?.name || 'Groupe'}
                     </p>
                     <p className='truncate text-sm text-light-secondary dark:text-dark-secondary'>

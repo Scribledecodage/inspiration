@@ -54,7 +54,7 @@ export function MainHeader({
       )}
       {beforeTitle}
       {title && (
-        <h2 className='text-[1.75rem] font-bold leading-tight' key={title}>
+        <h2 className='text-[1.75rem] leading-tight' key={title}>
           {title}
         </h2>
       )}
