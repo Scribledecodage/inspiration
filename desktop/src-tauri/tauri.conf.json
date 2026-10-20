@@ -40,7 +40,7 @@
   },
   "bundle": {
     "active": true,
-    "targets": ["nsis", "msi"],
+    "targets": ["nsis"],
     "createUpdaterArtifacts": true,
     "publisher": "Inspiration",
     "copyright": "© 2026 Inspiration",

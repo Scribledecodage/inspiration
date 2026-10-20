@@ -78,6 +78,37 @@ type ImagesDataOptions = {
   allowUploadingVideos?: boolean;
 };
 
+/* Les dimensions naturelles des images : elles permettent d'afficher l'aperçu
+   — et la publication — dans le bon format, la place étant réservée avant
+   même le chargement. Sans elles, l'image arrive dans une boîte vide puis
+   fait sauter la mise en page. */
+export async function fillImagesSizes(
+  images: ImagesPreview
+): Promise<ImagesPreview> {
+  return Promise.all(
+    images.map(async (image) => {
+      if (!image.type?.startsWith('image/')) return image;
+
+      try {
+        const response = await fetch(image.src);
+        const blob = await response.blob();
+        const bitmap = await createImageBitmap(blob);
+
+        const sized = { ...image, width: bitmap.width, height: bitmap.height };
+
+        bitmap.close();
+
+        return sized;
+      } catch {
+        /* Image non décodable : on la garde quand même, sans ses
+           dimensions. L'affichage se fera alors dans un cadre de ratio
+           fixe. */
+        return image;
+      }
+    })
+  );
+}
+
 export function getImagesData(
   files: FileList | File[] | null,
   { currentFiles, allowUploadingVideos }: ImagesDataOptions = {}

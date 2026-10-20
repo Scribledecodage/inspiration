@@ -15,7 +15,7 @@ import { getStorageErrorMessage, uploadImages } from '@lib/supabase/storage';
 import { useAuth } from '@lib/context/auth-context';
 import { useWindow } from '@lib/context/window-context';
 import { sleep } from '@lib/utils';
-import { getImagesData } from '@lib/validation';
+import { fillImagesSizes, getImagesData } from '@lib/validation';
 import { UserAvatar } from '@components/user/user-avatar';
 import { MaterialIcon } from '@components/ui/material-icon';
 import { InputForm, fromTop } from './input-form';
@@ -287,6 +287,15 @@ export function Input({
 
     setImagesPreview([...imagesPreview, ...imagesPreviewData]);
     setSelectedImages([...selectedImages, ...selectedImagesData]);
+
+    /* Les dimensions des images sont relevées juste après : l'aperçu peut
+       ainsi être affiché dans le bon format, sans changer de taille quand
+       l'image arrive. */
+    void fillImagesSizes(imagesPreviewData).then((sized) => {
+      setImagesPreview((current) =>
+        current.map((image) => sized.find(({ id }) => id === image.id) ?? image)
+      );
+    });
 
     inputRef.current?.focus({ preventScroll: true });
   };

@@ -34,7 +34,7 @@ export function LinkPreviewCard({
         className
       )}
       exit={{ opacity: 0, y: 8 }}
-      initial={{ opacity: 0, y: 8 }}
+      initial={{ opacity: 1, y: 0 }}
     >
       <a
         className='flex min-w-0 flex-1 flex-col'
@@ -44,7 +44,7 @@ export function LinkPreviewCard({
       >
         {image && (
           <span
-            className='block aspect-[3/1] w-full bg-cover bg-center'
+            className='block aspect-[3/1] w-full bg-cover bg-center bg-light-secondary/30 dark:bg-dark-secondary/30'
             style={{ backgroundImage: `url("${image}")` }}
           />
         )}

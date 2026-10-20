@@ -85,11 +85,17 @@ L'installateur produit se trouve dans :
 
 ```
 src-tauri/target/release/bundle/nsis/Inspiration_1.0.0_x64-setup.exe
-src-tauri/target/release/bundle/msi/Inspiration_1.0.0_x64_en-US.msi
 ```
 
-L'installation est **par utilisateur** (`currentUser`) : pas d-rights
-administrateur, pas de clé de registre système, désinstallation propre.
+C'est un **EXE unique** de quelques mégaoctets : un double-clic, une
+installation, un raccourci dans le menu Démarrer. L'installation est **par
+utilisateur** (`currentUser`) : pas de droits administrateur, pas de clé de
+registre système, désinstallation propre.
+
+Le format MSI n'est pas produit : il demande de télécharger l'outil WiX, ce
+qui.allonge et fragilise la construction. L'EXE NSIS est le format
+utilisé par les applications grand public, et il fonctionne sur toutes les
+versions de Windows 10 et 11.
 
 ---
 
@@ -128,7 +134,6 @@ Le script :
 Il reste à téléverser sur la release GitHub `v1.0.0` :
 
 - `Inspiration_1.0.0_x64-setup.exe` et son `.sig`
-- `Inspiration_1.0.0_x64_en-US.msi` et son `.sig`
 - `latest.json` (à la racine de la release)
 
 L'adresse du manifeste est celle déclarée dans `tauri.conf.json`

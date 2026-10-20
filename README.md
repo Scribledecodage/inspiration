@@ -44,6 +44,30 @@ https://user-images.githubusercontent.com/55032197/201472767-9db0177a-79b5-4913-
 - [React Hot Toast](https://react-hot-toast.com)
 - [Framer Motion](https://framer.com)
 
+## Application de bureau 🖥️
+
+Le dossier [`desktop/`](./desktop) contient une application Windows native,
+construite avec **Tauri 2** (moteur en Rust, WebView2 du système, aucun
+Chromium embarqué).
+
+- Installateur de quelques mégaoctets, installation par utilisateur, sans
+  droits administrateur ;
+- fil en direct, publication, réponse, j'aime, repartage, signets et
+  notifications, sur le même projet Firebase que le site ;
+- barre de notification, fenêtre mémorisée, démarrage avec Windows
+  (option), thème clair ou sombre ;
+- **mises à jour automatiques signées** : l'application refuse tout paquet
+  dont la signature n'est pas valide.
+
+```bash
+cd desktop
+npm install
+npm run tauri:build    # génère l'installateur .exe
+npm run release        # compile, signe et prépare la mise à jour
+```
+
+La documentation complète est dans [`desktop/README.md`](./desktop/README.md).
+
 ## Development 💻
 
 Here are the steps to run the project locally.

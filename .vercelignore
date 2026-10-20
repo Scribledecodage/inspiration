@@ -8,6 +8,10 @@ scripts/
 .freebuff/
 coverage/
 
+# Application de bureau (Tauri/Rust) : elle se construit et se publie
+# separement, elle n'a rien a faire sur l'hebergement du site.
+desktop/
+
 # Dépendances et artefacts de build.
 node_modules/
 **/node_modules/

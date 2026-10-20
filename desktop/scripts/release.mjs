@@ -53,9 +53,20 @@ const config = JSON.parse(
 
 const version = config.version;
 
+/* On appelle le CLI Tauri par son chemin : sur Windows, `npx` est un
+   script .cmd que l'exécution directe ne trouve pas. */
+const tauriCli = join(root, 'node_modules', '@tauri-apps', 'cli', 'tauri.js');
+
+if (!existsSync(tauriCli)) {
+  console.error(
+    '\n[release] CLI Tauri introuvable. Lancez d’abord : npm install\n'
+  );
+  process.exit(1);
+}
+
 console.log(`[release] Construction de la version ${version}…`);
 
-execFileSync('npx', ['tauri', 'build'], {
+execFileSync(process.execPath, [tauriCli, 'build'], {
   cwd: root,
   stdio: 'inherit',
   env: {
@@ -67,19 +78,14 @@ execFileSync('npx', ['tauri', 'build'], {
   }
 });
 
-/* Les artefacts produits : l'installateur NSIS (l'application) et le
-   MSI (pour les déploiements en entreprise). Les noms changent avec la
-   version : on cherche donc les fichiers plutôt que de les deviner. */
+/* Les artefacts produits : l'installateur NSIS (l'application) et son
+   fichier de signature. Les noms changent avec la version : on cherche
+   donc les fichiers plutôt que de les deviner. */
 const artifacts = [
   {
     directory: join(bundleDir, 'nsis'),
     key: 'windows-x86_64',
     match: (name) => name.endsWith('-setup.exe')
-  },
-  {
-    directory: join(bundleDir, 'msi'),
-    key: 'windows-x86_64-msi',
-    match: (name) => name.endsWith('.msi')
   }
 ];
 
@@ -135,7 +141,7 @@ console.log(
   '[release] À TELEVERSER sur la release GitHub « v' +
     version +
     ' » :\n' +
-    '  - les artefacts (…-setup.exe, …-setup.exe.sig, …msi, …msi.sig)\n' +
+    '  - l’installateur (…-setup.exe) et sa signature (…-setup.exe.sig)\n' +
     '  - latest.json (à la racine de la release)\n'
 );
 console.log(

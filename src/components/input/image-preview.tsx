@@ -31,6 +31,16 @@ const variants: MotionProps = {
   transition: { type: 'spring', duration: 0.5 }
 };
 
+/* Dans le fil, la média n'est plus animée : elle grandissait depuis la
+   moitié de sa taille (0.5) à chaque publication qui arrivait au
+   défilement. Sous les yeux du lecteur, l'image semblait donc sauter, et
+   tout ce qui suivait glissait avec elle. */
+const tweetVariants: MotionProps = {
+  initial: { opacity: 1 },
+  animate: { opacity: 1, transition: { duration: 0 } },
+  exit: { opacity: 0, transition: { duration: 0.15 } }
+};
+
 type PostImageBorderRadius = Record<number, string[]>;
 
 const postImageBorderRadius: Readonly<PostImageBorderRadius> = {
@@ -101,20 +111,34 @@ export function ImagePreview({
 
   const singleCompact = singleVideo || singleGif;
 
+  /* Une seule image : elle n'utilise pas la grille (qui impose une hauteur
+     fixe et rogne les images). Elle est placée dans un cadre dont le ratio
+     est celui de l'image quand on le connaît : la place est donc réservée
+     AVANT le chargement, et rien ne bouge quand l'image arrive. */
+  const singleImage = previewCount === 1 && !singleCompact;
+
+  const singleImageRatio =
+    singleImage && imagesPreview[0]?.width && imagesPreview[0]?.height
+      ? `${imagesPreview[0].width} / ${imagesPreview[0].height}`
+      : undefined;
+
   return (
     <div
       className={cn(
         singleCompact
           ? 'flex justify-center'
-          : cn(
-              'grid grid-cols-2 grid-rows-2 rounded-2xl',
-              viewTweet
-                ? 'h-[35vw] xs:h-[30vw] md:h-[220px]'
-                : 'h-[30vw] xs:h-[25vw] md:h-[200px]',
-              isTweet ? 'gap-0.5' : 'gap-3'
-            ),
+          : singleImage
+            ? 'relative aspect-[4/3] w-full max-h-[420px] overflow-hidden rounded-2xl bg-light-secondary/30 dark:bg-dark-secondary/30 md:aspect-[16/10]'
+            : cn(
+                'grid grid-cols-2 grid-rows-2 rounded-2xl',
+                viewTweet
+                  ? 'h-[35vw] xs:h-[30vw] md:h-[220px]'
+                  : 'h-[30vw] xs:h-[25vw] md:h-[200px]',
+                isTweet ? 'gap-0.5' : 'gap-3'
+              ),
         isTweet && 'mt-2'
       )}
+      style={singleImageRatio ? { aspectRatio: singleImageRatio } : undefined}
     >
       <Modal
         modalClassName={cn(
@@ -144,13 +168,15 @@ export function ImagePreview({
                 isTweet
                   ? postImageBorderRadius[previewCount][index]
                   : 'rounded-2xl',
-                {
-                  'col-span-2 row-span-2': previewCount === 1,
-                  'row-span-2':
-                    previewCount === 2 || (index === 0 && previewCount === 3)
-                }
+                singleImage
+                  ? 'h-full w-full'
+                  : {
+                      'col-span-2 row-span-2': previewCount === 1,
+                      'row-span-2':
+                        previewCount === 2 || (index === 0 && previewCount === 3)
+                    }
               )}
-              {...variants}
+              {...(isTweet ? tweetVariants : variants)}
               layout={!isTweet ? true : false}
               key={`${id || src}-${index}`}
             >

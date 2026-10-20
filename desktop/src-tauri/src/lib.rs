@@ -7,7 +7,7 @@
 
 use tauri::menu::{Menu, MenuItem};
 use tauri::tray::TrayIconBuilder;
-use tauri::{Manager, WindowEvent};
+use tauri::{Emitter, Manager, WindowEvent};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -51,8 +51,9 @@ pub fn run() {
 
             let menu = Menu::with_items(app, &[&open, &update, &quit])?;
 
-            let mut tray = TrayIconBuilder::with_id("main")
+            let _tray = TrayIconBuilder::with_id("main")
                 .icon(app.default_window_icon().unwrap().clone())
+                .icon_as_template(true)
                 .tooltip("Inspiration")
                 .menu(&menu)
                 .show_menu_on_left_click(false)
@@ -70,7 +71,7 @@ pub fn run() {
                         if let Some(window) = app.get_webview_window("main") {
                             let _ = window.show();
                             let _ = window.set_focus();
-                            let _ = window.emit_to("main", "menu://update");
+                            let _ = window.emit_to("main", "menu://update", ());
                         }
                     }
                     "quit" => app.exit(0),
@@ -92,11 +93,6 @@ pub fn run() {
                     }
                 })
                 .build(app)?;
-
-            // Masquer dans la barre des tâches quand la fenêtre est
-            // fermée : l'application continue de recevoir les
-            // notifications.
-            tray.set_icon_as_template(true);
 
             Ok(())
         })

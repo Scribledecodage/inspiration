@@ -181,6 +181,30 @@ export async function registerTweetView(tweetId: string): Promise<void> {
   }
 }
 
+/* Les dimensions naturelles de l'image sont enregistrées avec elle : elles
+   permettent de réserver la place exacte de l'image AVANT son chargement.
+   Sans elles, la publication change de hauteur quand l'image arrive, et le
+   fil bouge sous les yeux du lecteur à chaque page chargée. */
+async function getImageSize(
+  file: File
+): Promise<{ width?: number; height?: number }> {
+  if (!file.type?.startsWith('image/')) return {};
+
+  try {
+    const bitmap = await createImageBitmap(file);
+
+    const size = { width: bitmap.width, height: bitmap.height };
+
+    bitmap.close();
+
+    return size;
+  } catch {
+    /* Format non décodable (SVG, HEIC…) : on garde l'image, sans ses
+       dimensions. L'affichage se fera alors dans un cadre de ratio fixe. */
+    return {};
+  }
+}
+
 export async function uploadImages(
   userId: string,
   files: FilesWithId
@@ -197,7 +221,9 @@ export async function uploadImages(
 
       const src = await getDownloadURL(storageRef);
 
-      return { id, src, alt, type };
+      const size = await getImageSize(file);
+
+      return { id, src, alt, type, ...size };
     })
   );
 

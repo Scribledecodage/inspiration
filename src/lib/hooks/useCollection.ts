@@ -8,6 +8,11 @@ import type { User } from '@lib/types/user';
 type UseCollection<T> = {
   data: T[] | null;
   loading: boolean;
+  /* true quand le dernier instantané vient du cache local de Firestore
+     (donc pas encore de la réponse du serveur). Un instantané du cache est
+     souvent incomplet : il ne contient que les documents déjà connus. On ne
+     peut donc pas s'en servir pour décider que la liste est terminée. */
+  fromCache: boolean;
 };
 
 type DataWithRef<T> = (T & { createdBy: string })[];
@@ -43,6 +48,7 @@ export function useCollection<T>(
 ): UseCollection<T> | DataWithUser<T> {
   const [data, setData] = useState<T[] | null>(null);
   const [loading, setLoading] = useState(true);
+  const [fromCache, setFromCache] = useState(true);
 
   /* La liste a-t-elle déjà été remplie ? Un instantané vide ne vide alors
      plus la liste : c'est ce qui se passe quand la requête change (la
@@ -51,6 +57,10 @@ export function useCollection<T>(
      contenu se réduit, le navigateur revient en haut, et la liste revient
      en fondu — un écran blanc à chaque défilement. */
   const filled = useRef(false);
+
+  /* Numéro du dernier instantané reçu : sert à ne publier que le plus
+     récent (les profils étant chargés de façon asynchrone). */
+  const latestSnapshot = useRef(0);
 
   const cachedQuery = useCacheQuery(query);
 
@@ -67,7 +77,7 @@ export function useCollection<T>(
        revient en haut) et les publications réapparaissent en fondu — un
        écran blanc à chaque changement. */
 
-    const publish = (currentData: DataWithRef<T>): void => {
+    const publish = (currentData: DataWithRef<T>, isFromCache: boolean): void => {
       filled.current = true;
 
       setData(
@@ -76,13 +86,25 @@ export function useCollection<T>(
           user: getCachedUser(item.createdBy) as User
         }))
       );
+      setFromCache(isFromCache);
       setLoading(false);
     };
 
-    const populateUser = async (currentData: DataWithRef<T>): Promise<void> => {
+    /* La lecture des profils est asynchrone : deux instantanés peuvent donc
+       être publiés dans le désordre (le plus court, celui du cache local,
+       après le plus long, celui du serveur). La liste rétrécissait alors
+       d'un coup, et le fil sautait sous les yeux du lecteur. On n'ignore
+       donc qu'un instantané plus ancien que le dernier reçu. */
+    const populateUser = async (
+      currentData: DataWithRef<T>,
+      isFromCache: boolean,
+      snapshotId: number
+    ): Promise<void> => {
       await loadUsers(currentData.map((item) => item.createdBy));
 
-      publish(currentData);
+      if (snapshotId !== latestSnapshot.current) return;
+
+      publish(currentData, isFromCache);
     };
 
     const unsubscribe = onSnapshot(
@@ -92,22 +114,29 @@ export function useCollection<T>(
           doc.data({ serverTimestamps: 'estimate' })
         );
 
+        const isFromCache = snapshot.metadata.fromCache;
+
+        const snapshotId = ++latestSnapshot.current;
+
         if (allowNull && !data.length) {
           /* Instantané vide : on ne vide la liste que si elle ne l'a jamais
              été. Sinon, on attend l'instantané suivant (le cache local n'a
              pas encore répondu). */
           if (!filled.current) {
             setData(null);
+            setFromCache(isFromCache);
             setLoading(false);
           }
 
           return;
         }
 
-        if (includeUser) void populateUser(data as DataWithRef<T>);
+        if (includeUser)
+          void populateUser(data as DataWithRef<T>, isFromCache, snapshotId);
         else {
           filled.current = true;
           setData(data);
+          setFromCache(isFromCache);
           setLoading(false);
         }
       },
@@ -125,5 +154,5 @@ export function useCollection<T>(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cachedQuery, disabled]);
 
-  return { data, loading };
+  return { data, loading, fromCache };
 }

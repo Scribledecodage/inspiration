@@ -33,17 +33,19 @@ export type TweetProps = TweetData & {
   parentTweet?: boolean;
 };
 
-/* L'entrée d'une publication glisse légèrement, mais ne part pas d'une
-   opacité nulle : si la liste est remontée (nouvel élément ajouté au
-   milieu, rechargement), le fil ne doit jamais apparaître délavé. */
+/* Une publication qui arrive au défilement apparaît directement à sa place.
+   Avant, chaque nouvelle publication remontait de 8 px en 220 ms : tout ce
+   qui se trouvait en dessous glissait avec elle, et le fil semblait
+   « bouger » à chaque page chargée. La publication ne part plus non plus
+   d'une opacité nulle, pour que le fil n'apparaisse jamais délavé. */
 export const variants: Variants = {
-  initial: { opacity: 1, y: 8 },
+  initial: { opacity: 1, y: 0 },
   animate: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.22, ease: 'easeOut' }
+    transition: { duration: 0, ease: 'easeOut' }
   },
-  exit: { opacity: 0, y: -6, transition: { duration: 0.15 } }
+  exit: { opacity: 0, transition: { duration: 0.15 } }
 };
 
 export const Tweet = forwardRef<HTMLElement, TweetProps>(function Tweet(
