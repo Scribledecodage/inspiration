@@ -23,7 +23,10 @@
       "identifier": "http:default",
       "allow": [
         {
-          "url": "https://inspiration-reseau-social-1ymdc0foy-clipdescripts-projects.vercel.app/*"
+          "url": "https://inspiration-reseau-social.vercel.app/*"
+        },
+        {
+          "url": "https://inspiration-reseau-social-*.vercel.app/*"
         }
       ]
     },
